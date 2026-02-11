@@ -1,0 +1,24 @@
+1.)Shared Trello cards are:
+    -Choose backend stack and initialize project
+    -Create base server and one test route
+    -Write setup guide for running backend
+
+2.) At this point, I don't think we need to setup any additional software.
+Vscode and Mysql should be enough for now.
+
+3.)Choose backend stack and initialize project
+   - Create server.js 
+   -create code to connect to frontend webpage 
+
+    Create base server and one test route
+    -Verify connection to the database 
+    -Create test user and information
+    -verify test user
+    -verify connection to the database
+
+    Write setup guide for running backend
+    -Setup guide would include code from the previous cards with 
+    descriptive comments so that we can trouble shoot if needed.
+
+4.)Difficulty connecting to the frontend webpage or the database would block us from moving forward
+I would need them to set up their part of the frontend and database
