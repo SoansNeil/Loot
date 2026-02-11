@@ -1,0 +1,44 @@
+Trello Cards: 
+- Convert ERD into Schema
+- Create tables and insert test data
+- Write core queries for feature 1
+
+STEP 1:
+Create a Database by exporting the Relation Schema details to generate schemas and transfering 
+it onto MySQL
+
+STEP 2: 
+Establish main tables in the database (SubscriberAccount) (External Accounts). Ensuring
+that main primary keys and foreign keys are set along with their correct data types 
+(INT), (VARCHAR), (CHAR), etc.
+
+STEP 3: 
+INSERT mock data to test that tables functioning correctly. This would be done 
+by inserting the data manually to check that the there are no errors. 
+
+STEP 4: 
+Create the first set of queries that would be used throughout the course of the database.
+Queries that identify simple data in the DB like Subscriber count, ORDER subscriber 
+by name, track expense count per user, etc
+
+EX:
+SELECT *
+FROM SubscriberAccount AS S
+ORDER BY LName
+
+STEP 5:
+Link Database to the LOOT server. From team mates I'll need the server code to link
+the DB. Which would include CreateUser, LOGIN code, and adding External Account .
+
+What DONE looks like:
+Schemas created for Subscriber Account and External Account with mock data to 
+ensure the DB functions correctly. 
+
+Questions & Risks:
+What permissions do we need to get access to bank accounts to link 
+the external account part of the DB to LOOT. 
+
+
+
+
+
