@@ -4,7 +4,7 @@
     -Write setup guide for running backend
 
 2.) At this point, I don't think we need to setup any additional software.
-Vscode and Mysql should be enough for now.
+VScode and Mysql should be enough for now.
 
 3.)Choose backend stack and initialize project
    - Create server.js 
