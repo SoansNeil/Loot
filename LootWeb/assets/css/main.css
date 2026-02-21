@@ -2249,6 +2249,139 @@
 
 /* Box */
 
+	/* sign up/login box */
+	.signUp-box {
+		width: 90%;
+		max-width: 750px;
+		margin: 60px auto;
+		background-color: white;
+		border-radius: 8px;
+		padding: 40px
+	}
+
+	.signUp-box .input-grid{
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 16px;
+		margin-top: 20px;
+	}
+
+	.signUp-box .input-field label {
+		display: block;
+		margin-bottom: 6px;
+		font-size: 18px;
+	}
+
+	.signUp-box .input-field input {
+		width: 100%;
+		padding: 7px;
+		border-radius: 6px;
+		outline: none;
+	}
+
+	.signUp-box .full-field {
+		grid-column: 1 / -1;
+	}
+
+	.login-box {
+		width: 360px;
+		height: 460px;
+		margin: auto;
+		border-radius: 3px;
+		background-color: white;
+		
+	}
+
+	.signUp-box h2{
+		text-align: center;
+		padding-top: 15px;
+	}
+
+	.login-box h2{
+		text-align: center;
+		padding-top: 15px;
+	}
+
+	.signUp-box form{
+		
+		margin-left: 20px;
+	}
+
+	.login-box form{
+		width: 300px;
+		margin-left: 20px;
+	}
+
+	.signUp-box form label{
+		display: flex;
+		margin-top: 20px;
+		font-size: 18px;
+	}
+
+	.login-box form label{
+		display: flex;
+		margin-top: 20px;
+		font-size: 18px;
+	}
+
+	.signUp-box form input{
+		
+		padding: 7px;
+		border-radius: 6px;
+		outline: none;
+	}
+
+	.login-box form input{
+		width: 100%;
+		padding: 7px;
+		border-radius: 6px;
+		outline: none;
+	}
+
+	.login-box .login-btn {
+		width: 320px;
+		height: 35px;
+		margin-top: 20px;
+		border: none;
+		background-color: #75975e;
+		color: white;
+		font-size: 18px;
+		cursor: pointer
+	}
+
+	.login-box .login-btn:hover {
+		opacity: 0.9;
+	}
+
+	.signUp-box .signUp-btn {
+		width: 100%;
+		height: 35px;
+		margin-top: 20px;
+		border: none;
+		background-color: #75975e;
+		color: white;
+		font-size: 18px;
+		cursor: pointer
+	}
+
+	.login-box p{
+		text-align: center;
+		padding-top: 3px;
+		font-size: 15px;
+	}
+
+	.signUp-box p{
+		text-align: center;
+		padding-top: 3px;
+		font-size: 15px;
+	}
+
+	.signUp-box .signUp-btn:hover {
+		opacity: 0.9;
+	}
+
+	/* end sign up/login box */
+
 	.box {
 		background: #fff;
 		border-radius: 6px;
