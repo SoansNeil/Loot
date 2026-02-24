@@ -15,6 +15,7 @@ const db = mysql.createConnection({
   password: 'Maria22', // use your MySQL password if needed
   database: 'LootDB'
 });
+
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
 //Route to add new users to database
@@ -58,6 +59,7 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Webpage not found');
