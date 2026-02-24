@@ -77,7 +77,20 @@
             <p>By clicking the sign up button, you agree to our <br>
                 Terms of Service and Privacy Policy.</p>
         </div>
-            
+            <script>
+        const createUser = document.getElementById('createUser');
+        createUser.addEventListener('submit', async(e)=>{
+            e.preventDefault();
+            const formData = new FormData(createUser);
+            const res = await fetch('/create-user', 
+            {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            });
+            const text = await res.text();
+            alert(text);
+        })
+    </script>
             
         </section>
 

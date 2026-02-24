@@ -38,8 +38,17 @@ app.post('/newUser', (req, res) => {
       res.status(500).send('Error inserting user');
     }
     res.send('Thank you for joining us!');
-  });
-});
+  }
+);
+//backend attempt
+  const test = 'INSERT INTO SUBSCRIBER_ACCOUNT (firstName, lastName, username, password, birthday, email, phoneNumber) VALUES (Maria, Avilez,avilez@mymail.edu,Maria22,Maria2000,8001002000,06/22/2000)';
+     db.query(test, [firstName, lastName, username, hashPassword, birthday, email, phoneNumber], (err, result) => {
+    if (err) {
+      console.error('Error inserting user:', err);
+      res.status(500).send('Error inserting user');
+    }
+    res.send('Thank you for joining us!');}
+)});
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
   const bankName = req.body.bank;
