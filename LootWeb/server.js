@@ -58,6 +58,7 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+//Create Route for employee login and employee dashboard (can be separate routes)
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Not Found');
