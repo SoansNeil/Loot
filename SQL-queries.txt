@@ -1,0 +1,30 @@
+Total number of banks in the database per Bank corp.:
+SELECT Bank, COUNT(bank) AS NumOfBanks
+FROM external_account
+GROUP BY bank
+ORDER BY numOfBanks DESC;
+
+Total number of external accounts per subscriber:
+SELECT s.SubscriberID, s.Username, s.FName,s.LName,COUNT(e.bank) AS TotalOfExternalAccount
+FROM subscriber_account AS S, external_account AS E
+WHERE s.subscriberid = e.subscriberid
+GROUP BY s.subscriberid
+Order by TotalOfExternalAccount DESC;
+
+Subscriber deleting their account:
+DELETE FROM subscriber_account
+WHERE Username = ? AND Password = ? AND Email = ?
+
+Adding an new external account to your LOOT account:
+INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, CurrentBalance, Currency, SyncStatus, SubscriberID) 
+VALUES (? , ?, ?, ?, ?, ?);
+
+Updates external account balance for a specific bank after sync:
+UPDATE External_Account 
+SET CurrectBalance = ?, SyncStatus = ?
+WHERE Bank = ? AND AccountType = ? AND Subscriberid = ?;
+
+Shows a subscriber all current external accounts on their LOOT account:
+SELECT *
+From external_account 
+Where subscriberid = ?;
