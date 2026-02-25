@@ -78,11 +78,11 @@
                 Terms of Service and Privacy Policy.</p>
         </div>
             <script>
-        const createUser = document.getElementById('createUser');
+        const createUser = document.getElementById('createUser-form');
         createUser.addEventListener('submit', async(e)=>{
             e.preventDefault();
             const formData = new FormData(createUser);
-            const res = await fetch('/create-user', 
+            const res = await fetch('/createUser-form', 
             {
                 method: 'POST',
                 body: new URLSearchParams(formData)
@@ -104,5 +104,7 @@
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
+
+    
 </body>
 </html>

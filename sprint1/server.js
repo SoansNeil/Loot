@@ -19,7 +19,7 @@ const db = mysql.createConnection({
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
 //Route to add new users to database
-app.post('/newUser', (req, res) => {
+app.post('/createUser-form', (req, res) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const username = req.body.username;
@@ -31,7 +31,7 @@ app.post('/newUser', (req, res) => {
   .update(req.body.password)
   .digest('hex');
   
-  const sql = 'INSERT INTO SUBSCRIBER_ACCOUNT (firstName, lastName, username, password, birthday, email, phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const sql = 'INSERT INTO SUBSCRIBER_ACCOUNT (FName, LName, Username, Password, Birthday, Email, PhoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?)';
   db.query(sql, [firstName, lastName, username, hashPassword, birthday, email, phoneNumber], (err, result) => {
     if (err) {
       console.error('Error inserting user:', err);
@@ -39,16 +39,8 @@ app.post('/newUser', (req, res) => {
     }
     res.send('Thank you for joining us!');
   }
-);
-//backend attempt
-  const test = 'INSERT INTO SUBSCRIBER_ACCOUNT (firstName, lastName, username, password, birthday, email, phoneNumber) VALUES (Maria, Avilez,avilez@mymail.edu,Maria22,Maria2000,8001002000,06/22/2000)';
-     db.query(test, [firstName, lastName, username, hashPassword, birthday, email, phoneNumber], (err, result) => {
-    if (err) {
-      console.error('Error inserting user:', err);
-      res.status(500).send('Error inserting user');
-    }
-    res.send('Thank you for joining us!');}
-)});
+);});
+
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
   const bankName = req.body.bank;

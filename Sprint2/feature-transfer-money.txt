@@ -1,0 +1,23 @@
+1.) Feature Name- schedule transfers from account to account(personal acc to another acc)
+2.)User story- As a user, I want to be able to move money from one account to another account so that money is easily available. 
+3.) This adds the value of being confident in being to controll and view where your money is and where it's going.
+4.) It touches 
+UI: I'd have to add an interface feature for it
+Backend:Add scripts to change the database indirectly
+Database : make indirect changes.
+
+
+1.) This solves the problem of allowing the money to be controllable and easily exchanged.
+2.)User should see it as a visual feature on their page. 
+Clicking it would take the user to their external accounts,
+My feature would allow them to transfer money to and from acc. 
+3.)- Check database with external accounts 
+-create UI feature 
+-connect feature on to the server
+-connect feature from server to database
+-test and make sure everything works
+
+4.) Besides what is mentioned above, API does not need to be changed for my feature.
+
+5.) For this feature, the database would stay the same I would just need to make sure that the amounts are being changed accurately.
+Might need to create a new schema to track these changes.
