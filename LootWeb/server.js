@@ -30,7 +30,7 @@ app.post('/createUser-form', (req, res) => {
   .update(req.body.password)
   .digest('hex');
   
-  const sql = 'INSERT INTO SUBSCRIBER_ACCOUNT (firstName, lastName, username, password, birthday, email, phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const sql = 'INSERT INTO SUBSCRIBER_ACCOUNT (FName, LName, Username, Password, Birthday, Email, PhoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?)';
   db.query(sql, [firstName, lastName, username, hashPassword, birthday, email, phoneNumber], (err, result) => {
     if (err) {
       console.error('Error inserting user:', err);
