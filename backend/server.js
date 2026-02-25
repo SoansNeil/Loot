@@ -13,7 +13,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'neilsoans', // use your MySQL password if needed
-  database: 'userDB'
+  database: 'LootDB'
 });
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
