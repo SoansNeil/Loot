@@ -18,7 +18,7 @@ const db = mysql.createConnection({
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
 //Route to add new users to database
-app.post('/newUser', (req, res) => {
+app.post('/createUser-form', (req, res) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const username = req.body.username;
