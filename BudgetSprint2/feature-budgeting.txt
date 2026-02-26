@@ -1,0 +1,66 @@
+Your Feature Document Must Include
+
+1. Feature Name: Budgeting section
+2. User Story: User is now able to create a budgeting template to help them stay on track and hold them
+accountable for overspeeding in certain areas.
+
+Format:
+3. Why this adds value to the project
+this adds value to the project because we have yet to implement a budgeting feature for our application LOOT. And what is 
+a tracking expesne app without a budgeting section. This would help users stay up-to-date on the things they spend and setting 
+restrictions on what they spend on.
+
+4. What layers it touches:
+• UI: create a new setup page for budgeting that shows cases the users budgeting for certain categories and their ammount
+• Backend: create routes to the server and db to update and modify tables if need once budgeting is introduced
+• Database: create expense and budgeting tables on the DB 
+• External API if applicable: none
+
+Feature: Budgeting section
+
+1. Problem Statement
+What problem does this solve?
+This implements a budgeting section to our app to have users focused on meeting a monthly goal. They will be able 
+to setup budgets for different categories and sections. A problem this solves would be for users staying on track of their expense, alerting them if they go over their 
+set budget.
+
+2. User Flow
+Step by step from start to finish
+- user accesses budeting via budgeting webpage
+- clicks on (add budget) button to add new  button connecting their account to a new budgeting sheet
+- from their the add categories and amounts to each one to keep track of that expense
+- they are able to add multiple different budgeting "templates" 
+
+3. Technical Plan
+Frontend changes:
+Create a new page for budgeting
+create add new budget button
+images/scale that shows the users budgeting 
+
+Backend routes: 
+route to the database connects and updates the budgeting table for each user. 
+This route will also include queries to create a new budgeting description or alter. 
+route to the databqse that updates the amount per budgeting section. 
+route to retireve data
+
+Database changes
+Files expected to be created or modified
+create an expenses table 
+create budgeting table
+add mock data to test 
+
+4. API Changes: none
+New routes: none
+Modified routes: none
+Request and response structure: none
+
+5. Database Changes
+New tables: expense and budgeting
+Schema updates: update budgeting shcema when user adds a new plan to their budget with the amount 
+
+6. Acceptance Criteria
+user is able to submit form 
+data changes are saved in the database
+throws error if something is off
+updates
+test features once UI, DB, and backend are complete 
