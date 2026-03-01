@@ -38,18 +38,19 @@ CREATE TABLE EXTERNAL_ACCOUNT
   CHECK (AccountType in ("Checking","Credit Card"))
   
 );
-CREATE TABLE `Employee` (
-  `EmployeeID` int NOT NULL AUTO_INCREMENT,
-  `eFName` varchar(50) NOT NULL,
-  `eLName` varchar(50) NOT NULL,
-  `eUsername` varchar(30) NOT NULL,
-  `ePassword` varchar(255) NOT NULL,
-  `eBirthday` date NOT NULL,
-  `employeeEmail` varchar(100) NOT NULL,
-  `ePhone` varchar(25) DEFAULT NULL,
-  PRIMARY KEY (`EmployeeID`),
-  UNIQUE KEY `EmployeeID` (`EmployeeID`),
-  UNIQUE KEY `Username` (`eUsername`),
-  UNIQUE KEY `Email` (`employeeEmail`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE Employee (
+  EmployeeID int NOT NULL AUTO_INCREMENT,
+  eFName varchar(50) NOT NULL,
+  eLName varchar(50) NOT NULL,
+  eUsername varchar(30) NOT NULL,
+  ePassword varchar(255) NOT NULL,
+  eBirthday date NOT NULL,
+  employeeEmail varchar(100) NOT NULL,
+  ePhone varchar(25) DEFAULT NULL,
+  PRIMARY KEY (EmployeeID),
+  UNIQUE (EmployeeID),
+  UNIQUE (eUsername),
+  UNIQUE (employeeEmail)
+);
 
