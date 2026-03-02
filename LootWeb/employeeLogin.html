@@ -53,17 +53,25 @@
     <!-- Scripts -->
     <script>
         const employeeLogin = document.getElementById('employeeLogin-form');
+
         employeeLogin.addEventListener('submit', async(e)=>{
-            e.preventDefault();
-            const formData = new FormData(employeeLogin);
-            const res = await fetch('/employeeLogin',
-                {
-                    method:'POST',
-                    body: new URLSearchParams(formData)
-                });
-            const text = await res.text();
-            alert(text);
-        })
+        e.preventDefault();
+        const formData = new FormData(employeeLogin);
+
+        const res = await fetch('/employeeLogin', {
+            method:'POST',
+            body: new URLSearchParams(formData)
+        });
+
+        const text = await res.text();
+
+        if(text === "Success"){
+        window.location.href = '/employeeDashboard.html';
+        } 
+        else {
+        alert(text);
+        }
+});
     </script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
