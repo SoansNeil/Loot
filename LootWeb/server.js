@@ -59,6 +59,28 @@ app.get('/employeeDashboard', (req, res) => {
 
   res.sendFile(__dirname + '/employeeDashboard.html');
 });
+//create new employees
+app.post('/employeeCreation', (req,res) =>{
+  const eFName = req.body.eFName;
+  const eLName = req.body.eLName;
+  const eUsername = req.body.eUsername;
+  const eBirthday = req.body.eBirthday;
+  const employeeEmail = req.body.employeeEmail;
+  const ePhone = req.body.ePhone;
+  const hashPassword = crypto
+  .createHash('sha256')
+  .update(req.body.ePassword)
+  .digest('hex')
+
+  const sql = 'INSERT INTO Employee (eFName, eLName, eUsername, ePassword, eBirthday, employeeEmail, ePhone) VALUES(?,?,?,?,?,?,?)';
+  db.query(sql, [eFName, eLName, eUsername, hashPassword, eBirthday, employeeEmail, ePhone], (err,result) => {
+    if (err){
+      console.error('Error Creating Employee', err);
+      res.status(500).send('Error Creating Employee');
+    }
+    res.send('Employee successfully created');
+  });
+});
 //Route to add new users to database
 app.post('/createUser-form', (req, res) => {
   const firstName = req.body.firstName;
