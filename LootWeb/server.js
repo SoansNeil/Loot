@@ -1,4 +1,5 @@
-//NEED FORM FROM HTML FILES TO TEST CONNECTIONS
+require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
 const mysql = require('mysql2');
@@ -14,14 +15,35 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-
+console.log(process.env.USER)
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'neilsoans', // use your MySQL password if needed
-  database: 'LootDB'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD, // use your MySQL password if needed
+  database: process.env.DB_DATABASE
 });
 const crypto = require('crypto'); // For hashing passwords and sensitive data
+//user Login using tokens
+app.post('/userLogin', (req,res) =>{
+  const username = req.body.username;
+  const hashPassword = crypto
+    .createHash('sha256')
+    .update(req.body.password)
+    .digest('hex')
+
+  const sql = 'SELECT * FROM SUBSCRIBER_ACCOUNT WHERE Username = ?';
+  db.query(sql, [username], (err,result) =>{
+    if(err) return res.status(500).send("Server Error");
+    if(result.length === 0){
+      return res.status(401).send("User Not Found");
+    }
+    const user = result[0];
+    if(user.Password !== hashPassword){
+      return res.status(401).send("Incorrect Password");
+    }
+    res.send("Welcome back " + user.FName)
+  })
+})
 //employeeLogin
 app.post('/employeeLogin', (req,res) =>{
   console.log("Employee login POST hit:", req.body);
