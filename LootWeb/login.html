@@ -71,8 +71,14 @@
             body: new URLSearchParams(formData)
         });
 
-        const text = await res.text();
-        alert(text);
+        const data = await res.json(); // Parse JSON response
+
+        if (data.token) {
+            localStorage.setItem('token', data.token); // Store token
+            window.location.href = '/userDashboard'; // Redirect to protected route
+        } else {
+            alert(data.message || 'Login failed'); // Handle error
+        }
     });
     </script>
 </body>

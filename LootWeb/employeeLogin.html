@@ -54,24 +54,29 @@
     <script>
         const employeeLogin = document.getElementById('employeeLogin-form');
 
-        employeeLogin.addEventListener('submit', async(e)=>{
+    employeeLogin.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(employeeLogin);
 
-        const res = await fetch('/employeeLogin', {
-            method:'POST',
-            body: new URLSearchParams(formData)
-        });
+        try {
+            const res = await fetch('/employeeLogin', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            });
 
-        const text = await res.text();
+            const data = await res.json(); // Parse JSON response
 
-        if(text === "Success"){
-        window.location.href = '/employeeDashboard.html';
-        } 
-        else {
-        alert(text);
+            if (data.token) {
+                localStorage.setItem('token', data.token); // Store token
+                window.location.href = '/employeeDashboard'; // Redirect to protected route
+            } else {
+                alert(data.message || 'Login failed'); // Handle error (e.g., invalid credentials)
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('An error occurred. Please try again.');
         }
-});
+    });
     </script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>

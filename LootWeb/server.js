@@ -1,21 +1,18 @@
 require('dotenv').config();
 
 const express = require('express');
-const session = require('express-session');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname));
-app.use(session({
-  secret: 'loot-secret-key',
-  resave: false,
-  saveUninitialized: false
-}));
-console.log(process.env.USER)
+app.use(cookieParser());
+
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -23,6 +20,7 @@ const db = mysql.createConnection({
   database: process.env.DB_DATABASE
 });
 const crypto = require('crypto'); // For hashing passwords and sensitive data
+
 //user Login using tokens
 app.post('/userLogin', (req,res) =>{
   const username = req.body.username;
@@ -41,12 +39,15 @@ app.post('/userLogin', (req,res) =>{
     if(user.Password !== hashPassword){
       return res.status(401).send("Incorrect Password");
     }
-    res.send("Welcome back " + user.FName)
+    const token = jwt.sign({id:user.SubscriberID, username:user.Username, role:'user'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
+    res.cookie('token', token, { httpOnly: true, secure: false }); // Add this (set secure: true in production)
+    res.json({message: "Welcome back " + user.FName, token: token});
   })
 })
+
+
 //employeeLogin
 app.post('/employeeLogin', (req,res) =>{
-  console.log("Employee login POST hit:", req.body);
   const username = req.body.eUsername;
   const hashPassword = crypto
     .createHash('sha256')
@@ -63,24 +64,24 @@ app.post('/employeeLogin', (req,res) =>{
     if(employee.ePassword !== hashPassword) 
       return res.status(401).send("Incorrect Password");
 
-    req.session.user = {
-      id: employee.EmployeeID,
-      role: "employee"
-    };
-    res.send("Success");
-  });
+    const token = jwt.sign({id:employee.EmployeeID, username:employee.eUsername, role:'employee'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
+    res.cookie('token', token, { httpOnly: true, secure: false }); // Add this
+    res.json({message: "Success", token: token});
+  }); 
 });
-app.get('/employeeDashboard', (req, res) => {
-  if (!req.session.user) {
-    return res.send("Please login first.");
+app.get('/employeeDashboard', authenticateToken, (req, res) => {
+  if (req.user.role !== 'employee') {
+    return res.status(403).send('Access denied.');
   }
-
-  if (req.session.user.role !== "employee") {
-    return res.send("Access denied. Employees only.");
-  }
-
   res.sendFile(__dirname + '/employeeDashboard.html');
 });
+app.get('/userDashboard', authenticateToken, (req, res) => {
+  if (req.user.role !== 'user') {
+    return res.status(403).send('Access denied.');
+  }
+  res.sendFile(__dirname + '/userDashboard.html'); // Create this file if needed
+});
+
 //create new employees
 app.post('/employeeCreation', (req,res) =>{
   const eFName = req.body.eFName;
@@ -103,6 +104,8 @@ app.post('/employeeCreation', (req,res) =>{
     res.send('Employee successfully created');
   });
 });
+
+
 //Route to add new users to database
 app.post('/createUser-form', (req, res) => {
   const firstName = req.body.firstName;
@@ -125,6 +128,8 @@ app.post('/createUser-form', (req, res) => {
     res.send('Thank you for joining us!');
   });
 });
+
+
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
   const bankName = req.body.bank;
@@ -144,6 +149,8 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+
+
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Not Found');
@@ -153,12 +160,12 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 //functions
-function authorize(allowedRoles){
-  return (req,res,next) => {
-    if(!req.session.user) return res.status(401).send("Please Log In");
-    if(!allowedRoles.includes(req.session.user.role)){
-      return res.status(401).send("Access Denied");
-    }
+function authenticateToken(req, res, next) {
+  const token = req.cookies.token || (req.headers['authorization'] && req.headers['authorization'].split(' ')[1]);
+  if (!token) return res.status(401).send('Access Token Required');
+  jwt.verify(token, process.env.JWT_TOKEN, (err, user) => {
+    if (err) return res.status(403).send('Invalid Token');
+    req.user = user;
     next();
-  };
+  });
 }
