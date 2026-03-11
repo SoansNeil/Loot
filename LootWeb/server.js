@@ -56,6 +56,19 @@ app.post('/login',(req,res) =>{
       });
     });
 });
+app.get('/employeeDashboard', authenticateToken, (req, res) => {
+  if (req.user.role !== 'employee') {
+    return res.status(403).send('Access denied.');
+  }
+  res.sendFile(__dirname + '/employeeDashboard.html');
+});
+app.get('/userDashboard', authenticateToken, (req, res) => {
+  if (req.user.role !== 'user') {
+    return res.status(403).send('Access denied.');
+  }
+  res.sendFile(__dirname + '/userDashboard.html'); // Create this file if needed
+});
+
 //create new employees
 app.post('/employeeCreation', (req,res) =>{
   const eFName = req.body.eFName;
