@@ -20,68 +20,42 @@ const db = mysql.createConnection({
   database: process.env.DB_DATABASE
 });
 const crypto = require('crypto'); // For hashing passwords and sensitive data
-
-//user Login using tokens
-app.post('/userLogin', (req,res) =>{
+//login route using tokens that checks user vs employee
+app.post('/login',(req,res) =>{
   const username = req.body.username;
   const hashPassword = crypto
     .createHash('sha256')
     .update(req.body.password)
     .digest('hex')
 
-  const sql = 'SELECT * FROM SUBSCRIBER_ACCOUNT WHERE Username = ?';
-  db.query(sql, [username], (err,result) =>{
-    if(err) return res.status(500).send("Server Error");
-    if(result.length === 0){
-      return res.status(401).send("User Not Found");
-    }
-    const user = result[0];
-    if(user.Password !== hashPassword){
-      return res.status(401).send("Incorrect Password");
-    }
-    const token = jwt.sign({id:user.SubscriberID, username:user.Username, role:'user'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
-    res.cookie('token', token, { httpOnly: true, secure: false }); // Add this (set secure: true in production)
-    res.json({message: "Welcome back " + user.FName, token: token});
-  })
-})
+    const employeeSql = 'SELECT * FROM Employee WHERE eUsername = ?';
+    db.query(employeeSql, [username], (err,employeeResult)=>{
+      if (err) return res.status(500).send("Server Error");
 
+      if(employeeResult.length > 0){
+        const employee = employeeResult[0];
+        if (employee.ePassword === hashPassword){
+          const token = jwt.sign({id: employee.EmployeeID, username: employee.eUsername, role: 'employee'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
+          res.cookie('token', token, {httpOnly: true, secure: false});
+          return res.redirect('/employeeDashboard');
+        }
+      }
+      const userSql = 'SELECT * FROM SUBSCRIBER_ACCOUNT WHERE Username = ?';
+      db.query(userSql, [username], (err, userResult)=>{
+        if(err) return res.status(500).send("Server Error");
 
-//employeeLogin
-app.post('/employeeLogin', (req,res) =>{
-  const username = req.body.eUsername;
-  const hashPassword = crypto
-    .createHash('sha256')
-    .update(req.body.ePassword.trim())
-    .digest('hex')
-
-  const sql = 'SELECT * FROM Employee WHERE eUsername = ?';
-  db.query(sql, [username], (err,result) =>{
-    if (err) return res.status(500).send("Server Error");
-    if (result.length === 0){
-      return res.status(401).send("Employee Not Found");
-    }
-    const employee = result[0];
-    if(employee.ePassword !== hashPassword) 
-      return res.status(401).send("Incorrect Password");
-
-    const token = jwt.sign({id:employee.EmployeeID, username:employee.eUsername, role:'employee'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
-    res.cookie('token', token, { httpOnly: true, secure: false }); // Add this
-    res.json({message: "Success", token: token});
-  }); 
+        if(userResult.length > 0){
+          const user = userResult[0];
+          if(user.Password === hashPassword){
+            const token = jwt.sign({id: user.SubscriberID, username: user.Username, role: 'user'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
+            res.cookie('token',token,{httpOnly: true, secure: false});
+            return res.redirect('/userDashboard');
+          }
+        }
+        res.status(401).send("Invalid username or password");
+      });
+    });
 });
-app.get('/employeeDashboard', authenticateToken, (req, res) => {
-  if (req.user.role !== 'employee') {
-    return res.status(403).send('Access denied.');
-  }
-  res.sendFile(__dirname + '/employeeDashboard.html');
-});
-app.get('/userDashboard', authenticateToken, (req, res) => {
-  if (req.user.role !== 'user') {
-    return res.status(403).send('Access denied.');
-  }
-  res.sendFile(__dirname + '/userDashboard.html'); // Create this file if needed
-});
-
 //create new employees
 app.post('/employeeCreation', (req,res) =>{
   const eFName = req.body.eFName;

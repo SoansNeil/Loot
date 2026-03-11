@@ -33,13 +33,13 @@
             <div class="login-box">
                 <h2>Log in to your account</h2>
 
-            <form id="employeeLogin-form">
+            <form id="employeeLogin-form" action="/login" method="POST">
 
                 <label>Username</label>
-                <input type="text" name="eUsername" required>
+                <input type="text" name="username" required>
 
                 <label>Password</label>
-                <input type="password" name="ePassword" required>
+                <input type="password" name="password" required>
 
                 <button type="submit" class="login-btn">Log In</button>
             </form>
@@ -51,33 +51,6 @@
     </div>
 
     <!-- Scripts -->
-    <script>
-        const employeeLogin = document.getElementById('employeeLogin-form');
-
-    employeeLogin.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(employeeLogin);
-
-        try {
-            const res = await fetch('/employeeLogin', {
-                method: 'POST',
-                body: new URLSearchParams(formData)
-            });
-
-            const data = await res.json(); // Parse JSON response
-
-            if (data.token) {
-                localStorage.setItem('token', data.token); // Store token
-                window.location.href = '/employeeDashboard'; // Redirect to protected route
-            } else {
-                alert(data.message || 'Login failed'); // Handle error (e.g., invalid credentials)
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            alert('An error occurred. Please try again.');
-        }
-    });
-    </script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>
