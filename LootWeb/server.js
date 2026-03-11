@@ -1,4 +1,3 @@
-//NEED FORM FROM HTML FILES TO TEST CONNECTIONS
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -9,12 +8,14 @@ const port = 3000;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname));
 
+
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'neilsoans', // use your MySQL password if needed
+  password: 'Maria22', // use your MySQL password if needed
   database: 'LootDB'
 });
+
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
 //Route to add new users to database
@@ -37,8 +38,9 @@ app.post('/createUser-form', (req, res) => {
       res.status(500).send('Error inserting user');
     }
     res.send('Thank you for joining us!');
-  });
-});
+  }
+);});
+
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
   const bankName = req.body.bank;
@@ -58,9 +60,10 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+
 //Server checks
 app.use((req, res) => {
-  res.status(404).send('Not Found');
+  res.status(404).send('Webpage not found');
 });
 
 app.listen(port, () => {
