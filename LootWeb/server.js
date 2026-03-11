@@ -52,7 +52,7 @@ app.post('/login',(req,res) =>{
             return res.redirect('/userDashboard');
           }
         }
-        res.status(401).send("Invalid username or password");
+        return res.status(401).send("Invalid username or password");
       });
     });
 });
