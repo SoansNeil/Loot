@@ -30,14 +30,27 @@
             </header>
         </section>
 
-        <section id="Checking acc" class="container" style= "color: #91cdf0">
-         
-            <h2> Your Checking Account has</h2>
-            <h2>222.22 dollars</h2>
+        <section>
+         <h2 > Your Checking Account has</h2>
+        
+           
+          <button id="displayExAcc">Show External Accounts</button>
+<div id="ExAcc"></div>
 
+<script>
+const button = document.getElementById('displayExAcc');
 
+button.addEventListener('click', async () => {
+    const res = await fetch('/displayExAcc', { method: 'POST' });
+    const text = await res.text();
+
+    // Show results on the page instead of alert
+    document.getElementById("ExAcc").innerHTML = text;
+});
+</script>
 
         </section>
+        
 
     </div>
 

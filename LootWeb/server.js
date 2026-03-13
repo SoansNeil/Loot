@@ -51,8 +51,8 @@ app.post('/externalAccount', (req, res) => {
   //.digest('hex');
   //const routingNumber = req.body.routingNumber;
   //const accountNickname = req.body.accountNickname;
-const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'; // Add more values as DB expands
-  db.query(sql, [bankName, accountType], (err, result) => {
+const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bank, accountType) VALUES (?, ?)'; // Add more values as DB expands
+  db.query(sql, [bank, accountType], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('Error connecting external account');
@@ -60,6 +60,40 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+
+//display information from external account
+app.post('/displayExAcc',(req,res)=>{
+ 
+  const subscriberID=1;
+
+  const sql='Select bank, accountType,currentBalance,subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
+ db.query(sql, [subscriberID], (err, result) => {
+    if (err) {
+      console.error('Error connecting external account:', err);
+      res.status(500).send('BD Error');
+    }
+ 
+     if (!result.length) {
+      return res.send('<p>No accounts found.</p>');
+    }
+
+    // Build HTML table only
+    let html = '<table border="1">';
+    result.forEach(account => {
+      html += `<div style="border:1px solid #ccc; padding:10px; margin:10px; width:300px;">
+          <p><strong>Bank:</strong> ${account.bank}</p>
+          <p><strong>Account Type:</strong> ${account.accountType}</p>
+          <p><strong>Current Balance:</strong> ${account.currentBalance}</p>
+        </div>
+      `;
+    
+    });
+    html += '</table>';
+
+    res.send(html); // send HTML snippet
+  });
+
+  });
 
 //Server checks
 app.use((req, res) => {
