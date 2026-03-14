@@ -38,3 +38,21 @@ CREATE TABLE EXTERNAL_ACCOUNT
   CHECK (AccountType in ("Checking","Credit Card"))
   
 );
+
+CREATE TABLE Transactions (
+TID INT AUTO_INCREMENT,
+Amount DECIMAL(15,2) NOT NULL,
+ExpenseType VARCHAR(30) NOT NULL,
+Category VARCHAR(50) NOT NULL,
+DateRecorded DATE NOT NULL,
+SubscriberID INT NOT NULL,
+AccountID INT NOT NULL,
+PRIMARY KEY (TID),
+FOREIGN KEY (SubscriberID)
+REFERENCES SUBSCRIBER_ACCOUNT(SubscriberID)
+ON DELETE CASCADE,
+FOREIGN KEY (AccountID)
+REFERENCES EXTERNAL_ACCOUNT(AccountID),
+CONSTRAINT CHECK_ExpenseType
+CHECK (ExpenseType IN ('Expense','Income','Transfer'))
+);
