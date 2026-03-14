@@ -1,0 +1,13 @@
+1. Problem statement:
+    This feature will save people's time and give them more convenience when it comes to wanting to look
+    at overall transactions done over a period of time. For this feature, the summaries will be for expenses done
+    over each month and all transactions will be organized by category (bills, food, entertainment, etc).
+
+2. Step by step plan to implement feature:
+    1. Create wireframe of what UI will look like for this feature.
+    2. Map out new DB changes like ER diagrams for this feature or modify existing ones to fit feature.
+    3. Implement new DB changes to actual DB once mapping out is done
+    4. Start to implement wireframes to frontend
+    5. Create new or modify backend routes to ensure everything about feature works
+    6. Once frontend, backend, and DB is finished, starting connecting everything together and test it
+    

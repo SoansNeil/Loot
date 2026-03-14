@@ -1,0 +1,20 @@
+Responsibilities for sprint 1:
+  1. Design and implement base look of website
+  2. create navbar
+  3. add interactivity between buttons and pages
+
+Set up steps:
+  1. look for possible libraries to use to design website with
+  2. start to design look of website before starting to code
+
+Development plan:
+  1. Once the design of the website is finished, start to code the home page starting with navbar (since this will be on every page)
+  2. create html files that will include homepage and other pages the navbar buttons will navigate to (plans page, sign up page, log in page, help page)
+  3. Once the base of the homepage is created (with style and interactivity) I will be done for the first sprint. Though if I'm done with my sprint earlier than planned, I want to go
+  ahead and start on creating more of the home page (like adding images and descriptions) or start by designing and creating the sign up/login page
+
+Risks or questions:
+  1. What I will need from my teammates will be the ER diagram for the sign up part of our project since I will need to know what attributes to add to my sign up html file
+  2. Another thing I may need from my teammates is any ideas on what our logo should look like and their opinions on the logos I come up with since the logo will be a big part
+  of our website and company
+  

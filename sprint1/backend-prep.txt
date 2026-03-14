@@ -1,0 +1,30 @@
+Trello Cards:
+Backend cards (Purple)
+- Choose Backend Stack and Initialize Project
+- Create base server and one test route
+- Create backend route for signing up
+Setup Steps:
+- Create a server.js file
+- Initialize constants
+- Install node.js (npm install)
+- Setup connection to database
+- Create route that generates database entry and frontend response
+Development Plan:
+Choose backend stack and initialize Project
+- backend folder created
+- install node
+- choose database (mySQL)
+Create base server
+- server.js file created
+- Edit server.js to connect to database
+- Initialize constants
+- Install node
+Create a backend route for signing up:
+- create route structure
+- initialize variables for form from frontend
+- create app to send to database
+- successfully create entry in database
+- send completion of action message to user
+Risks or questions:
+- Sign up form has to be set up and functional from frontend team
+- Local databases might be an issue
