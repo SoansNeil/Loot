@@ -31,15 +31,15 @@
 
     <div class="grid">
 
-        <!-- Add Transaction -->
+         <!-- Add Transaction -->
         <section class="card">
             <h2>Add Transaction</h2>
 
-            <form id="form">
+            <form id="createBudget-form">
 
                 <div class="row">
                     <label for="type">Type</label>
-                    <select id="type" required>
+                    <select id="type" name="ExpenseType" required>
                         <option value="Income">Income</option>
                         <option value="Expense">Expense</option>
                         <option value="Transfer">Transfer</option>
@@ -48,12 +48,12 @@
 
                 <div class="row">
                     <label for="amount">Amount</label>
-                    <input type="number" id="amount" min="0" required>
+                    <input type="number" id="amount" name="name" min="0" required>
                 </div>
 
                 <div class="row">
                     <label for="category">Category</label>
-                    <select id="category" required>
+                    <select id="category" name="category" required>
                         <option>Salary</option>
                         <option>Rent</option>
                         <option>Groceries</option>
@@ -66,8 +66,11 @@
 
                 <div class="row">
                     <label for="date">Date</label>
-                    <input type="date" id="date" required>
+                    <input type="date" id="date" name="DateRecorded" required>
                 </div>
+
+                <input type="hidden" name="subscriberId" value="1">
+                <input type="hidden" name="accountId" value="3">
 
                 <div class="row">
                     <button class="btn" type="submit">Add</button>
