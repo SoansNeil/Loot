@@ -61,12 +61,12 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bank, accountType) VALUES (?, ?)'; //
   });
 });
 
-//display information from external account
+//display information from external account for dashboard html
 app.post('/displayExAcc',(req,res)=>{
  
   const subscriberID=1;
 
-  const sql='Select bank, accountType,currentBalance,subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
+  const sql='Select accountID, bank, accountType,currentBalance,currency, subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
  db.query(sql, [subscriberID], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
@@ -74,16 +74,19 @@ app.post('/displayExAcc',(req,res)=>{
     }
  
      if (!result.length) {
-      return res.send('<p>No accounts found.</p>');
+      return res.send('No accounts found');
     }
-
-    // Build HTML table only
+   //html formatting for dashboard
     let html = '<table border="1">';
     result.forEach(account => {
       html += `<div style="border:1px solid #ccc; padding:10px; margin:10px; width:300px;">
+          <p><strong>AccountID:</strong> ${account.accountID}</p>
           <p><strong>Bank:</strong> ${account.bank}</p>
           <p><strong>Account Type:</strong> ${account.accountType}</p>
-          <p><strong>Current Balance:</strong> ${account.currentBalance}</p>
+          <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
+          <a href="Money-Transfer.html?accountID=${account.accountID}&currency=${account.currency}&balance=${account.currentBalance}">
+            <button>Click here to transfer money from this account</button>
+          </a>
         </div>
       `;
     

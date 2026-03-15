@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Loot Schedule transfers</title>
+    <title>Transfer</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
@@ -15,10 +15,9 @@
             <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
             <nav id="nav">
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="index.html#plans">Plans</a></li>
-                    <li><a href="signup.html">Sign up</a></li>
-                    <li><a href="login.html">Log in</a></li>
+                    <li><a href="Dashboard.html">Dashboard</a></li>
+                    <li><a href="Money-Transfer.html">Transfer</a></li>
+                
                 </ul>
             </nav>
         </header>
@@ -26,27 +25,40 @@
         <!-- Empty section for now -->
         <section id="main" class="container">
             <header class="major">
-                <h2>Scheduele Money Transfer</h2>
+                <h2>Welcome to your transfer feature!</h2>
+                <h3>Here you will be able to transfer money to and from accounts</h3>
             </header>
-
-             <!-- log in form -->
-            <div class="login-box">
-                <h2>First,Log in to your account</h2>
-
-            <form id="userLogin-form">
-
-                <label>Username</label>
-                <input type="text" name="username" required>
-
-                <label>Password</label>
-                <input type="password" name="password" required>
-
-                <button type="submit" class="login-btn">Log In</button>
-            </form>
-            <p>Don't have an account? <a href="signup.html">Sign up</a></p>
-        </div>
-        
         </section>
+
+        <div id="accountInfo"></div>
+  
+  <script>
+    // JS reads the URL parameters and fills #accountInfo
+    const accountInfoDiv = document.getElementById('accountInfo');
+    const params = new URLSearchParams(window.location.search);
+    const accountID = params.get('accountID');
+    const currency=params.get('currency');
+    const balance = params.get('balance');
+
+    if (accountID && balance) {
+      accountInfoDiv.innerHTML = `<h3>You clicked on account ${accountID} which has a balance of ${currency} ${balance}</h3>`;
+    } else {
+      accountInfoDiv.innerHTML = `<h3>No account selected</h3>`;
+    }
+  </script>
+        <section>
+        
+         <h3>Select which account you'd like to transfer to</h3>
+        
+          
+        <h3>How much would you like to transfer ?</h3>
+
+          <h3> Select a Transfer Date and time </h3>
+
+
+
+        </section>
+        
 
     </div>
 
