@@ -12,6 +12,7 @@ const port = 3000;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname));
 app.use(cookieParser());
+app.use(express.json());
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -68,7 +69,6 @@ app.get('/userDashboard', authenticateToken, (req, res) => {
   }
   res.sendFile(__dirname + '/userDashboard.html'); // Create this file if needed
 });
-
 //create new employees
 app.post('/employeeCreation', (req,res) =>{
   const eFName = req.body.eFName;
@@ -91,8 +91,6 @@ app.post('/employeeCreation', (req,res) =>{
     res.send('Employee successfully created');
   });
 });
-
-
 //Route to add new users to database
 app.post('/createUser-form', (req, res) => {
   const firstName = req.body.firstName;
@@ -115,8 +113,6 @@ app.post('/createUser-form', (req, res) => {
     res.send('Thank you for joining us!');
   });
 });
-
-
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
   const bankName = req.body.bank;
@@ -136,8 +132,54 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+//Route to insert customer service form into database
+app.post('/submitForm', (req,res)=>{
+  const customerName = req.body.customerName;
+  const customerEmail = req.body.customerEmail;
+  const employeeID = req.body.employeeID;
+  const subject = req.body.subject;
+  const priority = req.body.priority;
+  const description = req.body.description;
 
+  const sql = 'INSERT INTO SERVICE_FORMS (customerName, customerEmail, employeeID, subject, priority, description) VALUES (?,?,?,?,?,?)';
+  db.query(sql, [customerName, customerEmail, employeeID, subject, priority, description], (err, res) =>{
+    if(err){
+      console.error('Error submitting form:',err);
+      res.status(500).send('Error submitting form');
+    }
+    res.send('Form successfully submitted')
+  });
+});
+//Route to change user data
+app.post('/retrieveUser', (req, res) => {
+  const username = req.body.username;
 
+  if (!username) return res.status(400).send('Missing Username');
+
+  const sql = 'SELECT SubscriberID, FName, LName, Username, Birthday, Email, PhoneNumber FROM SUBSCRIBER_ACCOUNT WHERE Username = ?';
+  db.query(sql,[username],(err,result) =>{
+    if (err) return res.status(500).send('Server Error');
+    if (result.length === 0) return res.status(404).send('User not found');
+    const user = result[0];
+    res.json(user);
+  })
+});
+app.post('/updateUser', (req,res)=>{
+  const SubscriberID = req.body.SubscriberID;
+  const FName = req.body.FName;
+  const LName = req.body.LName;
+  const Username = req.body.Username;
+  const Email = req.body.Email;
+  const PhoneNumber = req.body.PhoneNumber;
+  const Birthday = req.body.Birthday;
+
+  const sql = 'UPDATE SUBSCRIBER_ACCOUNT SET FName = ?, LName = ?, Username = ?, Email = ?, PhoneNumber = ? WHERE SubscriberID = ?';
+  db.query(sql,[SubscriberID,FName,LName,Username,Email,PhoneNumber,Birthday], (err,result)=>{
+    if(err) return res.stautus(500).send('Update Failed');
+    if (result.affectedRows === 0) return res.status(404).send('User not found');
+    res.send('Updated Successfully');
+  });
+});
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Not Found');

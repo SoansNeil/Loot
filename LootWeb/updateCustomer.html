@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Retrieve Customer - Loot</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body>
+    <div id="page-wrapper">
+       <header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #000000;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+							<li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+							<li><a href="employeeLogin.html" style="color: #000000;">Sign Out</a></li>
+                            <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Form</a></li>
+                            <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+						</ul>
+					</nav>
+				</header>
+
+        <section id="main" class="container">
+            <header class="major">
+                <h2>Retrieve Customer</h2>
+            </header>
+
+            <div class="login-box" style="width: 600px; min-height: 1100px; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;" >
+                <h2>Enter credentials</h2>
+
+                <form id="retrieve-form">
+                    <label>Customer Username</label>
+                    <input type="text" name="username">
+
+                    <button type="submit" class="login-btn">Retrieve</button>
+                </form>
+
+                <div id="result" style="margin-top: 1.2rem;"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+    const form = document.getElementById('retrieve-form');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        result.textContent = 'Retrieving user…';
+
+        const username = new FormData(form).get('username');
+        if (!username) {
+            result.textContent = 'Please enter a username.';
+            return;
+        }
+
+        const res = await fetch('/retrieveUser', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+
+        if (res.status === 403) {
+            result.textContent = 'Access denied. Must be logged in as an employee.';
+            return;
+        }
+        if (res.status === 404) {
+            result.textContent = 'User not found.';
+            return;
+        }
+         if (!res.ok) {
+            result.textContent = 'Retrieval failed.';
+            return;
+        }
+
+        const user = await res.json();
+        result.innerHTML = `
+        <form id="edit-form">
+            <p><strong>ID:</strong> ${user.SubscriberID}</p>
+            <label>First Name: <input name="FName" value="${user.FName}" required></label><br>
+            <label>Last Name: <input name="LName" value="${user.LName}" required></label><br>
+            <label>Username: <input name="Username" value="${user.Username}" required></label><br>
+            <label>Email: <input name="Email" value="${user.Email}" required></label><br>
+            <label>Phone: <input name="PhoneNumber" value="${user.PhoneNumber}" required></label><br>
+            <label>Birthday: <input name="Birthday" value="${user.Birthday || ''}" type="date"></label><br>
+            <button type="submit">Save Changes</button>
+        </form>
+        `;
+
+        const editForm = document.getElementById('edit-form');
+        editForm.addEventListener('submit', async(e) =>{
+            e.preventDefault();
+            const formData = new FormData(editForm);
+            const updatedUser = {
+                SubscriberID: user.SubscriberID,
+                FName: formData.get('FName'),
+                LName: formData.get('LName'),
+                Username: formData.get('Username'),
+                Email: formData.get('Email'),
+                PhoneNumber: formData.get('PhoneNumber'),
+                Birthday: formData.get('Birthday')
+            };
+
+            const updateRes = await fetch('/updateUser', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedUser)
+            });
+
+            if (updateRes.ok) {
+                result.innerHTML = '<p>Changes saved successfully!</p>';
+            } else {
+                result.innerHTML = '<p>Failed to save changes.</p>';
+            }
+        });
+    });
+</script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.dropotron.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
