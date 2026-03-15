@@ -63,6 +63,32 @@ app.use((req, res) => {
   res.status(404).send('Not Found');
 });
 
+app.post('/create-budget', (req, res) => {
+  const amount = req.body.amount;
+  const ExpenseType = req.body.ExpenseType;
+  const category = req.body.category;
+  const DateRecorded = req.body.DateRecorded;
+  const subscriberId = req.body.subscriberId;
+  const accountId = req.body.accountId;
+  
+const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecorded, subscriberId, accountId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err, result) => {
+    if (err) {
+      console.error('Error making new budget:', err);
+      res.status(500).send('Error creating new budget');
+    }
+    res.json({
+      success: true,
+      amount,
+      ExpenseType,
+      category,
+      DateRecorded
+    });
+
+  });
+});
+
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
