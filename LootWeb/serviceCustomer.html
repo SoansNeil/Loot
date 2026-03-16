@@ -37,6 +37,10 @@
                     <label for="customerEmail">Customer Email:</label>
                     <input id="customerEmail" name="customerEmail" type="email" required>
                 </div>
+                <div class = "input-field">
+                    <label for ="employeeID">Employee ID:</label>
+                    <input id="employeeID" name="employeeID" type="text" required>
+                </div>
                 <div class="input-field full-field">
                     <label for="subject">Subject:</label>
                     <input id="subject" name="subject" type="text" required>
@@ -61,6 +65,20 @@
         </div> 
         </div>
     <!--Scripts-->
+    <script>
+        const submitForm = document.getElementById('serviceCustomer-form');
+        submitForm.addEventListener('submit', async(e)=>{
+            e.preventDefault();
+            const formData = new FormData(submitForm);
+            const res = await fetch('/submitForm', 
+            {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            });
+            const text = await res.text();
+            alert(text);
+        })
+    </script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>

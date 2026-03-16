@@ -22,7 +22,7 @@ const db = mysql.createConnection({
 });
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 //login route using tokens that checks user vs employee
-app.post('/login',(req,res) =>{
+app.post('/updatedLogin',(req,res) =>{
   const username = req.body.username;
   const hashPassword = crypto
     .createHash('sha256')
@@ -142,12 +142,12 @@ app.post('/submitForm', (req,res)=>{
   const description = req.body.description;
 
   const sql = 'INSERT INTO SERVICE_FORMS (customerName, customerEmail, employeeID, subject, priority, description) VALUES (?,?,?,?,?,?)';
-  db.query(sql, [customerName, customerEmail, employeeID, subject, priority, description], (err, res) =>{
+  db.query(sql, [customerName, customerEmail, employeeID, subject, priority, description], (err, result) =>{
     if(err){
       console.error('Error submitting form:',err);
       res.status(500).send('Error submitting form');
     }
-    res.send('Form successfully submitted')
+    res.send('Form successfully submitted');
   });
 });
 //Route to change user data

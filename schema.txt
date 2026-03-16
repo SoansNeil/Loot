@@ -54,3 +54,19 @@ CREATE TABLE Employee (
   UNIQUE (employeeEmail)
 );
 
+USE LootDB;
+
+CREATE TABLE SERVICE_FORMS (
+    formID INT AUTO_INCREMENT PRIMARY KEY,
+    customerName VARCHAR(100) NOT NULL,
+    customerEmail VARCHAR(100) NOT NULL,
+    EmployeeID INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    priority ENUM('Low','Medium','High') NOT NULL,
+    description TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+    FOREIGN KEY (customerEmail) REFERENCES SUBSCRIBER_ACCOUNT(Email)
+);
+
