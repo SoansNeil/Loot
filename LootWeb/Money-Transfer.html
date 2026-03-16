@@ -16,8 +16,9 @@
             <nav id="nav">
                 <ul>
                     <li><a href="Dashboard.html">Dashboard</a></li>
-                    <li><a href="Money-Transfer.html">Transfer</a></li>
-                
+                   <!---- <li><a href="Money-Transfer.html">Transfer</a></li> --->
+                    <li><a href="">Sign Out</a></li>
+
                 </ul>
             </nav>
         </header>
@@ -32,32 +33,31 @@
 
         <div id="accountInfo"></div>
   
-  <script>
-    // JS reads the URL parameters and fills #accountInfo
-    const accountInfoDiv = document.getElementById('accountInfo');
-    const params = new URLSearchParams(window.location.search);
-    const accountID = params.get('accountID');
-    const currency=params.get('currency');
-    const balance = params.get('balance');
-
-    if (accountID && balance) {
-      accountInfoDiv.innerHTML = `<h3>You clicked on account ${accountID} which has a balance of ${currency} ${balance}</h3>`;
-    } else {
-      accountInfoDiv.innerHTML = `<h3>No account selected</h3>`;
-    }
-  </script>
         <section>
         
-         <h3>Select which account you'd like to transfer to</h3>
-        
-          
-        <h3>How much would you like to transfer ?</h3>
+         <h3>Enter the accountID of the account you'd like to transfer to</h3>
+        <div class="Transfer-AccID">
+            <form id="CheckAccID" action="/CheckAccID" method="POST">
+                <input type="hidden" name="Balance" id="BalanceOG" value="">
 
-          <h3> Select a Transfer Date and time </h3>
+                <label>SubscriberID</label>
+                <input type="number" name="SubscriberID" required>
 
-
+                <label>AccountID</label>
+                <input type="number" name="AccountID" required>
+                <button type="submit">Next</button>
+                </form></div>
 
         </section>
+         <script>
+     const params = new URLSearchParams(window.location.search);
+    const balance = params.get('balance');
+    const balanceOG = document.getElementById('BalanceOG');
+    if (balance && balanceOG) {
+        balanceOG.value = balance;
+    }
+   
+  </script>
         
 
     </div>

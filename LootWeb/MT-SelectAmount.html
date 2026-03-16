@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Transfer Amount</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+
+<body>
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="Dashboard.html">Dashboard</a></li>
+                   <!---- <li><a href="Money-Transfer.html">Transfer</a></li> --->
+                    <li><a href="">Sign Out</a></li>
+
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Empty section for now -->
+        <section id="main" class="container">
+            <header class="major">
+               <h3>How much would you like to transfer?</h3>
+            </header></section>
+
+            
+    
+        <section>
+            <div class="Transfer-Amount"></div>
+            <form action="/StoreAmount" method="POST">
+               <input type="hidden" name="balance" id="balanceOG">
+            <input type="hidden" name="accountID" value="">
+            <input type="hidden" name="toAccount" value="">
+           
+            
+
+                <label>Amount of Money you would like to Transfer</label>
+                <input type="double" name="Tamount" id="Tamount" required>
+
+                <button type="submit">Next</button>
+                </form>
+
+                </section>
+                
+<script>
+    const params = new URLSearchParams(window.location.search);
+    
+    const balance = params.get('balance');
+    if(balance) {
+        const div = document.createElement('p');
+        div.textContent = 'Your available balance: ' + balance;
+        document.querySelector('.Transfer-Amount').appendChild(div);
+    } 
+    document.getElementById('balanceOG').value = params.get('balance');
+    document.getElementById('accountID').value = params.get('accountID');
+    document.getElementById('toAccount').value = params.get('toAccount');
+   
+    
+    // Optional: Show balance on page
+   
+    </script>
