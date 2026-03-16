@@ -161,7 +161,7 @@ app.post('/retrieveUser', (req, res) => {
     if (err) return res.status(500).send('Server Error');
     if (result.length === 0) return res.status(404).send('User not found');
     const user = result[0];
-    res.json(user);
+    res.send(user);
   })
 });
 app.post('/updateUser', (req,res)=>{
@@ -173,9 +173,9 @@ app.post('/updateUser', (req,res)=>{
   const PhoneNumber = req.body.PhoneNumber;
   const Birthday = req.body.Birthday;
 
-  const sql = 'UPDATE SUBSCRIBER_ACCOUNT SET FName = ?, LName = ?, Username = ?, Email = ?, PhoneNumber = ? WHERE SubscriberID = ?';
-  db.query(sql,[SubscriberID,FName,LName,Username,Email,PhoneNumber,Birthday], (err,result)=>{
-    if(err) return res.stautus(500).send('Update Failed');
+  const sql = 'UPDATE SUBSCRIBER_ACCOUNT SET FName = ?, LName = ?, Username = ?, Email = ?, PhoneNumber = ?, Birthday = ? WHERE SubscriberID = ?';
+  db.query(sql,[FName,LName,Username,Email,PhoneNumber,Birthday, SubscriberID], (err,result)=>{
+    if(err) return res.status(500).send('Update Failed');
     if (result.affectedRows === 0) return res.status(404).send('User not found');
     res.send('Updated Successfully');
   });

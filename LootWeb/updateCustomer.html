@@ -49,17 +49,11 @@
         e.preventDefault();
         result.textContent = 'Retrieving user…';
 
-        const username = new FormData(form).get('username');
-        if (!username) {
-            result.textContent = 'Please enter a username.';
-            return;
-        }
-
+        const formData = new FormData(form);
         const res = await fetch('/retrieveUser', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-        });
+            body: new URLSearchParams(formData)
+        })
 
         if (res.status === 403) {
             result.textContent = 'Access denied. Must be logged in as an employee.';
@@ -77,6 +71,7 @@
         const user = await res.json();
         result.innerHTML = `
         <form id="edit-form">
+            <input type="hidden" name="SubscriberID" value="${user.SubscriberID}">
             <p><strong>ID:</strong> ${user.SubscriberID}</p>
             <label>First Name: <input name="FName" value="${user.FName}" required></label><br>
             <label>Last Name: <input name="LName" value="${user.LName}" required></label><br>
@@ -92,27 +87,12 @@
         editForm.addEventListener('submit', async(e) =>{
             e.preventDefault();
             const formData = new FormData(editForm);
-            const updatedUser = {
-                SubscriberID: user.SubscriberID,
-                FName: formData.get('FName'),
-                LName: formData.get('LName'),
-                Username: formData.get('Username'),
-                Email: formData.get('Email'),
-                PhoneNumber: formData.get('PhoneNumber'),
-                Birthday: formData.get('Birthday')
-            };
-
             const updateRes = await fetch('/updateUser', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedUser)
+                method: 'POST',
+                body: new URLSearchParams(formData)
             });
-
-            if (updateRes.ok) {
-                result.innerHTML = '<p>Changes saved successfully!</p>';
-            } else {
-                result.innerHTML = '<p>Failed to save changes.</p>';
-            }
+            const newText = await updateRes.text();
+            alert(newText);
         });
     });
 </script>
