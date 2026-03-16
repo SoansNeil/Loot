@@ -7,6 +7,8 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
 const db = mysql.createConnection({
@@ -15,6 +17,16 @@ const db = mysql.createConnection({
   password: 'neilsoans', // use your MySQL password if needed
   database: 'LootDB'
 });
+
+db.connect((err) => {
+  if (err) {
+    console.error("Connection Failed:", err);
+  }
+  else {
+    console.log("Connected to LootDB");
+  }
+});
+
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
 //Route to add new users to database
@@ -58,10 +70,6 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
-//Server checks
-app.use((req, res) => {
-  res.status(404).send('Not Found');
-});
 
 app.post('/create-budget', (req, res) => {
   const amount = req.body.amount;
@@ -88,6 +96,10 @@ const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecord
   });
 });
 
+//Server checks
+app.use((req, res) => {
+  res.status(404).send('Not Found');
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
