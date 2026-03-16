@@ -33,7 +33,7 @@
 
          <!-- Add Transaction -->
         <section class="card">
-            <h2>Add Transaction</h2>
+            <h2>Add Budget</h2>
 
             <form id="createBudget-form">
 
@@ -48,7 +48,7 @@
 
                 <div class="row">
                     <label for="amount">Amount</label>
-                    <input type="number" id="amount" name="name" min="0" required>
+                    <input type="number" id="amount" name="amount" min="0" required>
                 </div>
 
                 <div class="row">
@@ -129,8 +129,6 @@
                     </tr>
                 </thead>
 
-                <tbody id="catBody"></tbody>
-
             </table>
 
         </section>
@@ -149,6 +147,100 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/server.js"></script>
+
+         <script>
+
+        let incomeTotalValue = 0;
+        let expenseTotalValue = 0;
+        let categoryTotals = {};
+        
+       const form = document.getElementById("createBudget-form");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    const res = await fetch("/create-budget", {
+        method: "POST",
+        body: new URLSearchParams(formData)
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+        const amount = parseFloat(data.amount);
+        const type = data.ExpenseType;
+        const category = data.category;
+        const date = data.DateRecorded;
+
+        // Add row to transaction table
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${date}</td>
+            <td>${type}</td>
+            <td>${category}</td>
+            <td>$${amount.toFixed(2)}</td>
+            <td></td>
+        `;
+
+        document.getElementById("tbody").appendChild(row);
+
+        // Update totals
+        if(type === "Income"){
+            incomeTotalValue += amount;
+        } else if(type === "Expense"){
+            expenseTotalValue += amount;
+        }
+
+        // Update category totals
+        if(!categoryTotals[category]){
+            categoryTotals[category] = 0;
+        }
+
+        categoryTotals[category] += amount;
+
+        updateSummary();
+        updateCategories();
+    }
+
+    form.reset();
+});
+
+function updateSummary(){
+
+    document.getElementById("incomeTotal").textContent =
+        "$" + incomeTotalValue.toFixed(2);
+
+    document.getElementById("expenseTotal").textContent =
+        "$" + expenseTotalValue.toFixed(2);
+
+    document.getElementById("balanceTotal").textContent =
+        "$" + (incomeTotalValue - expenseTotalValue).toFixed(2);
+}
+
+function updateCategories(){
+
+    const budgetSum = document.getElementById("budgetSum");
+    budgetSum.innerHTML = "";
+
+    for(const category in categoryTotals){
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${category}</td>
+            <td>$${categoryTotals[category].toFixed(2)}</td>
+        `;
+
+        budgetSum.appendChild(row);
+    }
+}
+      
+    </script>
+
 
 </body>
 </html>
