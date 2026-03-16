@@ -39,23 +39,24 @@
         <div class="Transfer-AccID">
             <form id="CheckAccID" action="/CheckAccID" method="POST">
                 <input type="hidden" name="Balance" id="BalanceOG" value="">
+                <input type="hidden" name="AccountID" id="AccountID" value="">
 
                 <label>SubscriberID</label>
                 <input type="number" name="SubscriberID" required>
 
-                <label>AccountID</label>
-                <input type="number" name="AccountID" required>
+                <label>AccountID of Account you want to transfer to</label>
+                <input type="number" name="ToAccount" required>
                 <button type="submit">Next</button>
                 </form></div>
 
         </section>
          <script>
      const params = new URLSearchParams(window.location.search);
+    const accountID = params.get('accountID');
     const balance = params.get('balance');
-    const balanceOG = document.getElementById('BalanceOG');
-    if (balance && balanceOG) {
-        balanceOG.value = balance;
-    }
+    
+    document.getElementById('AccountID').value = accountID;
+    document.getElementById('BalanceOG').value = balance;
    
   </script>
         

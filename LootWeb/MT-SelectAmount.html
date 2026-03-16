@@ -35,8 +35,8 @@
             <div class="Transfer-Amount"></div>
             <form action="/StoreAmount" method="POST">
                <input type="hidden" name="balance" id="balanceOG">
-            <input type="hidden" name="accountID" value="">
-            <input type="hidden" name="toAccount" value="">
+            <input type="hidden" name="accountID" id="accountID" value="">
+            <input type="hidden" name="toAccount" id="toAccount" value="">
            
             
 
@@ -60,8 +60,5 @@
     document.getElementById('balanceOG').value = params.get('balance');
     document.getElementById('accountID').value = params.get('accountID');
     document.getElementById('toAccount').value = params.get('toAccount');
-   
-    
-    // Optional: Show balance on page
-   
+      
     </script>
