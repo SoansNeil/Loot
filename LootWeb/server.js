@@ -10,6 +10,8 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use(cookieParser());
 app.use(express.json());
@@ -20,6 +22,16 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD, // use your MySQL password if needed
   database: process.env.DB_DATABASE
 });
+
+db.connect((err) => {
+  if (err) {
+    console.error("Connection Failed:", err);
+  }
+  else {
+    console.log("Connected to LootDB");
+  }
+});
+
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 //login route using tokens that checks user vs employee
 app.post('/updatedLogin',(req,res) =>{
@@ -180,6 +192,34 @@ app.post('/updateUser', (req,res)=>{
     res.send('Updated Successfully');
   });
 });
+
+app.post('/create-budget', (req, res) => {
+  const amount = req.body.amount;
+  const ExpenseType = req.body.ExpenseType;
+  const category = req.body.category;
+  const DateRecorded = req.body.DateRecorded;
+  const subscriberId = req.body.subscriberId;
+  const accountId = req.body.accountId;
+  
+const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecorded, subscriberId, accountId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err, result) => {
+    if (err) {
+      console.error('Error making new budget:', err);
+      res.status(500).send('Error creating new budget');
+    }
+    res.json({
+      success: true,
+      amount,
+      ExpenseType,
+      category,
+      DateRecorded
+      subscriberId,
+      accountId
+    });
+
+  });
+});
+
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Not Found');
