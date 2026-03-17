@@ -7,6 +7,8 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
 const db = mysql.createConnection({
@@ -15,6 +17,16 @@ const db = mysql.createConnection({
   password: 'neilsoans', // use your MySQL password if needed
   database: 'LootDB'
 });
+
+db.connect((err) => {
+  if (err) {
+    console.error("Connection Failed:", err);
+  }
+  else {
+    console.log("Connected to LootDB");
+  }
+});
+
 const crypto = require('crypto'); // For hashing passwords and sensitive data
 
 //Route to add new users to database
@@ -58,6 +70,34 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bankName, accountType) VALUES (?, ?)'
     res.send('External account connected successfully!');
   });
 });
+
+app.post('/create-budget', (req, res) => {
+  const amount = req.body.amount;
+  const ExpenseType = req.body.ExpenseType;
+  const category = req.body.category;
+  const DateRecorded = req.body.DateRecorded;
+  const subscriberId = req.body.subscriberId;
+  const accountId = req.body.accountId;
+  
+const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecorded, subscriberId, accountId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err, result) => {
+    if (err) {
+      console.error('Error making new budget:', err);
+      res.status(500).send('Error creating new budget');
+    }
+    res.json({
+      success: true,
+      amount,
+      ExpenseType,
+      category,
+      DateRecorded
+      subscriberId,
+      accountId
+    });
+
+  });
+});
+
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Not Found');

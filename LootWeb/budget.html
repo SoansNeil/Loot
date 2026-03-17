@@ -1,0 +1,306 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Budget Plan</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+
+<body>
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#plans">Plans</a></li>
+                    <li><a href="signup.html">Sign up</a></li>
+                    <li><a href="login.html">Log in</a></li>
+                    <li><a href="budget.html">Budget</a></li>
+                </ul>
+            </nav>
+        </header>
+
+    <section id="main" class="container">
+    <header class="major">
+        <h2>Budget</h2>
+    </header>
+
+    <div class="grid">
+
+         <!-- Category Breakdown -->
+        <section class="card">
+
+            <h3>Category Breakdown</h3>
+
+            <canvas id="myChart" style="max-width:400px; margin:20px auto;"></canvas>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                    
+                </thead>
+
+                 <tbody id="budgetSum"></tbody>
+
+            </table>
+
+             <!-- Add Budget -->
+            <h2>Add Budget</h2>
+
+            <form id="createBudget-form">
+
+                 <div class="row">
+                    <label for="Account Information" style="font-size: 20px">Account Information</label>
+                    </div>
+
+                    <div class="row">
+                    <label for="subscriberId">Subscriber ID</label>
+                    <input type="number" id="subscriberId" name="subscriberId" min="0" required>
+                </div>
+
+                   <div class="row">
+                    <label for="accountId">Account ID</label>
+                    <input type="number" id="accountId" name="accountId" min="0" required>
+                </div>
+
+                <div class="row">
+                    <label for="type">Type</label>
+                    <select id="type" name="ExpenseType" required>
+                        <option value="Income">Income</option>
+                        <option value="Expense">Expense</option>
+                        <option value="Transfer">Transfer</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" min="0" required>
+                </div>
+
+                <div class="row">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option>Salary</option>
+                        <option>Rent</option>
+                        <option>Groceries</option>
+                        <option>Personal</option>
+                        <option>Utilities</option>
+                        <option>Transportation</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="DateRecorded" required>
+                </div>
+
+                <input type="hidden" name="subscriberId" value="1">
+                <input type="hidden" name="accountId" value="3">
+
+                <div class="row">
+                    <button class="btn" type="submit">Add</button>
+                    <button class="btn secondary" type="reset">Clear</button>
+                </div>
+
+            </form>
+
+            <h3>Recent Transactions</h3>
+
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="transactionSum"></tbody>
+            </table>
+
+        </section>
+
+        <!-- Summary -->
+        <section class="card">
+            <h2>Summary</h2>
+
+            <div class="summary">
+
+                <div class="card">
+                    <div class="muted">Income</div>
+                    <div id="incomeTotal">$0.00</div>
+                </div>
+
+                <div class="card">
+                    <div class="muted">Expenses</div>
+                    <div id="expenseTotal">$0.00</div>
+                </div>
+
+                <div class="card">
+                    <div class="muted">Balance</div>
+                    <div id="balanceTotal">$0.00</div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/server.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+         <script>
+
+        let incomeTotalValue = 0;
+        let expenseTotalValue = 0;
+        let categoryTotals = {};
+        let chart;
+
+             function updateCateChart(){
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+
+            const ctx = document.getElementById("myChart").getContext("2d");
+
+            if (chart){
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data, 
+                        backgroundColor: ["#2412c7", "#c90902", "#178a1d", "#ebe01e", "#6924f2", "#f5820f", "#f5f3e4"
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: "bottom"
+                        }
+                    }
+                }
+            });
+        }
+        
+       const form = document.getElementById("createBudget-form");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    const res = await fetch("/create-budget", {
+        method: "POST",
+        body: new URLSearchParams(formData)
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+        const amount = parseFloat(data.amount);
+        const type = data.ExpenseType;
+        const category = data.category;
+        const date = data.DateRecorded;
+        const subscriberId = formData.get("subscriberId");
+        const accountId = formData.get("accountId");
+
+        // Add row to transaction table
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${date}</td>
+            <td>${type}</td>
+            <td>${category}</td>
+            <td>$${amount.toFixed(2)}</td>
+            <td>${subscriberId}</td>
+            <td>${accountId}</td>
+            <td></td>
+        `;
+
+        document.getElementById("transactionSum").appendChild(row);
+
+        // Update totals
+        if(type === "Income"){
+            incomeTotalValue += amount;
+        } else if(type === "Expense"){
+            expenseTotalValue += amount;
+        }
+
+        // Update category totals
+        if(!categoryTotals[category]){
+            categoryTotals[category] = 0;
+        }
+
+        categoryTotals[category] += amount;
+
+        updateSummary();
+        updateCategories();
+        updateCateChart();
+    }
+
+    form.reset();
+});
+
+function updateSummary(){
+
+    document.getElementById("incomeTotal").textContent =
+        "$" + incomeTotalValue.toFixed(2);
+
+    document.getElementById("expenseTotal").textContent =
+        "$" + expenseTotalValue.toFixed(2);
+
+    document.getElementById("balanceTotal").textContent =
+        "$" + (incomeTotalValue - expenseTotalValue).toFixed(2);
+}
+
+function updateCategories(){
+
+    const budgetSum = document.getElementById("budgetSum");
+    budgetSum.innerHTML = "";
+
+    for(const category in categoryTotals){
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${category}</td>
+            <td>$${categoryTotals[category].toFixed(2)}</td>
+        `;
+
+        budgetSum.appendChild(row);
+    }
+}
+      
+    </script>
+
+
+</body>
+</html>
