@@ -91,6 +91,8 @@ const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecord
       ExpenseType,
       category,
       DateRecorded
+      subscriberId,
+      accountId
     });
 
   });
