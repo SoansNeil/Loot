@@ -28,6 +28,8 @@
                     <input type="hidden" name="amount" id="amount" value="">
                     <input type="hidden" name="fromAccount" id="fromAccount" value="">
                     <input type="hidden" name="toAccount" id="toAccount" value="">
+
+                    <input type="date" id="startDate" style="display:none;">
                     
 
         <!-- Empty section for now -->
@@ -77,8 +79,8 @@
          document.getElementById('toAccount').value = params.get('toAccount');
        
         // Today Instant transfer
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('transferDate').min = today;
+        const today = new Date().toLocaleDateString('en-CA');
+       document.getElementById('transferDate').min = today;
         document.getElementById('startDate').min = today;
             
             document.getElementById('futureSection').style.display = 'none';

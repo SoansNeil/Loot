@@ -140,19 +140,27 @@ app.post('/CheckAccID', (req, res) => {
     });
 
     //schedule now and ahead features
-    app.post('/StoreSchedule', (req, res) => {
+   app.post('/StoreSchedule', (req, res) => {
   const amount = Number(req.body.amount);
   const fromAccount = req.body.fromAccount;
   const toAccount = req.body.toAccount;
   const scheduleType = req.body.scheduleType;
   
   //future time and date
-  const transferDate = req.body.transferDate;
+  let transferDate = req.body.transferDate;
   const transferTime = req.body.transferTime;
 
   if (scheduleType === 'later') {
     if (!transferDate || !transferTime) {
       return res.send('Please select both date and time for future transfer');
+    }
+    
+    // make sure date is in the right format
+    if (transferDate.includes('T')) {
+      transferDate = transferDate.split('T')[0];
+    }
+    if (transferDate.includes(' ')) {
+      transferDate = transferDate.split(' ')[0];
     }
     
     const sql = `INSERT INTO scheduled_transfers 
@@ -161,13 +169,15 @@ app.post('/CheckAccID', (req, res) => {
     
     db.query(sql, [amount, fromAccount, toAccount, scheduleType, transferDate, transferTime], (err, result) => {
       if (err) {
-    return res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');      }
+        console.error('Error scheduling transfer:', err);
+        return res.send('Error processing transfer. Please try again.');      
+      }
       
       return res.send(`Transfer of $${amount} scheduled for ${transferDate} at ${transferTime}`);
     });
     
   } else {
-     // Show confirmation page first
+    // Show confirmation page first
     res.send(`
       <form action="/ConfirmTransfer" method="POST">
         <input type="hidden" name="amount" value="${amount}">
@@ -185,6 +195,7 @@ app.post('/CheckAccID', (req, res) => {
     `);
   }
 });
+    
 
 app.post('/ConfirmTransfer', (req, res) => {
   const amount = Number(req.body.amount);
@@ -196,7 +207,6 @@ app.post('/ConfirmTransfer', (req, res) => {
       return res.send('Error processing transfer. Please try again.');
     }
     
-    // FIXED: Changed 'balance' to 'CurrentBalance'
     const deductSql = 'UPDATE external_account SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ?';
     db.query(deductSql, [amount, fromAccount], (err, deductResult) => {
       if (err) {
@@ -205,7 +215,6 @@ app.post('/ConfirmTransfer', (req, res) => {
         });
       }
 
-      // FIXED: Changed 'balance' to 'CurrentBalance'
       const addSql = 'UPDATE external_account SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?';
       db.query(addSql, [amount, toAccount], (err, addResult) => {
         if (err) {
@@ -236,6 +245,112 @@ app.post('/ConfirmTransfer', (req, res) => {
         });
       });
     });
+  });
+});
+const schedule = require('node-schedule');
+
+// Check for due transfers continuously 
+schedule.scheduleJob('* * * * *', function() {
+  const now = new Date();
+  
+  // Get current date in YYYY-MM-DD format
+  const currentDate = now.toLocaleDateString('en-CA');
+  
+  // Get current time in HH:MM format
+  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                     now.getMinutes().toString().padStart(2, '0');
+  
+  // SIMPLIFIED: Remove DATE() functions, compare strings directly
+  const findSql = `SELECT * FROM scheduled_transfers 
+                   WHERE status = 'pending' 
+                   AND transfer_date = ? 
+                   AND transfer_time <= ?`;
+  
+  db.query(findSql, [currentDate, currentTime], (err, transfers) => {
+    if (err) {
+      console.log('Scheduler error:', err);
+      return;
+    }
+    
+    if (!transfers || transfers.length === 0) {
+      return;
+    }
+    
+    transfers.forEach(transfer => {
+      
+      db.beginTransaction(err => {
+        if (err) {
+          console.log('Transaction error:', err);
+          return;
+        }
+        
+        // Deduct from source
+        db.query('UPDATE external_account SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ? AND CurrentBalance >= ?', 
+                [transfer.amount, transfer.from_account, transfer.amount], (err, result) => {
+          if (err || result.affectedRows === 0) {
+            db.query('UPDATE scheduled_transfers SET status = "failed" WHERE id = ?', [transfer.id]);
+            return db.rollback();
+          }
+          
+          // Add to destination
+          db.query('UPDATE external_account SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?', 
+                  [transfer.amount, transfer.to_account], err => {
+            if (err) {
+              db.query('UPDATE scheduled_transfers SET status = "failed" WHERE id = ?', [transfer.id]);
+              return db.rollback();
+            }
+
+        db.query('UPDATE scheduled_transfers SET status = "completed" WHERE id = ?', 
+        [transfer.id], err => {
+              if (err) {
+                console.log('Status update failed:', err);
+                return db.rollback();
+              }
+              db.commit();
+              console.log('Transfer completed:', transfer.id);
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+// Add this TEMPORARY debug endpoint - put it BEFORE the 404 handler
+app.get('/debug-transfers', (req, res) => {
+  const sql = 'SELECT * FROM scheduled_transfers ORDER BY id DESC LIMIT 10';
+  db.query(sql, (err, transfers) => {
+    if (err) {
+      return res.send('Database error: ' + err);
+    }
+    
+    let html = '<h2>Scheduled Transfers Debug</h2>';
+    html += '<table border="1" cellpadding="5">';
+    html += '<tr><th>ID</th><th>Amount</th><th>From</th><th>To</th><th>Date</th><th>Time</th><th>Status</th></tr>';
+    
+    transfers.forEach(t => {
+      html += `<tr>
+        <td>${t.id}</td>
+        <td>$${t.amount}</td>
+        <td>${t.from_account}</td>
+        <td>${t.to_account}</td>
+        <td>${t.transfer_date}</td>
+        <td>${t.transfer_time}</td>
+        <td>${t.status}</td>
+      </tr>`;
+    });
+    html += '</table>';
+    
+    // Also show current server time
+    const now = new Date();
+    const currentDate = now.toISOString().split('T')[0];
+    const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                       now.getMinutes().toString().padStart(2, '0');
+    
+    html += `<p><strong>Current server time:</strong> ${currentDate} ${currentTime}</p>`;
+    html += '<p><strong>Note:</strong> Transfers execute when current time matches or exceeds scheduled time</p>';
+    
+    res.send(html);
   });
 });
 
