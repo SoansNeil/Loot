@@ -16,18 +16,16 @@
             <nav id="nav">
                 <ul>
                     <li><a href="Dashboard.html">Dashboard</a></li>
-                   <!---- <li><a href="Money-Transfer.html">Transfer</a></li> --->
-                    <li><a href="">Sign Out</a></li>
-
+                    <li><a href="index.html">Sign Out</a></li>
                 </ul>
             </nav>
         </header>
         <div class="hiddenInfo">
                 <form id="scheduleForm" action="/StoreSchedule" method="POST">
-                    <!-- Hidden inputs to carry over data -->
                     <input type="hidden" name="amount" id="amount" value="">
                     <input type="hidden" name="fromAccount" id="fromAccount" value="">
                     <input type="hidden" name="toAccount" id="toAccount" value="">
+                    <input type="hidden" name="subscriberID" id="subscriberID" value="">
 
                     <input type="date" id="startDate" style="display:none;">
                     
@@ -77,7 +75,7 @@
         document.getElementById('amount').value = params.get('amount');
         document.getElementById('fromAccount').value = params.get('accountID');
          document.getElementById('toAccount').value = params.get('toAccount');
-       
+        document.getElementById('subscriberID').value = params.get('subscriberID');
         // Today Instant transfer
         const today = new Date().toLocaleDateString('en-CA');
        document.getElementById('transferDate').min = today;
@@ -85,12 +83,9 @@
             
             document.getElementById('futureSection').style.display = 'none';
            
-            // Show the relevant section
             if (option === 'later') {
                 document.getElementById('futureSection').style.display = 'block';
-            } else if (option === 'recurring') {
-                document.getElementById('recurringSection').style.display = 'block';
-            }
+            } 
         
     </script>
             </header>

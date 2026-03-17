@@ -16,9 +16,7 @@
             <nav id="nav">
                 <ul>
                     <li><a href="Dashboard.html">Dashboard</a></li>
-                   <!---- <li><a href="Money-Transfer.html">Transfer</a></li> --->
-                    <li><a href="">Sign Out</a></li>
-
+                    <li><a href="index.html">Sign Out</a></li>
                 </ul>
             </nav>
         </header>
@@ -40,9 +38,7 @@
             <form id="CheckAccID" action="/CheckAccID" method="POST">
                 <input type="hidden" name="Balance" id="BalanceOG" value="">
                 <input type="hidden" name="AccountID" id="AccountID" value="">
-
-                <label>SubscriberID</label>
-                <input type="number" name="SubscriberID" required>
+                <input type="hidden" name="subscriberID" id="subscriberID" value="">
 
                 <label>AccountID of Account you want to transfer to</label>
                 <input type="number" name="ToAccount" required>
@@ -54,9 +50,11 @@
      const params = new URLSearchParams(window.location.search);
     const accountID = params.get('accountID');
     const balance = params.get('balance');
+    const subscriberID = params.get('subscriberID'); 
     
     document.getElementById('AccountID').value = accountID;
     document.getElementById('BalanceOG').value = balance;
+    document.getElementById('subscriberID').value = subscriberID; 
    
   </script>
         

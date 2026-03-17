@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 
+
 const app = express();
 const port = 3000;
 
@@ -41,6 +42,33 @@ app.post('/createUser-form', (req, res) => {
   }
 );});
 
+//verify login
+app.post('/login',(req,res)=>{
+const username=req.body.username;
+const password=req.body.password;
+
+const hashPassword = crypto
+    .createHash('sha256')
+    .update(password)
+    .digest('hex');
+
+    const sql = 'SELECT subscriberID FROM SUBSCRIBER_ACCOUNT WHERE username = ? AND password = ?';
+  
+  db.query(sql, [username, hashPassword], (err, results) => {
+    if (err) {
+      console.error('Login error:', err);
+      return res.status(500).send('Database error');
+    }
+    
+    if (results.length === 0) {
+      return res.send('Invalid username or password');
+    }
+    const subscriberID = results[0].subscriberID;
+    res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
+  });
+})
+
+
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
   const bankName = req.body.bank;
@@ -64,7 +92,7 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bank, accountType) VALUES (?, ?)'; //
 //display information from external account for dashboard html
 app.post('/displayExAcc',(req,res)=>{
  
-  const subscriberID=1;
+  const subscriberID=req.query.subscriberID;
 
   const sql='Select accountID, bank, accountType,currentBalance,currency, subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
  db.query(sql, [subscriberID], (err, result) => {
@@ -84,7 +112,7 @@ app.post('/displayExAcc',(req,res)=>{
           <p><strong>Bank:</strong> ${account.bank}</p>
           <p><strong>Account Type:</strong> ${account.accountType}</p>
           <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
-          <a href="Money-Transfer.html?accountID=${account.accountID}&currency=${account.currency}&balance=${account.currentBalance}">
+          <a href="Money-Transfer.html?accountID=${account.accountID}&currency=${account.currency}&balance=${account.currentBalance}&subscriberID=${subscriberID}">
             <button>Click here to transfer money from this account</button>
           </a>
         </div>
@@ -99,7 +127,7 @@ app.post('/displayExAcc',(req,res)=>{
 
 //Checks if account is accessible to the User 
 app.post('/CheckAccID', (req, res) => {
-  const subscriberID = req.body.SubscriberID;
+  const subscriberID = req.body.subscriberID;
   const accountID = req.body.AccountID;
   const balance=req.body.Balance;
 
@@ -116,7 +144,7 @@ app.post('/CheckAccID', (req, res) => {
       return res.send('The AccountID you have entered does not match any accounts in your subscription. Please try again.');
      }    
     // Pass the account ID in the URL along with other parameters
-    res.redirect(`/MT-SelectAmount.html?accountID=${accountID}&toAccount=${toAccount}&balance=${balance}`);
+    res.redirect(`/MT-SelectAmount.html?accountID=${accountID}&toAccount=${toAccount}&balance=${balance}&subscriberID=${subscriberID}`);
   });
 });
 
@@ -128,13 +156,14 @@ app.post('/CheckAccID', (req, res) => {
   //make sure these are passed from url
    const accountID = req.body.accountID ;
   const toAccount = req.body.toAccount ;
+  const subscriberID = req.body.subscriberID; 
   
   if (transferAmount > balance) {
      return res.send(`The amount you want to transfer(${transferAmount}) exceeds the amount of money you have in your account balance(${balance}). Please adjust the amount and try again.`);
   } 
   else{ 
   // return res.send(`${transferAmount} and ${balance}`)
-    res.redirect(`/MT-Date&Time.html?amount=${transferAmount}&accountID=${accountID}&toAccount=${toAccount}`);
+    res.redirect(`/MT-Date&Time.html?amount=${transferAmount}&accountID=${accountID}&toAccount=${toAccount}&subscriberID=${subscriberID}`);
   }
 
     });
@@ -173,7 +202,9 @@ app.post('/CheckAccID', (req, res) => {
         return res.send('Error processing transfer. Please try again.');      
       }
       
-      return res.send(`Transfer of $${amount} scheduled for ${transferDate} at ${transferTime}`);
+      return res.send(`Transfer of $${amount} scheduled for ${transferDate} at ${transferTime} <a href="/Dashboard.html?subscriberID=${req.body.subscriberID}">
+        <button>Return to Dashboard</button>
+         </a>`);
     });
     
   } else {
@@ -183,6 +214,7 @@ app.post('/CheckAccID', (req, res) => {
         <input type="hidden" name="amount" value="${amount}">
         <input type="hidden" name="fromAccount" value="${fromAccount}">
         <input type="hidden" name="toAccount" value="${toAccount}">
+        <input type="hidden" name="subscriberID" value="${req.body.subscriberID}">
         
         <h3>Confirm Transfer</h3>
         <p>Amount: $${amount}</p>
@@ -240,7 +272,9 @@ app.post('/ConfirmTransfer', (req, res) => {
               });
             }
             
-            return res.send(`Transfer of $${amount} completed successfully`);
+            return res.send(`Transfer of $${amount} completed successfully!<a href="/Dashboard.html?subscriberID=${req.body.subscriberID}">
+        <button>Return to Dashboard</button>
+         </a>`);
           });
         });
       });
@@ -260,7 +294,6 @@ schedule.scheduleJob('* * * * *', function() {
   const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
                      now.getMinutes().toString().padStart(2, '0');
   
-  // SIMPLIFIED: Remove DATE() functions, compare strings directly
   const findSql = `SELECT * FROM scheduled_transfers 
                    WHERE status = 'pending' 
                    AND transfer_date = ? 
@@ -284,7 +317,7 @@ schedule.scheduleJob('* * * * *', function() {
           return;
         }
         
-        // Deduct from source
+        // subtract amount from account in DB
         db.query('UPDATE external_account SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ? AND CurrentBalance >= ?', 
                 [transfer.amount, transfer.from_account, transfer.amount], (err, result) => {
           if (err || result.affectedRows === 0) {
@@ -292,7 +325,7 @@ schedule.scheduleJob('* * * * *', function() {
             return db.rollback();
           }
           
-          // Add to destination
+          // Add amount toAccount in DB
           db.query('UPDATE external_account SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?', 
                   [transfer.amount, transfer.to_account], err => {
             if (err) {
@@ -316,7 +349,7 @@ schedule.scheduleJob('* * * * *', function() {
   });
 });
 
-// Add this TEMPORARY debug endpoint - put it BEFORE the 404 handler
+// see transfers and why they keep failing ):< 
 app.get('/debug-transfers', (req, res) => {
   const sql = 'SELECT * FROM scheduled_transfers ORDER BY id DESC LIMIT 10';
   db.query(sql, (err, transfers) => {
@@ -325,7 +358,6 @@ app.get('/debug-transfers', (req, res) => {
     }
     
     let html = '<h2>Scheduled Transfers Debug</h2>';
-    html += '<table border="1" cellpadding="5">';
     html += '<tr><th>ID</th><th>Amount</th><th>From</th><th>To</th><th>Date</th><th>Time</th><th>Status</th></tr>';
     
     transfers.forEach(t => {
@@ -341,9 +373,9 @@ app.get('/debug-transfers', (req, res) => {
     });
     html += '</table>';
     
-    // Also show current server time
+    // Also show current server time ):<
     const now = new Date();
-    const currentDate = now.toISOString().split('T')[0];
+    const currentDate = now.toLocaleDateString('en-CA');
     const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
                        now.getMinutes().toString().padStart(2, '0');
     

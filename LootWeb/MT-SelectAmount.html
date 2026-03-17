@@ -16,8 +16,7 @@
             <nav id="nav">
                 <ul>
                     <li><a href="Dashboard.html">Dashboard</a></li>
-                   <!---- <li><a href="Money-Transfer.html">Transfer</a></li> --->
-                    <li><a href="">Sign Out</a></li>
+                   <li><a href="index.html">Sign Out</a></li>
 
                 </ul>
             </nav>
@@ -37,6 +36,7 @@
                <input type="hidden" name="balance" id="balanceOG">
             <input type="hidden" name="accountID" id="accountID" value="">
             <input type="hidden" name="toAccount" id="toAccount" value="">
+            <input type="hidden" name="subscriberID" id="subscriberID" value="">
            
             
 
@@ -60,5 +60,6 @@
     document.getElementById('balanceOG').value = params.get('balance');
     document.getElementById('accountID').value = params.get('accountID');
     document.getElementById('toAccount').value = params.get('toAccount');
+    document.getElementById('subscriberID').value = params.get('subscriberID'); 
       
     </script>
