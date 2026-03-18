@@ -87,3 +87,21 @@ REFERENCES EXTERNAL_ACCOUNT(AccountID),
 CONSTRAINT CHECK_ExpenseType
 CHECK (ExpenseType IN ('Expense','Income','Transfer'))
 );
+
+CREATE TABLE CARD_TRANSACTION
+(
+  TransactionID INT AUTO_INCREMENT NOT NULL,
+  AccountID INT NOT NULL,
+  Amount DECIMAL(15,2) NOT NULL,
+  TransactionDate DATETIME NOT NULL,
+  MerchantName VARCHAR(100),
+  Description VARCHAR(255),
+  Category VARCHAR(50) NOT NULL,
+  TransactionType VARCHAR(20) NOT NULL,
+  PRIMARY KEY (TransactionID),
+  FOREIGN KEY (AccountID) REFERENCES EXTERNAL_ACCOUNT(AccountID) ON DELETE CASCADE,
+  CONSTRAINT CHECK_Category
+    CHECK (Category IN ('Food & drink', 'Bills & utilities', 'Transportation', 'Personal', 'Entertainment', 'Cash out')),
+  CONSTRAINT CHECK_TransactionType
+    CHECK (TransactionType IN ('Debit', 'Credit'))
+);
