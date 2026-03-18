@@ -39,7 +39,6 @@ CREATE TABLE EXTERNAL_ACCOUNT
   
 );
 
-e
 
 USE LootDB;
 
