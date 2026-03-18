@@ -541,7 +541,7 @@ const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecord
       amount,
       ExpenseType,
       category,
-      DateRecorded
+      DateRecorded,
       subscriberId,
       accountId
     });
@@ -556,7 +556,6 @@ app.use((req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
-});
 });
 //functions
 function authenticateToken(req, res, next) {
