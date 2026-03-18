@@ -7,9 +7,6 @@ CREATE TABLE scheduled_transfers (
     schedule_type ENUM('now', 'later', 'recurring') NOT NULL,
     transfer_date DATE NULL,
     transfer_time TIME NULL,
-    start_date DATE NULL,
-    start_time TIME NULL,
     status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    processed_at TIMESTAMP NULL
 );
