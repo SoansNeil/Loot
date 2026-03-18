@@ -1,0 +1,49 @@
+2.	User Story
+Format:
+As a user, I want to be able to access certain webpages if I am an employee so that I can view customer accounts and assist them.
+3.	Why this adds value to the project
+This feature adds value because it creates a layer between user and employee which adds complexity to how our website works.
+4.	What layers it touches:
+•	UI
+o	Create webpages that only employees with the correct credentials can access
+•	Backend
+o	Create route that checks to see if the user is an employee
+•	Database
+o	Create an employee account table with mock employees
+•	External API if applicable
+1.	Problem Statement
+What problem does this solve?
+- It solves the problem of customer service allowing employees to view and help customers with problems they may have
+2.	User Flow
+-User clicks on login
+-User enters login information
+- If information is the same as employee information in Database
+    show websites plus other webpages that employees can only see
+-Else customer login is true and show customer view
+3.	Technical Plan
+Frontend changes
+-create webpage(s) for employees
+-maybe create an employee login page
+Backend routes
+- check login information
+- pull data from subscriber account table
+- edit information in subscriber table so that employees can update information
+Database changes
+- create table for employees with mock data for test employees
+Files expected to be created or modified
+-update server.js with my routes
+-update the lootWeb folder with my new webpages
+-add table schema to schema text file
+4.	API Changes
+New routes - none
+Modified routes - none
+Request and response structure - none
+6.	Acceptance Criteria
+Clear definition of done
+- user is able to login if they are an employee
+- route 1 checks if they are an employee
+- employee is able to retrieve customer data
+- employee is able to change customer data and update the Database
+- route 2 retrieves necessary data from Database
+- database includes employee table with "employees"
+- route 3 updates customer data in subscriber account table

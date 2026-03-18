@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Loot</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+							<li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+                            <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Form</a></li>
+                            <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+                        </ul>
+                    </nav>
+                </header>
+        <div class="signUp-box">
+        <section id="main" class="container">
+            <header class="major">
+                <h2>Customer Service</h2>
+            </header>
+        <div>
+            <form id="serviceCustomer-form">
+            <div class="input-grid">
+                <div class="input-field">
+                    <label for="customerName">Customer Name:</label>
+                    <input id="customerName" name="customerName" type="text" required>
+                </div>
+                <div class="input-field">
+                    <label for="customerEmail">Customer Email:</label>
+                    <input id="customerEmail" name="customerEmail" type="email" required>
+                </div>
+                <div class = "input-field">
+                    <label for ="employeeID">Employee ID:</label>
+                    <input id="employeeID" name="employeeID" type="text" required>
+                </div>
+                <div class="input-field full-field">
+                    <label for="subject">Subject:</label>
+                    <input id="subject" name="subject" type="text" required>
+                </div>
+                <div class="input-field">
+                    <label for="priority">Priority:</label>
+                    <select id="priority" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="input-field full-field">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="6" required></textarea>
+                </div>
+            </div>
+            <button type="submit" class="signUp-btn">Create Ticket</button>
+            </form>
+        </div>
+        </section>
+        </div> 
+        </div>
+    <!--Scripts-->
+    <script>
+        const submitForm = document.getElementById('serviceCustomer-form');
+        submitForm.addEventListener('submit', async(e)=>{
+            e.preventDefault();
+            const formData = new FormData(submitForm);
+            const res = await fetch('/submitForm', 
+            {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            });
+            const text = await res.text();
+            alert(text);
+        })
+    </script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    </body>
+</html>

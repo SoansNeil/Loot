@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Date and Time</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+
+<body>
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="Dashboard.html">Dashboard</a></li>
+                    <li><a href="index.html">Sign Out</a></li>
+                </ul>
+            </nav>
+        </header>
+        <div class="hiddenInfo">
+                <form id="scheduleForm" action="/StoreSchedule" method="POST">
+                    <input type="hidden" name="amount" id="amount" value="">
+                    <input type="hidden" name="fromAccount" id="fromAccount" value="">
+                    <input type="hidden" name="toAccount" id="toAccount" value="">
+                    <input type="hidden" name="subscriberID" id="subscriberID" value="">
+
+                    <input type="date" id="startDate" style="display:none;">
+                    
+
+        <!-- Empty section for now -->
+        <div class="Schedule"></div>
+             <h2> Select a Transfer Date and time </h2>
+    
+                    <div class="schedule-options">
+                        <h2>Schedule Transfer</h2>
+                        
+                    <div class="schedule-option" onclick="selectOption('now')" id="optNow">
+                            <input type="radio" name="scheduleType" value="now" id="scheduleNow">
+                            <label for="scheduleNow"><strong>Transfer Now</strong> - Process immediately</label>
+                        </div>
+
+                        <div class="schedule-option" onclick="selectOption('later')" id="optLater">
+                            <input type="radio" name="scheduleType" value="later" id="scheduleLater">
+                            <label for="scheduleLater"><strong>Transfer Later</strong> - Schedule for the future</label>
+                        </div>
+
+        
+                    <div class="date-time-picker" id="dateTimePicker">
+                        <h2> For a Transfer scheduled in the Future</h2>
+                        <h3> Please Select a Date and Time</h3>
+                        <div class="form-group">
+                              
+                        <div class="form-row">
+                            <div class="form-group">
+                                 <div class="time-note">Select the date for this transfer</div>
+                                <label for="transferDate" class="required-field">Date:</label>
+                                <input type="date" name="transferDate" id="transferDate" >
+                               
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="time-note">Select the time (24-hour format)</div>
+                                <label for="transferTime" class="required-field">Time:</label>
+                                <input type="time" name="transferTime" id="transferTime" >
+                                
+                            </div>
+                        </div>
+                        <button type="submit" form="scheduleForm">Finalize Transfer </button>
+                    </div>
+             <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('amount').value = params.get('amount');
+        document.getElementById('fromAccount').value = params.get('accountID');
+         document.getElementById('toAccount').value = params.get('toAccount');
+        document.getElementById('subscriberID').value = params.get('subscriberID');
+        // Today Instant transfer
+        const today = new Date().toLocaleDateString('en-CA');
+       document.getElementById('transferDate').min = today;
+        document.getElementById('startDate').min = today;
+            
+            document.getElementById('futureSection').style.display = 'none';
+           
+            if (option === 'later') {
+                document.getElementById('futureSection').style.display = 'block';
+            } 
+        
+    </script>
+            </header>

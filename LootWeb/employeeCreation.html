@@ -6,77 +6,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
 </head>
-
-<body>
-    <div id="page-wrapper">
-
-        <!-- Header -->
-        <header id="header">
+<header id="header">
             <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
             <nav id="nav">
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="index.html#plans">Plans</a></li>
-                    <li><a href="signup.html">Sign up</a></li>
-                    <li><a href="login.html">Log in</a></li>
-                    <li><a href="employeeLogin.html">Employee Login</a></li>
-                </ul>
+					<li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+					<li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+                    <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Form</a></li>
+                    <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+				</ul>
             </nav>
         </header>
 
         <!-- Empty section for now -->
         <section id="main" class="container">
             <header class="major">
-                <h2>Sign Up</h2>
+                <h2>Create New Employee</h2>
             </header>
             <!-- sign up form -->
             <div class="signUp-box">
-                <h2>Create an account with us</h2>
+                <h2>Employee Creation</h2>
 
-            <form id="createUser-form" action="/createUser-form" method="POST">
+            <form id="employeeCreation-form">
 
                 <div class="input-grid">
 
                     <div class="input-field">
-                    <label>First Name</label>
-                    <input type="text" name="firstName" required>
+                    <label>Employee First Name</label>
+                    <input type="text" name="eFName" required>
                     </div>
 
                     <div class="input-field">
-                    <label>Last Name</label>
-                    <input type="text" name="lastName" required>
+                    <label>Employee Last Name</label>
+                    <input type="text" name="eLName" required>
                      </div>
 
                     <div class="input-field">
-                    <label>Email</label>
-                    <input type="email" name="email" required>
+                    <label>Employee Email</label>
+                    <input type="email" name="employeeEmail" required>
                     </div>
 
                     <div class="input-field">
-                    <label>Password</label>
-                    <input type="password" name="password" required>
+                    <label>Employee Password</label>
+                    <input type="password" name="ePassword" required>
                     </div>
 
                     <div class="input-field">
-                    <label>Username</label>
-                    <input type="text" name="username" required>
+                    <label>Employee Username</label>
+                    <input type="text" name="eUsername" required>
                     </div>
 
                     <div class="input-field">
-                    <label>Phone Number</label>
-                    <input type="text" name="phoneNumber" required>
+                    <label>Employee Phone Number</label>
+                    <input type="text" name="ePhone" required>
                     </div>
 
                     <div class="full-field">
-                    <label>Birthday</label>
-                    <input type="date" name="birthday" required>
+                    <label>Employee Birthday</label>
+                    <input type="date" name="eBirthday" required>
                     </div>
                 </div>
 
-                <button type="submit" class="signUp-btn">Sign Up</button>
+                <button type="submit" class="signUp-btn">Create Employee</button>
             </form>
-            <p>By clicking the sign up button, you agree to our <br>
-                Terms of Service and Privacy Policy.</p>
         </div>
             
             
@@ -93,11 +85,11 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        const createUser = document.getElementById('createUser-form');
+        const createUser = document.getElementById('employeeCreation-form');
         createUser.addEventListener('submit', async(e)=>{
             e.preventDefault();
             const formData = new FormData(createUser);
-            const res = await fetch('/createUser-form', 
+            const res = await fetch('/employeeCreation', 
             {
                 method: 'POST',
                 body: new URLSearchParams(formData)
