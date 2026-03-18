@@ -212,13 +212,13 @@ const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecord
       amount,
       ExpenseType,
       category,
-      DateRecorded
+      DateRecorded,
       subscriberId,
       accountId
     });
 
   });
-});
+/);
 
 //Server checks
 app.use((req, res) => {
