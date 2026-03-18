@@ -38,3 +38,52 @@ CREATE TABLE EXTERNAL_ACCOUNT
   CHECK (AccountType in ("Checking","Credit Card"))
   
 );
+
+CREATE TABLE Employee (
+  EmployeeID int NOT NULL AUTO_INCREMENT,
+  eFName varchar(50) NOT NULL,
+  eLName varchar(50) NOT NULL,
+  eUsername varchar(30) NOT NULL,
+  ePassword varchar(255) NOT NULL,
+  eBirthday date NOT NULL,
+  employeeEmail varchar(100) NOT NULL,
+  ePhone varchar(25) DEFAULT NULL,
+  PRIMARY KEY (EmployeeID),
+  UNIQUE (EmployeeID),
+  UNIQUE (eUsername),
+  UNIQUE (employeeEmail)
+);
+
+USE LootDB;
+
+CREATE TABLE SERVICE_FORMS (
+    formID INT AUTO_INCREMENT PRIMARY KEY,
+    customerName VARCHAR(100) NOT NULL,
+    customerEmail VARCHAR(100) NOT NULL,
+    EmployeeID INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    priority ENUM('Low','Medium','High') NOT NULL,
+    description TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+    FOREIGN KEY (customerEmail) REFERENCES SUBSCRIBER_ACCOUNT(Email)
+);
+
+CREATE TABLE Budgeting (
+TID INT AUTO_INCREMENT,
+Amount DECIMAL(15,2) NOT NULL,
+ExpenseType VARCHAR(30) NOT NULL,
+Category VARCHAR(50) NOT NULL,
+DateRecorded DATE NOT NULL,
+SubscriberID INT NOT NULL,
+AccountID INT NOT NULL,
+PRIMARY KEY (TID),
+FOREIGN KEY (SubscriberID)
+REFERENCES SUBSCRIBER_ACCOUNT(SubscriberID)
+ON DELETE CASCADE,
+FOREIGN KEY (AccountID)
+REFERENCES EXTERNAL_ACCOUNT(AccountID),
+CONSTRAINT CHECK_ExpenseType
+CHECK (ExpenseType IN ('Expense','Income','Transfer'))
+);
