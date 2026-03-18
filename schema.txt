@@ -39,20 +39,7 @@ CREATE TABLE EXTERNAL_ACCOUNT
   
 );
 
-CREATE TABLE Employee (
-  EmployeeID int NOT NULL AUTO_INCREMENT,
-  eFName varchar(50) NOT NULL,
-  eLName varchar(50) NOT NULL,
-  eUsername varchar(30) NOT NULL,
-  ePassword varchar(255) NOT NULL,
-  eBirthday date NOT NULL,
-  employeeEmail varchar(100) NOT NULL,
-  ePhone varchar(25) DEFAULT NULL,
-  PRIMARY KEY (EmployeeID),
-  UNIQUE (EmployeeID),
-  UNIQUE (eUsername),
-  UNIQUE (employeeEmail)
-);
+e
 
 USE LootDB;
 
