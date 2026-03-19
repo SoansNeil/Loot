@@ -231,6 +231,8 @@ app.get('/api/category-transactions/:accountId/:category', (req, res) => { //def
     res.json(results); //if no error, send results as json back to frontend
   });
 }); //end of route to get transactions data per category for transaction list
+//schedule button from dashboard redirect 
+
 
 //display information from external account for dashboard html
 app.post('/displayExAcc',(req,res)=>{
