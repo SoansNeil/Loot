@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Loot</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+							<li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+                            <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Ticket</a></li>
+                            <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+							<li><a href="reviewTicket.html" style="color: #000000;">Review Tickets</a></li>
+						</ul>
+                    </nav>
+                </header>
+        <div class="signUp-box">
+        <section id="main" class="container">
+            <header class="major">
+                <h2>Review Forms</h2>
+            </header>
+        <div>
+            <form id="retrieveTicket-form">
+            <label>Ticket Number</label>
+            <input type="text" name="formID">
+            <button type="submit" class="signUp-btn">Retrieve Ticket</button>
+            </form>
+            <div id="result" style="margin-top: 1.2rem;"></div>
+        </div>
+        </section>
+        </div> 
+        </div>
+    <!--Scripts-->
+    <script>
+        const retrieve = document.getElementById('retrieveTicket-form');
+        const result = document.getElementById('result');
+        retrieve.addEventListener('submit', async(e)=>{
+            e.preventDefault();
+            const formData = new FormData(retrieve);
+            const res = await fetch('/retrieveForm', 
+            {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            });
+             if (res.status === 403) {
+            result.textContent = 'Access denied. Must be logged in as an employee.';
+            return;
+        }
+        if (res.status === 404) {
+            result.textContent = 'Form not found.';
+            return;
+        }
+         if (!res.ok) {
+            result.textContent = 'Retrieval failed.';
+            return;
+        }
+            const form = await res.json();
+            result.innerHTML = `
+            <form id="review-form">
+            <input type="hidden" name="formID" value="${form.formID}">
+            <input type="hidden" name="customerName" value="${form.customerName}">
+            <input type="hidden" name="customerEmail" value="${form.customerEmail}">
+            <input type="hidden" name="employeeID" value="${form.EmployeeID}">
+            <input type="hidden" name="subject" value="${form.subject}">
+            <input type="hidden" name="priority" value="${form.priority}">
+            <input type="hidden" name="description" value="${form.description}">
+
+            <p><strong>Form ID:</strong> ${form.formID}</p>
+            <p><strong>Customer Name: </strong> ${form.customerName}</p><br>
+            <p><strong>Customer Email: </strong> ${form.customerEmail}</p><br>
+            <p><strong>Employee ID: </strong> ${form.EmployeeID}</p><br>
+            <p><strong>Subject: </strong> ${form.subject}</p><br>
+            <p><strong>Priority: </strong> ${form.priority}</p><br>
+            <p><strong>Description: </strong> ${form.description}</p><br>
+            <p><strong>Time Submitted: </strong> ${form.createdAt}</p><br>
+            <label>Additional Comments: <input name="Comments" type="text"></label><br>
+            <button type="submit">Submit Review</button>
+            </form>
+        `;
+        const review = document.getElementById('review-form');
+        review.addEventListener('submit',async(e)=>{
+            e.preventDefault();
+            const fD = new FormData(review);
+            const res = await fetch('/reviewForm', 
+            {
+                method: 'POST',
+                body: new URLSearchParams(fD)
+            });
+            const text = await res.text();
+            alert(text);
+        });
+        });
+    </script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    </body>
+</html>

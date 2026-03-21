@@ -67,7 +67,6 @@ CREATE TABLE SERVICE_FORMS (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-    FOREIGN KEY (customerEmail) REFERENCES SUBSCRIBER_ACCOUNT(Email)
 );
 
 CREATE TABLE Budgeting (
@@ -104,4 +103,28 @@ CREATE TABLE CARD_TRANSACTION
     CHECK (Category IN ('Food & drink', 'Bills & utilities', 'Transportation', 'Personal', 'Entertainment', 'Cash out')),
   CONSTRAINT CHECK_TransactionType
     CHECK (TransactionType IN ('Debit', 'Credit'))
+);
+CREATE TABLE scheduled_transfers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(10,2) NOT NULL,
+    from_account VARCHAR(50) NOT NULL,
+    to_account VARCHAR(50) NOT NULL,
+    to_subscriber VARCHAR(50) NOT NULL,
+    schedule_type ENUM('now', 'later', 'recurring') NOT NULL,
+    transfer_date DATE NULL,
+    transfer_time TIME NULL,
+    status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE `CLOSED_FORMS` (
+  `formID` int NOT NULL AUTO_INCREMENT,
+  `customerName` varchar(100) NOT NULL,
+  `customerEmail` varchar(100) NOT NULL,
+  `EmployeeID` int NOT NULL,
+  `subject` varchar(150) NOT NULL,
+  `priority` enum('Low','Medium','High') NOT NULL,
+  `description` text NOT NULL,
+  `commments` text,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`formID`)
 );

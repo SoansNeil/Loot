@@ -8,5 +8,5 @@ CREATE TABLE scheduled_transfers (
     transfer_date DATE NULL,
     transfer_time TIME NULL,
     status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
