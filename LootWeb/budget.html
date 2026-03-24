@@ -56,26 +56,11 @@
 
             <form id="createBudget-form">
 
-                 <div class="row">
-                    <label for="Account Information" style="font-size: 20px">Account Information</label>
-                    </div>
-
-                    <div class="row">
-                    <label for="subscriberId">Subscriber ID</label>
-                    <input type="number" id="subscriberId" name="subscriberId" min="0" required>
-                </div>
-
-                   <div class="row">
-                    <label for="accountId">Account ID</label>
-                    <input type="number" id="accountId" name="accountId" min="0" required>
-                </div>
-
                 <div class="row">
                     <label for="type">Type</label>
                     <select id="type" name="ExpenseType" required>
                         <option value="Income">Income</option>
                         <option value="Expense">Expense</option>
-                        <option value="Transfer">Transfer</option>
                     </select>
                 </div>
 
@@ -121,6 +106,8 @@
                         <th>Type</th>
                         <th>Category</th>
                         <th>Amount</th>
+                        <th>Subscriber ID</th>
+                        <th>Account ID</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -189,7 +176,7 @@
             }
 
             chart = new Chart(ctx, {
-                type: "pie",
+                type: "doughnut",
                 data: {
                     labels: labels,
                     datasets: [{
