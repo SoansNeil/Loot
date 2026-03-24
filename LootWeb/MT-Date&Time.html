@@ -15,7 +15,7 @@
             <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
             <nav id="nav">
                 <ul>
-                    <li><a href="Dashboard.html">Dashboard</a></li>
+                    <li><a href=# onclick="carrySub()">Dashboard</a></li>
                     <li><a href="index.html">Sign Out</a></li>
                 </ul>
             </nav>
@@ -76,6 +76,8 @@
         document.getElementById('fromAccount').value = params.get('accountID');
          document.getElementById('toAccount').value = params.get('toAccount');
         document.getElementById('subscriberID').value = params.get('subscriberID');
+
+        const carrySub=()=> window.location.assign(`Dashboard.html?subscriberID=${subscriberID}`);
         // Today Instant transfer
         const today = new Date().toLocaleDateString('en-CA');
        document.getElementById('transferDate').min = today;
