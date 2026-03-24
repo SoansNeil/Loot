@@ -550,6 +550,47 @@ app.post('/submitForm', (req,res)=>{
     res.send('Form successfully submitted');
   });
 });
+//route to retrieve form
+app.post('/retrieveForm',(req,res)=>{
+  const formID = req.body.formID;
+  const sql = 'SELECT * FROM SERVICE_FORMS WHERE formID = ?';
+  db.query(sql, [formID], (err,result) =>{
+    if (err){
+      console.error('Error retrieving form:', err);
+      res.status(500).send('Error retrieving form');
+    }
+    if (result.length === 0) return res.status(404).send('User not found');
+    const form = result[0];
+    res.send(form);
+  })
+})
+//route to submit review form
+app.post('/reviewForm', (req,res)=>{
+  const formID = req.body.formID;
+  const customerName = req.body.customerName;
+  const customerEmail = req.body.customerEmail;
+  const employeeID = req.body.employeeID;
+  const subject = req.body.subject;
+  const priority = req.body.priority;
+  const description = req.body.description;
+  const comments = req.body.Comments;
+
+  const sql = 'INSERT INTO CLOSED_FORMS (formID,customerName,customerEmail,EmployeeID,subject,priority,description,commments) VALUES(?,?,?,?,?,?,?,?)';
+  db.query(sql, [formID,customerName,customerEmail,employeeID,subject,priority,description,comments],(err,result)=>{
+      if(err){
+        console.error('Error submitting review:', err);
+        res.status(500).send('Error submitting review');
+      }
+      const deleteSql = 'DELETE FROM SERVICE_FORMS WHERE formID = ?';
+      db.query(deleteSql, [formID], (err, deleteResult) => {
+        if(err){
+          console.error('Error deleting original form:', err);
+          return res.status(500).send('Review submitted but error deleting original form');
+        }
+      res.send('Review submitted successfully');
+      });
+  });
+});
 //Route to change user data
 app.post('/retrieveUser', (req, res) => {
   const username = req.body.username;
@@ -589,7 +630,7 @@ app.post('/create-budget', (req, res) => {
   const subscriberId = req.body.subscriberId;
   const accountId = req.body.accountId;
   
-const sql = 'INSERT INTO Transactions (amount, ExpenseType, category, dateRecorded, subscriberId, accountId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+const sql = 'INSERT INTO Budgeting (amount, ExpenseType, category, dateRecorded, subscriberId, accountId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
   db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err, result) => {
     if (err) {
       console.error('Error making new budget:', err);
