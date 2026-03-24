@@ -39,6 +39,36 @@ CREATE TABLE EXTERNAL_ACCOUNT
   
 );
 
+CREATE TABLE Employee (
+  EmployeeID int NOT NULL AUTO_INCREMENT,
+  eFName varchar(50) NOT NULL,
+  eLName varchar(50) NOT NULL,
+  eUsername varchar(30) NOT NULL,
+  ePassword varchar(255) NOT NULL,
+  eBirthday date NOT NULL,
+  employeeEmail varchar(100) NOT NULL,
+  ePhone varchar(25) DEFAULT NULL,
+  PRIMARY KEY (EmployeeID),
+  UNIQUE (EmployeeID),
+  UNIQUE (eUsername),
+  UNIQUE (employeeEmail)
+);
+
+USE LootDB;
+
+CREATE TABLE SERVICE_FORMS (
+    formID INT AUTO_INCREMENT PRIMARY KEY,
+    customerName VARCHAR(100) NOT NULL,
+    customerEmail VARCHAR(100) NOT NULL,
+    EmployeeID INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    priority ENUM('Low','Medium','High') NOT NULL,
+    description TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+);
+
 CREATE TABLE Budgeting (
 TID INT AUTO_INCREMENT,
 Amount DECIMAL(15,2) NOT NULL,
@@ -55,4 +85,46 @@ FOREIGN KEY (AccountID)
 REFERENCES EXTERNAL_ACCOUNT(AccountID),
 CONSTRAINT CHECK_ExpenseType
 CHECK (ExpenseType IN ('Expense','Income','Transfer'))
+);
+
+CREATE TABLE CARD_TRANSACTION
+(
+  TransactionID INT AUTO_INCREMENT NOT NULL,
+  AccountID INT NOT NULL,
+  Amount DECIMAL(15,2) NOT NULL,
+  TransactionDate DATETIME NOT NULL,
+  MerchantName VARCHAR(100),
+  Description VARCHAR(255),
+  Category VARCHAR(50) NOT NULL,
+  TransactionType VARCHAR(20) NOT NULL,
+  PRIMARY KEY (TransactionID),
+  FOREIGN KEY (AccountID) REFERENCES EXTERNAL_ACCOUNT(AccountID) ON DELETE CASCADE,
+  CONSTRAINT CHECK_Category
+    CHECK (Category IN ('Food & drink', 'Bills & utilities', 'Transportation', 'Personal', 'Entertainment', 'Cash out')),
+  CONSTRAINT CHECK_TransactionType
+    CHECK (TransactionType IN ('Debit', 'Credit'))
+);
+CREATE TABLE scheduled_transfers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    amount DECIMAL(10,2) NOT NULL,
+    from_account VARCHAR(50) NOT NULL,
+    to_account VARCHAR(50) NOT NULL,
+    to_subscriber VARCHAR(50) NOT NULL,
+    schedule_type ENUM('now', 'later', 'recurring') NOT NULL,
+    transfer_date DATE NULL,
+    transfer_time TIME NULL,
+    status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE `CLOSED_FORMS` (
+  `formID` int NOT NULL AUTO_INCREMENT,
+  `customerName` varchar(100) NOT NULL,
+  `customerEmail` varchar(100) NOT NULL,
+  `EmployeeID` int NOT NULL,
+  `subject` varchar(150) NOT NULL,
+  `priority` enum('Low','Medium','High') NOT NULL,
+  `description` text NOT NULL,
+  `commments` text,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`formID`)
 );
