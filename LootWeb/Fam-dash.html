@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<!--
+	Alpha by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Family</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="landing is-preload">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="Dashboard.html">Dashboard</a></li>
+							<li><a href="index.html">Log Out</a></li>
+							
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Banner -->
+				<section id="banner">
+					<h3>Here you will be able to plan and manage financial goals with users on your family plan. </h3>
+
+				</section>
+
+			<!-- Main -->
+			 <section>
+				<p>Users in your family:</p>
+
+				 <button id="displayFam">Show Family Accounts</button>
+				 <div id="FamAcc"></div>
+
+			</section>
+
+			 <Section>
+				<p>Family Goals:</p>
+			</Section>
+
+			 <section>
+				<p>Donations:</p>
+			</section>
+
+			<section>
+				<p> Family message board:</p>
+			</section>
+
+						
+			<script>
+			const urlParams = new URLSearchParams(window.location.search);
+			const subscriberID = urlParams.get('subscriberID');
+
+			const button = document.getElementById('displayFamAcc');
+
+			button.addEventListener('click', async () => {
+				const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+				const text = await res.text();
+
+				// Show results on the page instead of alert
+				document.getElementById("FamAcc").innerHTML = text;
+			});
+			</script>
+
+					</section>
+					
+
+				</div>
+				
+
+				<!-- Scripts -->
+				<script src="assets/js/jquery.min.js"></script>
+				<script src="assets/js/jquery.dropotron.min.js"></script>
+				<script src="assets/js/jquery.scrollex.min.js"></script>
+				<script src="assets/js/browser.min.js"></script>
+				<script src="assets/js/breakpoints.min.js"></script>
+				<script src="assets/js/util.js"></script>
+				<script src="assets/js/main.js"></script>
+			</body>
+			</html>
+

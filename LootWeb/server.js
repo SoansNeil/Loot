@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require('express');
 const mysql = require('mysql2');
@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT||3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -19,11 +19,12 @@ app.use(express.json());
 
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Maria22', // use your MySQL password if needed
-  database: 'lootdb'
+ host: process.env.DB_HOST,
+user: process.env.DB_USER,
+password: process.env.DB_PASSWORD,
+database: process.env.DB_NAME,
 });
+
 
 db.connect((err) => {
   if (err) {
@@ -243,7 +244,7 @@ app.post('/displayExAcc',(req,res)=>{
  db.query(sql, [subscriberID], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
-      res.status(500).send('BD Error');
+      res.status(500).send('DB Error');
     }
  
      if (!result.length) {
@@ -269,6 +270,52 @@ app.post('/displayExAcc',(req,res)=>{
     res.send(html); // send HTML snippet
   });
   });
+//NEEDS WORK
+  //display family accounts on Fam dashboard 
+app.post('/displayFamAcc',(req,res)=>{
+ 
+  const subscriberID=req.query.subscriberID;
+
+  const getUserFamSql='Select FamAccount from subscriber_account where subscriberID=?';
+  db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+    if (err) {
+      console.error('Error fetching user FamAccount:', err);
+      return res.status(500).send('Database Error');
+    }
+
+    if (!userResult.length) {
+      return res.send('No user found');
+    }
+
+    const famAccount = userResult[0].FamAccount;
+
+  const getFamilyMemberSql='Select FName, LName,Username,subscriberID, FamAccount From Subscriber_account Where FamAcount= ?';
+ db.query(getFamilyMemberSql, [FamAccount], (err, familyResults) => {
+    if (err) {
+      console.error('Error fetching family accounts:', err);
+      res.status(500).send('DB Error');
+    }
+ 
+     if (!familyResults.length) {
+      return res.send('No family members found');
+    }
+   //html formatting for dashboard
+    let html = '<table border="1">';
+    familyResults.forEach(member => {
+      html += `<div style="border:1px solid #ccc; padding:10px; margin:10px; width:300px;">
+          <p><strong> First Name:</strong> ${account.FName}</p>
+          <p><strong>Last Name:</strong> ${account.LName}</p>
+          <p><strong>Userame:</strong> ${account.LName}</p>
+        </div>
+      `;
+    
+    });
+    html += '</table>';
+
+    res.send(html); // send HTML snippet
+  });
+  });
+});
 
 //Checks if account is accessible to the User 
 app.post('/CheckAccID', (req, res) => {
@@ -292,6 +339,8 @@ app.post('/CheckAccID', (req, res) => {
     res.redirect(`/MT-SelectAmount.html?accountID=${accountID}&toAccount=${toAccount}&balance=${balance}&subscriberID=${subscriberID}`);
   });
 });
+
+
 
   //Store transfer Amount
   app.post('/StoreAmount', (req, res) => {
@@ -656,6 +705,84 @@ app.use((req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+});
+
+// Add this route to create a test employee with proper hash
+app.get('/setup-test-user', (req, res) => {
+  const testPassword = 'test123';
+  const hashPassword = crypto
+    .createHash('sha256')
+    .update(testPassword)
+    .digest('hex');
+  
+  console.log('Creating test user with hash:', hashPassword);
+  //Delete later
+  // First, check if test user exists
+  const checkSql = 'SELECT * FROM Employee WHERE eUsername = ?';
+  db.query(checkSql, ['testuser123'], (err, results) => {
+    if (err) {
+      console.error('Error checking user:', err);
+      return res.send('Error checking database: ' + err.message);
+    }
+    
+    console.log('Check results:', results);
+    
+    if (results && results.length > 0) {
+      // Update existing user
+      const updateSql = 'UPDATE Employee SET ePassword = ? WHERE eUsername = ?';
+      db.query(updateSql, [hashPassword, 'testuser123'], (err, updateResult) => {
+        if (err) {
+          console.error('Error updating:', err);
+          res.send('Error updating: ' + err.message);
+        } else {
+          res.send(`
+            <h2>Test User Updated!</h2>
+            <p><strong>Username:</strong> testuser123</p>
+            <p><strong>Password:</strong> test123</p>
+            <p><strong>Password Hash:</strong> ${hashPassword}</p>
+            <p><strong>Role:</strong> employee</p>
+            <br>
+            <a href="/login.html">Click here to login</a>
+          `);
+        }
+      });
+    } else {
+      // Create new user - FIXED: Correct SQL syntax
+      const insertSql = `INSERT INTO Employee (eFName, eLName, eUsername, ePassword, eBirthday, employeeEmail, ePhone) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      const values = ['Test', 'User', 'testuser123', hashPassword, '1990-01-01', 'test@test.com', '1234567890'];
+      
+      console.log('Attempting to insert with values:', values);
+      
+      db.query(insertSql, values, (err, result) => {
+        if (err) {
+          console.error('Error creating user:', err);
+          res.send(`
+            <h2>Error Creating Test User</h2>
+            <p>Error: ${err.message}</p>
+            <p>Please check that:</p>
+            <ul>
+              <li>The Employee table exists</li>
+              <li>All column names are correct: eFName, eLName, eUsername, ePassword, eBirthday, employeeEmail, ePhone</li>
+              <li>Data types match the table schema</li>
+            </ul>
+          `);
+        } else {
+          console.log('User created successfully, ID:', result.insertId);
+          res.send(`
+            <h2>Test User Created Successfully!</h2>
+            <p><strong>Username:</strong> testuser123</p>
+            <p><strong>Password:</strong> test123</p>
+            <p><strong>Password Hash:</strong> ${hashPassword}</p>
+            <p><strong>Role:</strong> employee</p>
+            <p><strong>Employee ID:</strong> ${result.insertId}</p>
+            <br>
+            <a href="/login.html">Click here to login</a>
+          `);
+        }
+      });
+    }
+  });
 });
 //functions
 function authenticateToken(req, res, next) {

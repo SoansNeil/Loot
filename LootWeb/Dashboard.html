@@ -34,7 +34,6 @@
 
 			<!-- Main -->
 				<section id="main" class="container">
-						
 					<section class="box special features">
 						<div class="features-row">
 							<section><a herf="#" onclick="carrySub()">
@@ -55,7 +54,14 @@
 								<h3>Analyze</h3>
 								<p>View end of month expense statements that summarize balance changes.</p>
 							</a></section>
+							<section><a href="#" onclick="Sub2()">
+								<span class="icon solid major fa-users accent5"></span>
+
+								<h3>Family</h3>
+								<p>Plan and view your family goals. </p>
+							</a></section>
 						</div>
+					</section>
 
 
 			<!-- Footer -->
@@ -86,6 +92,9 @@
 
 			//Analyze html with subscriber 
 		   const Sub=()=> window.location.assign(`sum_dashboard.html?subscriberID=${subscriberID}`);
+
+		   //Family html with subscriber 
+		   const Sub2=()=> window.location.assign(`Fam-dash.html?subscriberID=${subscriberID}`);
 
 		</script>
 		<!-- Scripts -->
