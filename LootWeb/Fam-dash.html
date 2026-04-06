@@ -34,23 +34,55 @@
 
 			<!-- Main -->
 			 <section>
-				<p>Users in your family:</p>
+				<H2>Users in your family:</H2>
 
-				 <button id="displayFam">Show Family Accounts</button>
+				 <button id="displayFam">Click for Family Accounts</button>
 				 <div id="FamAcc"></div>
 
 			</section>
 
 			 <Section>
-				<p>Family Goals:</p>
+				<H2>Family Goals:</H2>
+
+
+				 <div class="container">
+        <h2>Create a Family Goal</h2>
+        <form action="/add-goal" method="POST">
+            <label for="GName">Goal Name *</label>
+            <input type="text" id="GName" name="GName" required maxlength="50">
+            
+            <label for="Description">Description</label>
+            <textarea id="Description" name="Description" rows="3" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;"></textarea>
+            
+            <label for="Goal">Target Amount ($) *</label>
+            <input type="number" id="Goal" name="Goal" required min="0">
+            
+            <label for="CurrAmt">Current Amount ($) *</label>
+            <input type="number" id="CurrAmt" name="CurrAmt" required min="0">
+            
+            <label for="status">Status *</label>
+            <select id="status" name="status" required>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+            
+            <button type="submit">Add Goal</button>
+        </form>
+        <div class="note">
+            <strong>Note:</strong> Amount Left will be automatically calculated as (Goal - Current Amount).
+        </div>
+    </div>
+
 			</Section>
 
 			 <section>
-				<p>Donations:</p>
+				<H2>Donations:</H2>
+
+				<H2>Make a donation:</H2>
 			</section>
 
 			<section>
-				<p> Family message board:</p>
+				<H2> Family message board:</H2>
 			</section>
 
 						
@@ -58,7 +90,7 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const subscriberID = urlParams.get('subscriberID');
 
-			const button = document.getElementById('displayFamAcc');
+			const button = document.getElementById('displayFam');
 
 			button.addEventListener('click', async () => {
 				const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });

@@ -271,12 +271,11 @@ app.post('/displayExAcc',(req,res)=>{
   });
   });
 //NEEDS WORK
-  //display family accounts on Fam dashboard 
-app.post('/displayFamAcc',(req,res)=>{
- 
-  const subscriberID=req.query.subscriberID;
+//display family accounts on Fam dashboard 
+app.post('/displayFamAcc', (req, res) => {
+  const subscriberID = req.query.subscriberID;
 
-  const getUserFamSql='Select FamAccount from subscriber_account where subscriberID=?';
+  const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
   db.query(getUserFamSql, [subscriberID], (err, userResult) => {
     if (err) {
       console.error('Error fetching user FamAccount:', err);
@@ -289,31 +288,35 @@ app.post('/displayFamAcc',(req,res)=>{
 
     const famAccount = userResult[0].FamAccount;
 
-  const getFamilyMemberSql='Select FName, LName,Username,subscriberID, FamAccount From Subscriber_account Where FamAcount= ?';
- db.query(getFamilyMemberSql, [FamAccount], (err, familyResults) => {
-    if (err) {
-      console.error('Error fetching family accounts:', err);
-      res.status(500).send('DB Error');
-    }
- 
-     if (!familyResults.length) {
-      return res.send('No family members found');
-    }
-   //html formatting for dashboard
-    let html = '<table border="1">';
-    familyResults.forEach(member => {
-      html += `<div style="border:1px solid #ccc; padding:10px; margin:10px; width:300px;">
-          <p><strong> First Name:</strong> ${account.FName}</p>
-          <p><strong>Last Name:</strong> ${account.LName}</p>
-          <p><strong>Userame:</strong> ${account.LName}</p>
-        </div>
-      `;
-    
-    });
-    html += '</table>';
+    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM subscriber_account WHERE FamAccount = ?';
+    db.query(getFamilyMemberSql, [famAccount], (err, familyResults) => {
+      if (err) {
+        console.error('Error fetching family accounts:', err);
+        return res.status(500).send('DB Error');
+      }
 
-    res.send(html); // send HTML snippet
-  });
+      if (!familyResults.length) {
+        return res.send('No family members found');
+      }
+   //html formatting for dashboard
+     let html = '<div style="font-family: Arial, sans-serif;">';
+      html += '<h2>Family Dashboard</h2>';
+      html += '<div style="display: flex; flex-wrap: wrap;">';
+      
+      familyResults.forEach(member => {
+        html += `<div style="border: 1px solid #ccc; padding: 10px; margin: 10px; width: 300px; border-radius: 5px;">
+          <p><strong>First Name:</strong> ${member.FName}</p>
+          <p><strong>Last Name:</strong> ${member.LName}</p>
+          <p><strong>Username:</strong> ${member.Username}</p>
+          <p><strong>Family Account:</strong> ${member.FamAccount}</p>
+        </div>`;
+      });
+      
+      html += '</div>';
+      html += '</div>';
+      
+      res.send(html);
+    });
   });
 });
 
@@ -698,6 +701,43 @@ const sql = 'INSERT INTO Budgeting (amount, ExpenseType, category, dateRecorded,
   });
 });
 
+app.post('/add-goal', (req, res) => {
+    const { GName, Description, Goal, CurrAmt, status } = req.body;
+    
+    // Validate input
+    if (!GName || !Goal || !CurrAmt || !status) {
+        return res.status(400).send('All required fields must be filled');
+    }
+    
+    // Insert query (AmtLeft auto-calculated by database)
+    const query = `INSERT INTO Family_Goal (GName, Description, Goal, CurrAmt, status) 
+                   VALUES (?, ?, ?, ?, ?)`;
+    
+    db.query(query, [GName, Description || '', Goal, CurrAmt, status], (err, result) => {
+        if (err) {
+            console.error('Error inserting data:', err);
+            return res.status(500).send('Database error: ' + err.message);
+        }
+        
+        // Get the inserted record with calculated AmtLeft
+        const selectQuery = `SELECT * FROM Family_Goal WHERE GoalID = ?`;
+        db.query(selectQuery, [result.insertId], (err, rows) => {
+            if (err) {
+                console.error('Error fetching inserted record:', err);
+                return res.send(`
+                    <h2>Goal Added Successfully!</h2>
+                    <p>Goal ID: ${result.insertId}</p>
+                    <a href="/">Add Another Goal</a><br>
+                    <a href="/view-goals">View All Goals</a>
+                `);
+            }
+            
+            const goal = rows[0];
+            // Send success page
+            res.send(`Goal Created!`);
+           });
+    });
+});
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Webpage not found');
