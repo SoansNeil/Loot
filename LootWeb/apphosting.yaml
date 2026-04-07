@@ -7,14 +7,22 @@ scripts:
 
 env:
   - variable: DB_HOST
-    secret: DB_HOST
+    value: maglev.proxy.rlwy.net
+    availability:
+      - RUNTIME
   - variable: DB_PORT
-    secret: DB_PORT
+    value: "13455"
+    availability:
+      - RUNTIME
   - variable: DB_USER
-    secret: DB_USER
+    value: root
+    availability:
+      - RUNTIME
+  - variable: DB_DATABASE
+    value: railway
+    availability:
+      - RUNTIME
   - variable: DB_PASSWORD
     secret: DB_PASSWORD
-  - variable: DB_DATABASE
-    secret: DB_DATABASE
   - variable: JWT_TOKEN
     secret: JWT_TOKEN
