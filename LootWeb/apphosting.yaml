@@ -30,3 +30,7 @@ env:
     value: 59205d4a7c5d4b824b59369379dcfeb050f698fb58881fce21ad9635ef930337cd4b408ea9116806b29c2a3fd7ba0b0034b853e01f4b122fbe53002d5eca9670
     availability:
       - RUNTIME
+  - variable: NODE_ENV
+    value: production
+    availability:
+      - RUNTIME

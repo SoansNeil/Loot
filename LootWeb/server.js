@@ -52,7 +52,11 @@ app.post('/updatedLogin',(req,res) =>{
         const employee = employeeResult[0];
         if (employee.ePassword === hashPassword){
           const token = jwt.sign({id: employee.EmployeeID, username: employee.eUsername, role: 'employee'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
-          res.cookie('token', token, {httpOnly: true, secure: process.env.NODE_ENV === 'production'});
+          res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict'
+});
           return res.redirect('/employeeDashboard');
         }
       }
@@ -64,7 +68,11 @@ app.post('/updatedLogin',(req,res) =>{
           const user = userResult[0];
           if(user.Password === hashPassword){
             const token = jwt.sign({id: user.SubscriberID, username: user.Username, role: 'user'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
-            res.cookie('token', token, {httpOnly: true, secure: process.env.NODE_ENV === 'production'});
+            res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict'
+});
             return res.redirect('/userDashboard');
           }
         }
