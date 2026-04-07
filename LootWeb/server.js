@@ -384,61 +384,51 @@ app.post('/CheckAccID', (req, res) => {
     
 
 app.post('/ConfirmTransfer', (req, res) => {
-  console.log('ConfirmTransfer received:', req.body);
   const amount = Number(req.body.amount);
   const fromAccount = req.body.fromAccount;
   const toAccount = req.body.toAccount;
-  const subscriberID = req.body.subscriberID;
 
   db.beginTransaction((err) => {
-    if (err) return res.send('Error starting transaction: ' + err);
-
-    const deductSql = 'UPDATE EXTERNAL_ACCOUNT SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ?';
+    if (err) {
+      return res.send('Error processing transfer. Please try again.');
+    }
+    
+    const deductSql = 'UPDATE external_account SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ?';
     db.query(deductSql, [amount, fromAccount], (err, deductResult) => {
       if (err) {
-        console.error('Deduct error:', err);
-        return db.rollback(() => res.send('Error deducting balance: ' + err.message));
-      }
-      if (deductResult.affectedRows === 0) {
-        return db.rollback(() => res.send('fromAccount ' + fromAccount + ' not found in EXTERNAL_ACCOUNT'));
+        return db.rollback(() => {
+          res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+        });
       }
 
-      const addSql = 'UPDATE EXTERNAL_ACCOUNT SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?';
+      const addSql = 'UPDATE external_account SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?';
       db.query(addSql, [amount, toAccount], (err, addResult) => {
         if (err) {
-          console.error('Add error:', err);
-          return db.rollback(() => res.send('Error adding balance: ' + err.message));
-        }
-        if (addResult.affectedRows === 0) {
-          return db.rollback(() => res.send('toAccount ' + toAccount + ' not found in EXTERNAL_ACCOUNT'));
+          return db.rollback(() => {
+            res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+          });
         }
 
-        const lookupSql = 'SELECT SubscriberID FROM EXTERNAL_ACCOUNT WHERE AccountID = ?';
-        db.query(lookupSql, [toAccount], (err, lookupResult) => {
+        const transactionSql = `INSERT INTO scheduled_transfers (amount, from_account, to_account, status) 
+                               VALUES (?, ?, ?, 'completed')`;
+        
+        db.query(transactionSql, [amount, fromAccount, toAccount], (err, transactionResult) => {
           if (err) {
-            console.error('Lookup error:', err);
-            return db.rollback(() => res.send('Error looking up subscriber: ' + err.message));
+            return db.rollback(() => {
+              res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+            });
           }
 
-          const toSubscriber = lookupResult.length > 0 ? lookupResult[0].SubscriberID : subscriberID;
-
-          const transactionSql = `INSERT INTO scheduled_transfers 
-            (amount, from_account, to_account, to_subscriber, schedule_type, transfer_date, transfer_time, status) 
-            VALUES (?, ?, ?, ?, 'now', CURDATE(), CURTIME(), 'completed')`;
-
-          db.query(transactionSql, [amount, fromAccount, toAccount, toSubscriber], (err) => {
+          db.commit((err) => {
             if (err) {
-              console.error('Insert error:', err);
-              return db.rollback(() => res.send('Error recording transfer: ' + err.message));
+              return db.rollback(() => {
+                res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+              });
             }
-
-            db.commit((err) => {
-              if (err) return db.rollback(() => res.send('Error committing: ' + err.message));
-              return res.send(`Transfer of $${amount} completed successfully! 
-                <a href="/Dashboard.html?subscriberID=${subscriberID}">
-                  <button>Return to Dashboard</button>
-                </a>`);
-            });
+            
+            return res.send(`Transfer of $${amount} completed successfully!<a href="/Dashboard.html?subscriberID=${req.body.subscriberID}">
+        <button>Return to Dashboard</button>
+         </a>`);
           });
         });
       });
