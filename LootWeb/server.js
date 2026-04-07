@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -19,10 +19,11 @@ app.use(express.json());
 
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Maria22', // use your MySQL password if needed
-  database: 'lootdb'
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE
 });
 
 db.connect((err) => {
@@ -51,7 +52,7 @@ app.post('/updatedLogin',(req,res) =>{
         const employee = employeeResult[0];
         if (employee.ePassword === hashPassword){
           const token = jwt.sign({id: employee.EmployeeID, username: employee.eUsername, role: 'employee'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
-          res.cookie('token', token, {httpOnly: true, secure: false});
+          res.cookie('token', token, {httpOnly: true, secure: process.env.NODE_ENV === 'production'});
           return res.redirect('/employeeDashboard');
         }
       }
@@ -63,7 +64,7 @@ app.post('/updatedLogin',(req,res) =>{
           const user = userResult[0];
           if(user.Password === hashPassword){
             const token = jwt.sign({id: user.SubscriberID, username: user.Username, role: 'user'}, process.env.JWT_TOKEN, {expiresIn: '1h'});
-            res.cookie('token',token,{httpOnly: true, secure: false});
+            res.cookie('token', token, {httpOnly: true, secure: process.env.NODE_ENV === 'production'});
             return res.redirect('/userDashboard');
           }
         }
@@ -99,10 +100,10 @@ app.post('/employeeCreation', (req,res) =>{
   const sql = 'INSERT INTO Employee (eFName, eLName, eUsername, ePassword, eBirthday, employeeEmail, ePhone) VALUES(?,?,?,?,?,?,?)';
   db.query(sql, [eFName, eLName, eUsername, hashPassword, eBirthday, employeeEmail, ePhone], (err,result) => {
     if (err){
-      console.error('Error Creating Employee', err);
-      res.status(500).send('Error Creating Employee');
-    }
-    res.send('Employee successfully created');
+  console.error('Error Creating Employee', err);
+  return res.status(500).send('Error Creating Employee');
+}
+res.send('Employee successfully created');
   });
 });
 //Route to add new users to database
@@ -122,7 +123,7 @@ app.post('/createUser-form', (req, res) => {
   db.query(sql, [firstName, lastName, username, hashPassword, birthday, email, phoneNumber], (err, result) => {
     if (err) {
       console.error('Error inserting user:', err);
-      res.status(500).send('Error inserting user');
+      return res.status(500).send('Error inserting user');
     }
     res.send('Thank you for joining us!');
   }
@@ -545,7 +546,7 @@ app.post('/submitForm', (req,res)=>{
   db.query(sql, [customerName, customerEmail, employeeID, subject, priority, description], (err, result) =>{
     if(err){
       console.error('Error submitting form:',err);
-      res.status(500).send('Error submitting form');
+      return res.status(500).send('Error submitting form');
     }
     res.send('Form successfully submitted');
   });
@@ -579,7 +580,7 @@ app.post('/reviewForm', (req,res)=>{
   db.query(sql, [formID,customerName,customerEmail,employeeID,subject,priority,description,comments],(err,result)=>{
       if(err){
         console.error('Error submitting review:', err);
-        res.status(500).send('Error submitting review');
+        return res.status(500).send('Error submitting review');
       }
       const deleteSql = 'DELETE FROM SERVICE_FORMS WHERE formID = ?';
       db.query(deleteSql, [formID], (err, deleteResult) => {
@@ -634,7 +635,7 @@ const sql = 'INSERT INTO Budgeting (amount, ExpenseType, category, dateRecorded,
   db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err, result) => {
     if (err) {
       console.error('Error making new budget:', err);
-      res.status(500).send('Error creating new budget');
+      return res.status(500).send('Error creating new budget');
     }
     res.json({
       success: true,

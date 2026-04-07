@@ -1,0 +1,20 @@
+runConfig:
+  minInstances: 1
+
+scripts:
+  buildCommand: npm install
+  startCommand: node server.js
+
+env:
+  - variable: DB_HOST
+    secret: DB_HOST
+  - variable: DB_PORT
+    secret: DB_PORT
+  - variable: DB_USER
+    secret: DB_USER
+  - variable: DB_PASSWORD
+    secret: DB_PASSWORD
+  - variable: DB_DATABASE
+    secret: DB_DATABASE
+  - variable: JWT_TOKEN
+    secret: JWT_TOKEN

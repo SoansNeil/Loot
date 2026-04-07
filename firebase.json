@@ -1,0 +1,26 @@
+{
+  "apphosting": [
+    {
+      "backendId": "loot-server",
+      "rootDir": "/loot",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "functions"
+      ]
+    },
+    {
+      "backendId": "loot-server",
+      "rootDir": "/lootweb",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "functions"
+      ]
+    }
+  ]
+}

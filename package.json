@@ -1,5 +1,5 @@
 {
-  "name": "loot",
+  "name": "exit",
   "version": "1.0.0",
   "description": "<h2> Loot </h2> <h3>CMPSC 390 Semester Project - GROUP 2</h3>",
   "main": "index.js",
@@ -19,12 +19,15 @@
   "homepage": "https://github.com/SoansNeil/Loot#readme",
   "dependencies": {
     "body-parser": "^2.2.2",
-    "dotenv": "^17.3.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "firebase": "^12.11.0",
+    "firebase-admin": "^13.7.0",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.18.0",
-    "node-schedule": "^2.1.1",
-    "cookie-parser": "^1.4.7",
-    "jsonwebtoken": "^9.0.3"
-  }
+    "node-schedule": "^2.1.1"
+  },
+  "devDependencies": {}
 }
