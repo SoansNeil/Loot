@@ -400,7 +400,7 @@ app.post('/ConfirmTransfer', (req, res) => {
     db.query(deductSql, [amount, fromAccount], (err, deductResult) => {
       if (err) {
         return db.rollback(() => {
-          res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+          res.send('Deduct Error ; Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
         });
       }
 
@@ -408,7 +408,7 @@ app.post('/ConfirmTransfer', (req, res) => {
       db.query(addSql, [amount, toAccount], (err, addResult) => {
         if (err) {
           return db.rollback(() => {
-            res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+            res.send('Add Error ; Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
           });
         }
 
@@ -418,7 +418,7 @@ app.post('/ConfirmTransfer', (req, res) => {
         db.query(transactionSql, [amount, fromAccount, toAccount], (err, transactionResult) => {
           if (err) {
             return db.rollback(() => {
-              res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+              res.send('Transactions Error ; Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
             });
           }
 
