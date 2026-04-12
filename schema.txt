@@ -96,7 +96,6 @@ CREATE TABLE scheduled_transfers (
     amount DECIMAL(10,2) NOT NULL,
     from_account VARCHAR(50) NOT NULL,
     to_account VARCHAR(50) NOT NULL,
-    to_subscriber VARCHAR(50) NOT NULL,
     schedule_type ENUM('now', 'later', 'recurring') NOT NULL,
     transfer_date DATE NULL,
     transfer_time TIME NULL,

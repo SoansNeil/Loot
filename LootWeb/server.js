@@ -176,6 +176,7 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bank, accountType) VALUES (?, ?)'; //
     res.send('External account connected successfully!');
   });
 });
+
 //route to get category totals for specific month and year for given account id to fill category list and donut chart on frontend
 app.get('/api/category-totals/:accountId', (req, res) => { //define route with accountId as parameter and month and year as query parameters to get category totals for specific month and year
   const accountId = req.params.accountId;
@@ -270,7 +271,7 @@ app.post('/displayExAcc',(req,res)=>{
     res.send(html); // send HTML snippet
   });
   });
-//NEEDS WORK
+
 //display family accounts on Fam dashboard 
 app.post('/displayFamAcc', (req, res) => {
   const subscriberID = req.query.subscriberID;
@@ -300,25 +301,196 @@ app.post('/displayFamAcc', (req, res) => {
       }
    //html formatting for dashboard
      let html = '<div style="font-family: Arial, sans-serif;">';
-      html += '<h2>Family Dashboard</h2>';
-      html += '<div style="display: flex; flex-wrap: wrap;">';
-      
-      familyResults.forEach(member => {
-        html += `<div style="border: 1px solid #ccc; padding: 10px; margin: 10px; width: 300px; border-radius: 5px;">
-          <p><strong>First Name:</strong> ${member.FName}</p>
-          <p><strong>Last Name:</strong> ${member.LName}</p>
-          <p><strong>Username:</strong> ${member.Username}</p>
-          <p><strong>Family Account:</strong> ${member.FamAccount}</p>
-        </div>`;
-      });
-      
-      html += '</div>';
-      html += '</div>';
-      
-      res.send(html);
+     html='<h2> Family Dashboard</h2>'
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+
+familyResults.forEach(member => {
+    html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <p><strong>First Name:</strong> ${member.FName}</p>
+        <p><strong>Last Name:</strong> ${member.LName}</p>
+        <p><strong>Username:</strong> ${member.Username}</p>
+        <p><strong>Family Account:</strong> ${member.FamAccount}</p>
+    </div>`;
+});
+
+html += '</div>';
+html += '</div>';
+
+res.send(html);
     });
   });
 });
+
+//check user in db
+app.get('/check-user', async (req, res) => {
+    const { FName, LName, Username } = req.query;
+    
+    try {
+        const result = await db.query(
+            'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?', 
+            [FName, LName, Username]
+        );
+        
+        res.json({ exists: result.length > 0 });
+    } catch (error) {
+        res.status(500).json({ exists: false, error: error.message });
+    }
+});
+
+//add family member - checks ALL THREE fields match
+app.post('/add-family-member', async (req, res) => {
+    const { FName, LName, Username } = req.body;
+    const subscriberID = req.query.subscriberID;
+    
+    try {
+       
+        const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+        
+        db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+            if (err) {
+                console.error('Error fetching user FamAccount:', err);
+                return res.status(500).json({ success: false, message: 'Database Error' });
+            }
+            
+            if (!userResult.length) {
+                return res.status(400).json({ success: false, message: 'No user found' });
+            }
+            
+            const familyAccountId = userResult[0].FamAccount;
+            
+            // CHECK that ALL THREE fields match (FName, LName, AND Username)
+            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
+            db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
+                if (err) {
+                    console.error('Error checking user:', err);
+                    return res.status(500).json({ success: false, message: 'Database Error' });
+                }
+                
+                if (!existing.length) {
+                    return res.json({ 
+                        success: false, 
+                        message: 'User not found. First name, last name, and username do not match an existing account.' 
+                    });
+                }
+                
+                
+                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
+                db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
+                    if (err) {
+                        console.error('Error updating family member:', err);
+                        return res.status(500).json({ success: false, message: 'Database Error' });
+                    }
+                    
+                    res.json({ 
+                        success: true, 
+                        message: `${FName} ${LName} (${Username}) has been linked to your family plan!`,
+                        famAccount: familyAccountId 
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Error adding family member:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
+// Add family goal to DB
+app.post('/add-goal', (req, res) => {
+  const goalName = req.body.GName;
+  const goalDescription = req.body.Description;
+  const goalAmount = req.body.Goal;
+  const currentAmount = 0;
+  const status = "in progress"; // Automatically set status
+  
+  const subscriberId = req.body.subscriberID;
+  
+  
+  if (!goalName || !goalAmount) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Goal name and amount are required' 
+    });
+  }
+  
+  // get the FamAccount based on SubscriberID
+  const getFamAccountSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+  
+  db.query(getFamAccountSql, [subscriberId], (err, results) => {
+    if (err) {
+      console.error('Error fetching FamAccount:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving user information' 
+      });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    const famAccount = results[0].FamAccount;
+    
+
+    const insertGoalSql = 'INSERT INTO lootdb.Family_Goal (GName, Description, Goal, CurrAmt, FamAccount, Status) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    db.query(insertGoalSql, [goalName, goalDescription, goalAmount, currentAmount, famAccount, status], (err, result) => {
+      if (err) {
+        console.error('Error inserting goal:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error adding goal to plan: ' + err.message 
+        });
+      }
+     
+      res.json({ 
+        success: true, 
+        message: 'Goal successfully added to your plan!',
+        goalId: result.insertId,
+        status: status
+      });
+    });
+  });
+});
+
+
+//get family goals from DB
+app.get('/get-family-goals', (req, res) => {
+    const subscriberID = req.query.subscriberID; 
+    
+    // get famAccount from subscriberID
+    const getFamSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+    
+    db.query(getFamSql, [subscriberID], (err, results) => {
+        if (err) {
+            console.error('Error fetching FamAccount:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        const famAccount = results[0].FamAccount;
+        
+        //get goals for this family account
+        const goalsQuery = 'SELECT * FROM lootdb.Family_Goal WHERE FamAccount = ? ORDER BY GoalID DESC';
+        
+        db.query(goalsQuery, [famAccount], (err, goalResults) => {
+            if (err) {
+                console.error('Error fetching goals:', err);
+                return res.status(500).json({ success: false, message: 'Error fetching goals' });
+            }
+            
+            res.json({ success: true, goals: goalResults });
+        });
+    });
+});
+
 
 //Checks if account is accessible to the User 
 app.post('/CheckAccID', (req, res) => {
@@ -440,7 +612,7 @@ app.post('/ConfirmTransfer', (req, res) => {
     db.query(deductSql, [amount, fromAccount], (err, deductResult) => {
       if (err) {
         return db.rollback(() => {
-          res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+          res.send('deduct err: ',err);
         });
       }
 
@@ -448,7 +620,7 @@ app.post('/ConfirmTransfer', (req, res) => {
       db.query(addSql, [amount, toAccount], (err, addResult) => {
         if (err) {
           return db.rollback(() => {
-            res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+            res.send('Add err: ',err);
           });
         }
 
@@ -458,14 +630,14 @@ app.post('/ConfirmTransfer', (req, res) => {
         db.query(transactionSql, [amount, fromAccount, toAccount], (err, transactionResult) => {
           if (err) {
             return db.rollback(() => {
-              res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+              res.send('Insert err: ', err);
             });
           }
 
           db.commit((err) => {
             if (err) {
               return db.rollback(() => {
-                res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+                res.send('Error committing try again.');
               });
             }
             
