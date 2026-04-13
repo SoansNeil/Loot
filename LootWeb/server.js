@@ -182,8 +182,9 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, cu
   db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus,subscriberId], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
-      res.status(500).send('Error connecting external account');
-      res.json({
+      return res.status(500).send('Error connecting external account');
+    }
+      return res.json({
       success: true,
       bankName,
       accountType,
@@ -192,8 +193,6 @@ const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, cu
       syncStatus,
       subscriberId
     });
-    }
-    res.send('External account connected successfully!');
   });
 });
 
