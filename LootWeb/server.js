@@ -491,7 +491,107 @@ app.get('/get-family-goals', (req, res) => {
     });
 });
 
+app.get('/getExternalAccountsJSON', (req, res) => {
+    const subscriberID = req.query.subscriberID;
+    
+    console.log('Fetching accounts for subscriber:', subscriberID);
+    
+    const sql = 'SELECT accountID, bank, accountType, currentBalance, currency FROM EXTERNAL_ACCOUNT WHERE subscriberID = ?';
+    
+    db.query(sql, [subscriberID], (err, result) => {
+        if (err) {
+            console.error('Error fetching external accounts:', err);
+            return res.status(500).json({ error: 'Database error', accounts: [] });
+        }
+        
+        console.log('Found accounts:', result.length);
+        res.json(result);
+    });
+});
 
+// contribute to goal
+app.post('/contribute-to-goal', (req, res) => {
+    const { goalId, subscriberID, accountID, amount } = req.body;
+    
+    console.log('=== CONTRIBUTION DEBUG ===');
+    console.log('goalId:', goalId, 'Type:', typeof goalId);
+    console.log('subscriberID:', subscriberID);
+    console.log('accountID:', accountID);
+    console.log('amount:', amount);
+    
+    // First, check if the goal exists and see the table structure
+    const checkGoalSql = 'SELECT * FROM FAMILY_GOAL WHERE GoalID = ?';
+    
+    db.query(checkGoalSql, [goalId], (err, goalResult) => {
+        if (err) {
+            console.error('Error checking goal:', err);
+            return res.json({ success: false, message: 'Database error: ' + err.message });
+        }
+        
+        console.log('Goal query result:', goalResult);
+        
+        if (!goalResult || goalResult.length === 0) {
+            return res.json({ success: false, message: 'Goal not found with ID: ' + goalId });
+        }
+        
+        console.log('Current goal amount:', goalResult[0].CurrAmt);
+        console.log('Goal target:', goalResult[0].Goal);
+        
+        // Now check the external account
+        const checkAccountSql = 'SELECT * FROM EXTERNAL_ACCOUNT WHERE accountID = ? AND subscriberID = ?';
+        
+        db.query(checkAccountSql, [accountID, subscriberID], (err, accountResult) => {
+            if (err) {
+                console.error('Error checking account:', err);
+                return res.json({ success: false, message: 'Account error: ' + err.message });
+            }
+            
+            console.log('Account query result:', accountResult);
+            
+            if (!accountResult || accountResult.length === 0) {
+                return res.json({ success: false, message: 'Account not found for subscriber' });
+            }
+            
+            if (accountResult[0].currentBalance < amount) {
+                return res.json({ success: false, message: 'Insufficient balance' });
+            }
+            
+            // Try to update the goal
+            const updateGoalSql = 'UPDATE FAMILY_GOAL SET CurrAmt = CurrAmt + ? WHERE GoalID = ?';
+            console.log('Update SQL:', updateGoalSql);
+            console.log('Update values:', [amount, goalId]);
+            
+            db.query(updateGoalSql, [amount, goalId], (err, updateResult) => {
+                if (err) {
+                    console.error('ERROR UPDATING GOAL:', err);
+                    console.error('Error code:', err.code);
+                    console.error('Error message:', err.message);
+                    console.error('SQL state:', err.sqlState);
+                    return res.json({ success: false, message: 'Update failed: ' + err.message });
+                }
+                
+                console.log('Update result:', updateResult);
+                
+                if (updateResult.affectedRows === 0) {
+                    return res.json({ success: false, message: 'No rows updated - goal might not exist' });
+                }
+                
+                // Deduct from account
+                const deductSql = 'UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance - ? WHERE accountID = ?';
+                
+                db.query(deductSql, [amount, accountID], (err, deductResult) => {
+                    if (err) {
+                        console.error('Error deducting:', err);
+                        return res.json({ success: false, message: 'Failed to update account: ' + err.message });
+                    }
+                    
+                    console.log('Contribution successful!');
+                    res.json({ success: true, message: 'Contribution successful!' });
+                });
+            });
+        });
+    });
+});
 //Checks if account is accessible to the User 
 app.post('/CheckAccID', (req, res) => {
   const subscriberID = req.body.subscriberID;

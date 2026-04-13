@@ -122,12 +122,13 @@ CREate table Family_Goal(
 GoalID  INT AUTO_INCREMENT NOT NULL,
 GName Varchar(50) NOT NULL,
 Description varchar(255),
-Goal Int Not null,
-CurrAmt Int Not null,
-AmtLeft Int  GENERATED ALWAYS AS (Goal - CurrAmt) STORED,
+Goal DECIMAL(15,2) Not null,
+CurrAmt DECIMAL(15,2) Not null,
+AmtLeft DECIMAL(15,2)  GENERATED ALWAYS AS (Goal - CurrAmt) STORED,
     PRIMARY KEY (GoalID),
     status varchar(50) Not null,
     constraint check_status 
     check(status in ("In Progress", "Completed"))
-    );
+    )
+  FamAccount int not null,;
     

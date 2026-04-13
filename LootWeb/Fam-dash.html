@@ -102,10 +102,11 @@
 
 						<div class="input-field">
 							<label>Goal Amount</label>
-							<input type="int" name="Goal" required>
+							<input type="number" name="Goal" step="0.01" required>
 						</div>
 
 					</div>
+					<div id="ExAcc"></div>
 
             <button type="submit" class="signUp-btn">Add Goal to plan</button>
             
@@ -116,12 +117,15 @@
     </div>
 
 			</Section>
-
-			 <section>
-				<H2>Donations:</H2>
-
-				<H2>Make a donation:</H2>
-			</section>
+			<Br></Br>
+			<!-- Contribution Modal -->
+				<div id="accountsModal" class="modal">
+				<div class="modal-content">
+					<span class="close-modal" onclick="document.getElementById('accountsModal').style.display='none'">&times;</span>
+					<div id="modalContent"></div>
+				</div>
+			</div>
+			
 
 
 						
@@ -253,7 +257,7 @@
                     subscriberID: subscriberID,  // Send subscriberID in body
                     GName: goalName,
                     Description: goalDescription,
-                    Goal: parseInt(goalAmount)  // Convert to number
+                    Goal: parseFloat(goalAmount)  // Convert to number
                 })
             });
           
@@ -283,41 +287,49 @@ function displayGoalsWithStatusBar(goals) {
     let html = '<div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">';
     
     goals.forEach(goal => {
+        const goalId = goal.GoalID || goal.id || `goal_${Math.random()}`;
         const goalAmount = parseFloat(goal.Goal) || parseFloat(goal.GoalAmount) || 0;
         const currentAmount = parseFloat(goal.CurrAmt) || parseFloat(goal.CurrentAmount) || 0;
         const goalName = goal.GoalName || goal.GName || 'Unnamed Goal';
         const description = goal.Description || goal.GoalDescription || '';
         
         const progress = (currentAmount / goalAmount) * 100;
-        const progressPercent = Math.min(progress, 100).toFixed(1);
+        const progressPercent = Math.min(progress, 100).toFixed(2);
         const remaining = goalAmount - currentAmount;
         
+		let displayStatus = goal.Status || 'In Progress';
+		if (currentAmount >= goalAmount) {
+    	displayStatus = 'Complete';
+		}
         html += `
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
                     <h3 style="margin: 0; color: #2c3e50;">${escapeHtml(goalName)}</h3>
                     <span style="font-size: 1.1rem; font-weight: bold; color: #4a6741;">
-                        $${currentAmount.toLocaleString()} / $${goalAmount.toLocaleString()}
+                        $${currentAmount.toFixed(2)} / $${goalAmount.toFixed(2)}
                     </span>
                 </div>
-                
                 ${description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(description)}</p>` : ''}
-                
                 <div style="margin: 1rem 0;">
                     <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 30px; position: relative;">
-                        <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.5s ease;">
+                        <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem;">
                             ${progressPercent}%
                         </div>
                     </div>
                 </div>
-                
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
                     <span style="color: #666; font-size: 0.9rem;">
-                        ${progressPercent >= 100 ? '✅ Goal Completed!' : `$${remaining.toLocaleString()} remaining to reach goal`}
+                        ${progressPercent >= 100 ? ' Goal Completed!' : `$${remaining.toFixed(2)} remaining to reach goal`}
                     </span>
                     <span style="color: #4a6741; font-size: 0.9rem; font-weight: 500;">
-                        Status: ${goal.Status || 'In Progress'}
-                    </span>
+   					 Status: ${displayStatus}
+					</span>
+                </div>
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button onclick="displayExternalAccountsForContribution('${goalId}', '${escapeHtml(goalName)}', ${goalAmount}, ${currentAmount}, this)"  
+        style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
+     	Contribute Money
+		</button>
                 </div>
             </div>
         `;
@@ -325,12 +337,10 @@ function displayGoalsWithStatusBar(goals) {
     
     html += '</div>';
     
-    // Create or update the goals display container
     let goalsDisplay = document.getElementById('goalsDisplay');
     if (!goalsDisplay) {
         goalsDisplay = document.createElement('div');
         goalsDisplay.id = 'goalsDisplay';
-        // Insert after the goal form
         const dropdownGoalForm = document.getElementById('dropdownGoalForm');
         if (dropdownGoalForm && dropdownGoalForm.parentNode) {
             dropdownGoalForm.parentNode.insertBefore(goalsDisplay, dropdownGoalForm.nextSibling);
@@ -338,8 +348,7 @@ function displayGoalsWithStatusBar(goals) {
     }
     goalsDisplay.innerHTML = html;
 }
-
-// Helper function to escape HTML
+// Helps escape HTML
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -347,7 +356,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Function to fetch and display goals automatically
+// shows goals automatically (not button)
 async function loadFamilyGoals() {
     const urlParams = new URLSearchParams(window.location.search);
     const subscriberID = urlParams.get('subscriberID');
@@ -378,12 +387,189 @@ async function loadFamilyGoals() {
         }
     }
 }
+async function displayExternalAccountsForContribution(goalId, goalName, goalTarget, currentAmount, buttonElement) {
+    if (!subscriberID) {
+        alert('Error: No subscriber ID found');
+        return;
+    }
+    
+    if (!buttonElement) {
+        console.error('Button element not found');
+        alert('Error: Could not process request');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
+        const accounts = await response.json();
+        
+        console.log('Accounts loaded:', accounts); // Debug
+        
+        // Find the parent goal container
+        const goalContainer = buttonElement.closest('div[style*="background: white; border-radius: 12px;"]');
+        
+        if (!goalContainer) {
+            console.error('Goal container not found');
+            alert('Error: Could not find goal container');
+            return;
+        }
+        
+        // Check if accounts are already displayed
+        let existingAccountsDiv = goalContainer.querySelector('.external-accounts-container');
+        
+        if (existingAccountsDiv) {
+            // hide or show 
+            existingAccountsDiv.style.display = existingAccountsDiv.style.display === 'none' ? 'block' : 'none';
+            return;
+        }
+        
+        // Create container for external accounts
+        const accountsDiv = document.createElement('div');
+        accountsDiv.className = 'external-accounts-container';
+        accountsDiv.style.cssText = 'margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #e0e0e0;';
+        
+        let accountsHtml = `
+            <h4 style="color: #4a6741; margin-bottom: 1rem;">Select an External Account to Contribute:</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+        `;
+        
+        if (!accounts || accounts.length === 0) {
+            accountsHtml += '<p style="color: red; width: 100%;">No external accounts found. Please add an account in your Dashboard.</p>';
+        } else {
+            accounts.forEach(account => {
+                const maxContribution = Math.min(parseFloat(account.currentBalance), (goalTarget - currentAmount));
+                accountsHtml += `
+                    <div style="border: 1px solid #ddd; border-radius: 10px; padding: 1rem; background: #f9f9f9; text-align:center;flex: 1; min-width: 250px;">
+                        <p><strong> ${escapeHtml(account.bank)}</strong></p>
+                        <p style="font-size: 0.9rem; color: #666;">${escapeHtml(account.accountType)}</p>
+                        <p><strong>Balance:</strong> ${account.currency || '$'} ${parseFloat(account.currentBalance).toFixed(2)}</p>
+                        <div style="margin-top: 0.8rem;">
+                            <input type="number" id="amount_${goalId}_${account.accountID}" 
+                                   class="contribution-amount-input" 
+								   step="0.01"
+                                   placeholder="Enter amount (max $${maxContribution.toFixed(2)})" 
+                                   style="width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                            <button onclick="processContributionInline(${account.accountID}, '${goalId}', ${goalTarget}, ${currentAmount}, ${parseFloat(account.currentBalance)}, '${escapeHtml(goalName)}')" 
+                                    style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">
+                                Contribute $$$
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        
+        accountsDiv.innerHTML = accountsHtml;
+        
+        // Insert after the button's container (the div with text-align: right)
+        const buttonContainer = buttonElement.parentElement;
+        buttonContainer.appendChild(accountsDiv);
+        
+    } catch (error) {
+        console.error('Error fetching accounts:', error);
+        alert('Error loading external accounts: ' + error.message);
+    }
+}
 
-// Auto-load goals when page loads
+window.processContributionInline = async function(accountID, goalId, goalTarget, currentAmount, accountBalance, goalName) {
+    const amountInput = document.getElementById(`amount_${goalId}_${accountID}`);
+    
+    if (!amountInput) {
+        alert('Error: Could not find amount input');
+        return;
+    }
+    
+    const amount = parseFloat(amountInput.value);
+    const remaining = goalTarget - currentAmount;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid contribution amount.');
+        return;
+    }
+    
+    if (amount > remaining) {
+        alert(`Contribution cannot exceed remaining goal amount: $${remaining.toLocaleString()}`);
+        return;
+    }
+    
+    if (amount > accountBalance) {
+        alert(`Insufficient balance. Available: $${accountBalance.toLocaleString()}`);
+        return;
+    }
+    
+    try {
+        const response = await fetch('/contribute-to-goal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                goalId: goalId,
+                subscriberID: subscriberID,
+                accountID: accountID,
+                amount: amount
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`Successfully contributed $${amount.toFixed(2)} to "${goalName}"!`);
+            // Refresh goals to update progress bar
+            await loadFamilyGoals();
+        } else {
+            alert(result.message || 'Contribution failed.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
+}
+
+
+window.processContribution = async function(accountID, goalId, goalTarget, currentAmount) {
+    const amountInput = document.getElementById(`amount_${accountID}`);
+    const amount = parseFloat(amountInput.value);
+    const remaining = goalTarget - currentAmount;
+    
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid contribution amount.');
+        return;
+    }
+    
+    if (amount > remaining) {
+        alert(`Contribution cannot exceed remaining goal amount: $${remaining.toLocaleString()}`);
+        return;
+    }
+    
+    try {
+        const response = await fetch('/contribute-to-goal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                goalId: goalId,
+                subscriberID: subscriberID,
+                accountID: accountID,
+                amount: amount
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`Successfully contributed $${amount.toLocaleString()} to the goal!`);
+            document.getElementById('accountsModal').style.display = 'none';
+            loadFamilyGoals();
+        } else {
+            alert(result.message || 'Contribution failed.');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     loadFamilyGoals();
 });
-
 
 </script>
 
