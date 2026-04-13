@@ -165,37 +165,18 @@ const hashPassword = crypto
 
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
-  const bankName = req.body.bankName;
-  const accountType = req.body.accountType;
-  const currentBalance = req.body.currentBalance;
-  const currency = req.body.currency;
-  const syncStatus = req.body.syncStatus;
-  const subscriberId = req.body.subscriberId;
+    const { bankName, accountType, currentBalance, currency, syncStatus, subscriberId } = req.body;
 
-  //const hashAccountNumber = crypto
-  //.createHash('sha256')
-  //.update(req.body.accountNumber)
-  //.digest('hex');
-  //const routingNumber = req.body.routingNumber;
-  //const accountNickname = req.body.accountNickname;
-const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, currency, syncStatus, subscriberId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
-  db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus,subscriberId], (err, result) => {
-    if (err) {
-      console.error('Error connecting external account:', err);
-      return res.status(500).send('Error connecting external account');
-    }
-      return res.json({
-      success: true,
-      bankName,
-      accountType,
-      currentBalance,
-      currency,
-      syncStatus,
-      subscriberId
+    const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, currency, syncStatus, subscriberId) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus, subscriberId], (err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Error adding account");
+        }
+        res.send("OK");
     });
-  });
 });
-
 //route to get category totals for specific month and year for given account id to fill category list and donut chart on frontend
 app.get('/api/category-totals/:accountId', (req, res) => { //define route with accountId as parameter and month and year as query parameters to get category totals for specific month and year
   const accountId = req.params.accountId;

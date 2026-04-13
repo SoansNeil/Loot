@@ -104,40 +104,22 @@
         const form = document.getElementById("createExAcct-form");
 
         form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    
+    const res = await fetch("/externalAccount", {
+        method: "POST",
+        body: new URLSearchParams(formData)
+    });
 
-            const formData = new FormData(form);
-
-            try {
-                const res = await fetch("/externalAccount", {
-                    method: "POST",
-                    body: new URLSearchParams(formData)
-                });
-
-                if (!res.ok) throw new Error(`Server error: ${res.status}`);
-
-                const data = await res.json();
-
-                if (data.success) {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${data.bankName}</td>
-                        <td>${data.accountType}</td>
-                        <td>$${parseFloat(data.currentBalance).toFixed(2)}</td>
-                        <td>${data.currency}</td>
-                        <td>${data.syncStatus}</td>
-                        <td>${formData.get("subscriberId")}</td>
-                    `;
-                    // ✅ actually append the row to the table
-                    document.getElementById("accounts-tbody").appendChild(row);
-                    form.reset();
-                }
-            } catch (err) {
-                console.error("Submission failed:", err);
-                alert("Failed to add account: " + err.message);
-            }
-        });
+    if (res.ok) {
+        alert("Account added!");
+        form.reset();
+    } else {
+        alert("Something went wrong.");
+    }
+});
     </script>
 
 </body>
