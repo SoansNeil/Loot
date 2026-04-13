@@ -159,7 +159,7 @@ const hashPassword = crypto
       return res.send('Invalid username or password');
     }
     const subscriberID = results[0].subscriberID;
-    res.redirect(`/MT-Dashboard.html?subscriberID=${subscriberID}`);
+    res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
   });
 });
 
