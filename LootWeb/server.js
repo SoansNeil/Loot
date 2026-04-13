@@ -435,7 +435,7 @@ app.post('/add-goal', (req, res) => {
   }
   
   // get the FamAccount based on SubscriberID
-  const getFamAccountSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+  const getFamAccountSql = 'SELECT FamAccount FROM SUBSCRIBER_ACCOUNT WHERE SubscriberID = ?';
   
   db.query(getFamAccountSql, [subscriberId], (err, results) => {
     if (err) {
@@ -456,7 +456,7 @@ app.post('/add-goal', (req, res) => {
     const famAccount = results[0].FamAccount;
     
 
-    const insertGoalSql = 'INSERT INTO lootdb.Family_Goal (GName, Description, Goal, CurrAmt, FamAccount, Status) VALUES (?, ?, ?, ?, ?, ?)';
+    const insertGoalSql = 'INSERT INTO Family_Goal (GName, Description, Goal, CurrAmt, FamAccount, Status) VALUES (?, ?, ?, ?, ?, ?)';
     
     db.query(insertGoalSql, [goalName, goalDescription, goalAmount, currentAmount, famAccount, status], (err, result) => {
       if (err) {
@@ -483,7 +483,7 @@ app.get('/get-family-goals', (req, res) => {
     const subscriberID = req.query.subscriberID; 
     
     // get famAccount from subscriberID
-    const getFamSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+    const getFamSql = 'SELECT FamAccount FROM SUBSCRIBER_ACCOUNT WHERE SubscriberID = ?';
     
     db.query(getFamSql, [subscriberID], (err, results) => {
         if (err) {
@@ -498,7 +498,7 @@ app.get('/get-family-goals', (req, res) => {
         const famAccount = results[0].FamAccount;
         
         //get goals for this family account
-        const goalsQuery = 'SELECT * FROM lootdb.Family_Goal WHERE FamAccount = ? ORDER BY GoalID DESC';
+        const goalsQuery = 'SELECT * FROM Family_Goal WHERE FamAccount = ? ORDER BY GoalID DESC';
         
         db.query(goalsQuery, [famAccount], (err, goalResults) => {
             if (err) {
