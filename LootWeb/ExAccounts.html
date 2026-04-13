@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>External Accounts</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+
+<body>
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header id="header">
+            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#plans">Plans</a></li>
+                      <li><a href="MT-Dashboard.html">Dashboard</a></li>
+                    <li><a href="budget.html">Budget</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section id="main" class="container">
+    <header class="major">
+        <h2>External Accounts</h2>
+    </header>
+
+     <!-- Add Bank Account -->
+       <section class="box">
+            <header class="major">
+            <h2>Add Bank Account</h2>
+            </header>
+            
+        <form id="createExAcct-form">
+                
+            <div class = "input-grid">
+
+                <div class="input-field">
+                   <h5>Bank</h5>
+                    <input type="text" id="bankName" name="bankName" required>
+                </div>
+
+                <div class="input-field">
+                   <h5>Account Type</h5>
+                    <input type="text" id="accountType" name="accountType" required>
+                </div>
+
+                <div class="input-field">
+                   <h5>Balance</h5>
+                    <input type="number" id="currentBalance" name="currentBalance" min="0" required>
+                </div>
+
+                <div class="input-field">
+                   <h5>Currency</h5>
+                    <input type="text" id="currency" name="currency" required>
+                </div>
+
+                <div class="input-field">
+                    <h5>Status</h5>
+                    <select id="syncStatus" name="syncStatus" required>
+                        <option>Active</option>
+                        <option>Failed</option>
+                        <option>Pending</option>
+                    </select>
+                </div>
+
+                  <input type="hidden" name="subscriberId" value="17">
+                  <h5></h5>
+            </div> 
+
+                <div class="col">
+                    <button class="button small" type="submit">Add</button>
+                    <button class="button small" type="reset">Clear</button>
+                </div>
+        
+
+         </form>
+
+        </section>
+
+     <section>
+
+<script>
+        const form = document.getElementById("createExAcct-form");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+
+    const formData = new FormData(form);
+
+    const res = await fetch("/externalAccount", {
+        method: "POST",
+        body: new URLSearchParams(formData)
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+
+        const bankName = data.bankName;
+        const accountType = data.accountType;
+        const currentBalance = parseFloat(data.currentBalance);
+        const currency = data.currency;
+        const syncStatus = data.syncStatus;
+        const subscriberId = formData.get("subscriberId");
+    
+
+        // Add row to ExAcct table
+        const row = document.createElement("tr");
+    
+        row.innerHTML = `
+            <td>${bankName}</td>
+            <td>${accountType}</td>
+            <td>$${currentBalance.toFixed(2)}</td>
+            <td>${currency}</td>
+            <td>${syncStatus}</td>
+            <td>${subscriberId}</td>
+            <td></td>
+        `;
+    }
+    form.reset();
+})
+
+</script>
+
+        </section>
+        
+
+    </div>
+    
+
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+
+        </body>
+</html>
