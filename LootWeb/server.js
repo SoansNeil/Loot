@@ -150,27 +150,39 @@ const hashPassword = crypto
       return res.send('Invalid username or password');
     }
     const subscriberID = results[0].subscriberID;
-    res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
+    res.redirect(`/MT-Dashboard.html?subscriberID=${subscriberID}`);
   });
 });
 
-
-
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
-  const bankName = req.body.bank;
+  const bankName = req.body.bankName;
   const accountType = req.body.accountType;
+  const currentBalance = req.body.currentBalance;
+  const currency = req.body.currency;
+  const syncStatus = req.body.syncStatus;
+  const subscriberId = req.body.subscriberId;
+
   //const hashAccountNumber = crypto
   //.createHash('sha256')
   //.update(req.body.accountNumber)
   //.digest('hex');
   //const routingNumber = req.body.routingNumber;
   //const accountNickname = req.body.accountNickname;
-const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType) VALUES (?, ?)'; // Add more values as DB expands
-  db.query(sql, [bankName, accountType], (err, result) => {
+const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, currency, syncStatus, subscriberId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus,subscriberId], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('Error connecting external account');
+      res.json({
+      success: true,
+      bankName,
+      accountType,
+      currentBalance,
+      currency,
+      syncStatus,
+      subscriberId
+    });
     }
     res.send('External account connected successfully!');
   });

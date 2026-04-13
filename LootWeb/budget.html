@@ -17,24 +17,27 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="index.html#plans">Plans</a></li>
-                    <li><a href="signup.html">Sign up</a></li>
-                    <li><a href="login.html">Log in</a></li>
+                    <li><a href="MT-Dashboard.html">Dashboard</a></li>
                     <li><a href="budget.html">Budget</a></li>
+                     <li><a href="ExAccounts.html">External Account</a></li>
                 </ul>
             </nav>
         </header>
 
-    <section id="main" class="container">
+                 <section id="main" class="container">
     <header class="major">
-        <h2>Budget</h2>
+        <h2>Start Your Budgeting Journey Now!</h2>
     </header>
 
     <div class="grid">
 
          <!-- Category Breakdown -->
-        <section class="card">
+        <section class="box">
 
-            <h3>Category Breakdown</h3>
+             <header class="major">
+       <h3>Category Breakdown</h3>
+    </header>
+            
 
             <canvas id="myChart" style="max-width:400px; margin:20px auto;"></canvas>
 
@@ -51,41 +54,44 @@
 
             </table>
 
-             <!-- Add Budget -->
-            <h2>Add Budget</h2>
+        </section>
 
+        <!-- Add Budget -->
+       <section class="box">
+            <header class="major">
+            <h2>Add Budget</h2>
+            </header>
+            
             <form id="createBudget-form">
 
-                 <div class="row">
-                    <label for="Account Information" style="font-size: 20px">Account Information</label>
-                    </div>
+                    <h3>Account Information</h3>
 
-                    <div class="row">
-                    <label for="subscriberId">Subscriber ID</label>
-                    <input type="number" id="subscriberId" name="subscriberId" min="0" required>
-                </div>
-
-                   <div class="row">
-                    <label for="accountId">Account ID</label>
+                   <div class="col">
+                   <h5>Account ID</h5>
                     <input type="number" id="accountId" name="accountId" min="0" required>
                 </div>
 
+                <h4></h4>
+
                 <div class="row">
-                    <label for="type">Type</label>
+                  <h5>Type</h5>
                     <select id="type" name="ExpenseType" required>
                         <option value="Income">Income</option>
                         <option value="Expense">Expense</option>
-                        <option value="Transfer">Transfer</option>
                     </select>
                 </div>
 
-                <div class="row">
-                    <label for="amount">Amount</label>
+                <h4></h4>
+
+                <div class="cols-3">
+                    <h5>Amount</h5>
                     <input type="number" id="amount" name="amount" min="0" required>
                 </div>
+                
+                <h4></h4>
 
                 <div class="row">
-                    <label for="category">Category</label>
+                    <h5>Category</h5>
                     <select id="category" name="category" required>
                         <option>Salary</option>
                         <option>Rent</option>
@@ -97,22 +103,29 @@
                     </select>
                 </div>
 
-                <div class="row">
-                    <label for="date">Date</label>
+                <h4></h4>
+
+                <div class="col">
+                   <h5>Date</h5>
                     <input type="date" id="date" name="DateRecorded" required>
                 </div>
 
                 <input type="hidden" name="subscriberId" value="1">
-                <input type="hidden" name="accountId" value="3">
 
-                <div class="row">
-                    <button class="btn" type="submit">Add</button>
-                    <button class="btn secondary" type="reset">Clear</button>
+                <h4></h4>
+
+                <div class="col">
+                    <button class="button small" type="submit">Add</button>
+                    <button class="button small" type="reset">Clear</button>
                 </div>
 
             </form>
 
+            
+            <header class="major">
             <h3>Recent Transactions</h3>
+            </header>
+            
 
             <table id="table">
                 <thead>
@@ -121,6 +134,8 @@
                         <th>Type</th>
                         <th>Category</th>
                         <th>Amount</th>
+                        <th>Subscriber ID</th>
+                        <th>Account ID</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -130,8 +145,10 @@
         </section>
 
         <!-- Summary -->
-        <section class="card">
-            <h2>Summary</h2>
+        <section class="box">
+             <header class="major">
+             <h2>Summary</h2>
+            </header>
 
             <div class="summary">
 
@@ -189,7 +206,7 @@
             }
 
             chart = new Chart(ctx, {
-                type: "pie",
+                type: "doughnut",
                 data: {
                     labels: labels,
                     datasets: [{
