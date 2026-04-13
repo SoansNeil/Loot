@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require('express');
 const mysql = require('mysql2');
@@ -15,7 +15,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use(cookieParser());
-app.use(express.json());
 
 
 const db = mysql.createConnection({
@@ -25,6 +24,7 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE
 });
+
 
 db.connect((err) => {
   if (err) {
@@ -159,31 +159,44 @@ const hashPassword = crypto
       return res.send('Invalid username or password');
     }
     const subscriberID = results[0].subscriberID;
-    res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
+    res.redirect(`/MT-Dashboard.html?subscriberID=${subscriberID}`);
   });
 });
 
-
-
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
-  const bankName = req.body.bank;
+  const bankName = req.body.bankName;
   const accountType = req.body.accountType;
+  const currentBalance = req.body.currentBalance;
+  const currency = req.body.currency;
+  const syncStatus = req.body.syncStatus;
+  const subscriberId = req.body.subscriberId;
+
   //const hashAccountNumber = crypto
   //.createHash('sha256')
   //.update(req.body.accountNumber)
   //.digest('hex');
   //const routingNumber = req.body.routingNumber;
   //const accountNickname = req.body.accountNickname;
-const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bank, accountType) VALUES (?, ?)'; // Add more values as DB expands
-  db.query(sql, [bank, accountType], (err, result) => {
+const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, currency, syncStatus, subscriberId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus,subscriberId], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('Error connecting external account');
+      res.json({
+      success: true,
+      bankName,
+      accountType,
+      currentBalance,
+      currency,
+      syncStatus,
+      subscriberId
+    });
     }
     res.send('External account connected successfully!');
   });
 });
+
 //route to get category totals for specific month and year for given account id to fill category list and donut chart on frontend
 app.get('/api/category-totals/:accountId', (req, res) => { //define route with accountId as parameter and month and year as query parameters to get category totals for specific month and year
   const accountId = req.params.accountId;
@@ -279,7 +292,326 @@ app.post('/displayExAcc',(req,res)=>{
   });
   });
 
+//display family accounts on Fam dashboard 
+app.post('/displayFamAcc', (req, res) => {
+  const subscriberID = req.query.subscriberID;
 
+  const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+  db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+    if (err) {
+      console.error('Error fetching user FamAccount:', err);
+      return res.status(500).send('Database Error');
+    }
+
+    if (!userResult.length) {
+      return res.send('No user found');
+    }
+
+    const famAccount = userResult[0].FamAccount;
+
+    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM subscriber_account WHERE FamAccount = ?';
+    db.query(getFamilyMemberSql, [famAccount], (err, familyResults) => {
+      if (err) {
+        console.error('Error fetching family accounts:', err);
+        return res.status(500).send('DB Error');
+      }
+
+      if (!familyResults.length) {
+        return res.send('No family members found');
+      }
+   //html formatting for dashboard
+     let html = '<div style="font-family: Arial, sans-serif;">';
+     html='<h2> Family Dashboard</h2>'
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+
+familyResults.forEach(member => {
+    html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <p><strong>First Name:</strong> ${member.FName}</p>
+        <p><strong>Last Name:</strong> ${member.LName}</p>
+        <p><strong>Username:</strong> ${member.Username}</p>
+        <p><strong>Family Account:</strong> ${member.FamAccount}</p>
+    </div>`;
+});
+
+html += '</div>';
+html += '</div>';
+
+res.send(html);
+    });
+  });
+});
+
+//check user in db
+app.get('/check-user', async (req, res) => {
+    const { FName, LName, Username } = req.query;
+    
+    try {
+        const result = await db.query(
+            'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?', 
+            [FName, LName, Username]
+        );
+        
+        res.json({ exists: result.length > 0 });
+    } catch (error) {
+        res.status(500).json({ exists: false, error: error.message });
+    }
+});
+
+//add family member - checks ALL THREE fields match
+app.post('/add-family-member', async (req, res) => {
+    const { FName, LName, Username } = req.body;
+    const subscriberID = req.query.subscriberID;
+    
+    try {
+       
+        const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+        
+        db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+            if (err) {
+                console.error('Error fetching user FamAccount:', err);
+                return res.status(500).json({ success: false, message: 'Database Error' });
+            }
+            
+            if (!userResult.length) {
+                return res.status(400).json({ success: false, message: 'No user found' });
+            }
+            
+            const familyAccountId = userResult[0].FamAccount;
+            
+            // CHECK that ALL THREE fields match (FName, LName, AND Username)
+            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
+            db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
+                if (err) {
+                    console.error('Error checking user:', err);
+                    return res.status(500).json({ success: false, message: 'Database Error' });
+                }
+                
+                if (!existing.length) {
+                    return res.json({ 
+                        success: false, 
+                        message: 'User not found. First name, last name, and username do not match an existing account.' 
+                    });
+                }
+                
+                
+                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
+                db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
+                    if (err) {
+                        console.error('Error updating family member:', err);
+                        return res.status(500).json({ success: false, message: 'Database Error' });
+                    }
+                    
+                    res.json({ 
+                        success: true, 
+                        message: `${FName} ${LName} (${Username}) has been linked to your family plan!`,
+                        famAccount: familyAccountId 
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Error adding family member:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
+// Add family goal to DB
+app.post('/add-goal', (req, res) => {
+  const goalName = req.body.GName;
+  const goalDescription = req.body.Description;
+  const goalAmount = req.body.Goal;
+  const currentAmount = 0;
+  const status = "in progress"; // Automatically set status
+  
+  const subscriberId = req.body.subscriberID;
+  
+  
+  if (!goalName || !goalAmount) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Goal name and amount are required' 
+    });
+  }
+  
+  // get the FamAccount based on SubscriberID
+  const getFamAccountSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+  
+  db.query(getFamAccountSql, [subscriberId], (err, results) => {
+    if (err) {
+      console.error('Error fetching FamAccount:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving user information' 
+      });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    const famAccount = results[0].FamAccount;
+    
+
+    const insertGoalSql = 'INSERT INTO lootdb.Family_Goal (GName, Description, Goal, CurrAmt, FamAccount, Status) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    db.query(insertGoalSql, [goalName, goalDescription, goalAmount, currentAmount, famAccount, status], (err, result) => {
+      if (err) {
+        console.error('Error inserting goal:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error adding goal to plan: ' + err.message 
+        });
+      }
+     
+      res.json({ 
+        success: true, 
+        message: 'Goal successfully added to your plan!',
+        goalId: result.insertId,
+        status: status
+      });
+    });
+  });
+});
+
+
+//get family goals from DB
+app.get('/get-family-goals', (req, res) => {
+    const subscriberID = req.query.subscriberID; 
+    
+    // get famAccount from subscriberID
+    const getFamSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+    
+    db.query(getFamSql, [subscriberID], (err, results) => {
+        if (err) {
+            console.error('Error fetching FamAccount:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        const famAccount = results[0].FamAccount;
+        
+        //get goals for this family account
+        const goalsQuery = 'SELECT * FROM lootdb.Family_Goal WHERE FamAccount = ? ORDER BY GoalID DESC';
+        
+        db.query(goalsQuery, [famAccount], (err, goalResults) => {
+            if (err) {
+                console.error('Error fetching goals:', err);
+                return res.status(500).json({ success: false, message: 'Error fetching goals' });
+            }
+            
+            res.json({ success: true, goals: goalResults });
+        });
+    });
+});
+
+app.get('/getExternalAccountsJSON', (req, res) => {
+    const subscriberID = req.query.subscriberID;
+    
+    console.log('Fetching accounts for subscriber:', subscriberID);
+    
+    const sql = 'SELECT accountID, bank, accountType, currentBalance, currency FROM EXTERNAL_ACCOUNT WHERE subscriberID = ?';
+    
+    db.query(sql, [subscriberID], (err, result) => {
+        if (err) {
+            console.error('Error fetching external accounts:', err);
+            return res.status(500).json({ error: 'Database error', accounts: [] });
+        }
+        
+        console.log('Found accounts:', result.length);
+        res.json(result);
+    });
+});
+
+// contribute to goal
+app.post('/contribute-to-goal', (req, res) => {
+    const { goalId, subscriberID, accountID, amount } = req.body;
+    
+    console.log('=== CONTRIBUTION DEBUG ===');
+    console.log('goalId:', goalId, 'Type:', typeof goalId);
+    console.log('subscriberID:', subscriberID);
+    console.log('accountID:', accountID);
+    console.log('amount:', amount);
+    
+    // First, check if the goal exists and see the table structure
+    const checkGoalSql = 'SELECT * FROM FAMILY_GOAL WHERE GoalID = ?';
+    
+    db.query(checkGoalSql, [goalId], (err, goalResult) => {
+        if (err) {
+            console.error('Error checking goal:', err);
+            return res.json({ success: false, message: 'Database error: ' + err.message });
+        }
+        
+        console.log('Goal query result:', goalResult);
+        
+        if (!goalResult || goalResult.length === 0) {
+            return res.json({ success: false, message: 'Goal not found with ID: ' + goalId });
+        }
+        
+        console.log('Current goal amount:', goalResult[0].CurrAmt);
+        console.log('Goal target:', goalResult[0].Goal);
+        
+        // Now check the external account
+        const checkAccountSql = 'SELECT * FROM EXTERNAL_ACCOUNT WHERE accountID = ? AND subscriberID = ?';
+        
+        db.query(checkAccountSql, [accountID, subscriberID], (err, accountResult) => {
+            if (err) {
+                console.error('Error checking account:', err);
+                return res.json({ success: false, message: 'Account error: ' + err.message });
+            }
+            
+            console.log('Account query result:', accountResult);
+            
+            if (!accountResult || accountResult.length === 0) {
+                return res.json({ success: false, message: 'Account not found for subscriber' });
+            }
+            
+            if (accountResult[0].currentBalance < amount) {
+                return res.json({ success: false, message: 'Insufficient balance' });
+            }
+            
+            // Try to update the goal
+            const updateGoalSql = 'UPDATE FAMILY_GOAL SET CurrAmt = CurrAmt + ? WHERE GoalID = ?';
+            console.log('Update SQL:', updateGoalSql);
+            console.log('Update values:', [amount, goalId]);
+            
+            db.query(updateGoalSql, [amount, goalId], (err, updateResult) => {
+                if (err) {
+                    console.error('ERROR UPDATING GOAL:', err);
+                    console.error('Error code:', err.code);
+                    console.error('Error message:', err.message);
+                    console.error('SQL state:', err.sqlState);
+                    return res.json({ success: false, message: 'Update failed: ' + err.message });
+                }
+                
+                console.log('Update result:', updateResult);
+                
+                if (updateResult.affectedRows === 0) {
+                    return res.json({ success: false, message: 'No rows updated - goal might not exist' });
+                }
+                
+                // Deduct from account
+                const deductSql = 'UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance - ? WHERE accountID = ?';
+                
+                db.query(deductSql, [amount, accountID], (err, deductResult) => {
+                    if (err) {
+                        console.error('Error deducting:', err);
+                        return res.json({ success: false, message: 'Failed to update account: ' + err.message });
+                    }
+                    
+                    console.log('Contribution successful!');
+                    res.json({ success: true, message: 'Contribution successful!' });
+                });
+            });
+        });
+    });
+});
 //Checks if account is accessible to the User 
 app.post('/CheckAccID', (req, res) => {
   const subscriberID = req.body.subscriberID;
@@ -425,7 +757,7 @@ app.post('/ConfirmTransfer', (req, res) => {
           db.commit((err) => {
             if (err) {
               return db.rollback(() => {
-                res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+                res.send('Error committing try again.');
               });
             }
             
@@ -658,6 +990,237 @@ const sql = 'INSERT INTO Budgeting (amount, ExpenseType, category, dateRecorded,
       accountId
     });
 
+  });
+});
+
+app.post('/add-goal', (req, res) => {
+    const { GName, Description, Goal, CurrAmt, status } = req.body;
+    
+    // Validate input
+    if (!GName || !Goal || !CurrAmt || !status) {
+        return res.status(400).send('All required fields must be filled');
+    }
+    
+    // Insert query (AmtLeft auto-calculated by database)
+    const query = `INSERT INTO Family_Goal (GName, Description, Goal, CurrAmt, status) 
+                   VALUES (?, ?, ?, ?, ?)`;
+    
+    db.query(query, [GName, Description || '', Goal, CurrAmt, status], (err, result) => {
+        if (err) {
+            console.error('Error inserting data:', err);
+            return res.status(500).send('Database error: ' + err.message);
+        }
+        
+        // Get the inserted record with calculated AmtLeft
+        const selectQuery = `SELECT * FROM Family_Goal WHERE GoalID = ?`;
+        db.query(selectQuery, [result.insertId], (err, rows) => {
+            if (err) {
+                console.error('Error fetching inserted record:', err);
+                return res.send(`
+                    <h2>Goal Added Successfully!</h2>
+                    <p>Goal ID: ${result.insertId}</p>
+                    <a href="/">Add Another Goal</a><br>
+                    <a href="/view-goals">View All Goals</a>
+                `);
+            }
+            
+            const goal = rows[0];
+            // Send success page
+            res.send(`Goal Created!`);
+           });
+    });
+});
+// Save or update alert settings
+app.post('/api/alerts/save', (req, res) => {
+  const { subscriberID, threshold } = req.body;
+
+  if (!subscriberID || threshold === undefined || threshold === null || threshold === '') {
+    return res.status(400).json({ error: 'subscriberID and threshold are required' });
+  }
+
+  const sql = `
+    INSERT INTO USER_ALERT_SETTINGS (SubscriberID, AlertThreshold, AlertsEnabled)
+    VALUES (?, ?, TRUE)
+    ON DUPLICATE KEY UPDATE
+      AlertThreshold = VALUES(AlertThreshold),
+      AlertsEnabled = TRUE
+  `;
+
+  db.query(sql, [subscriberID, threshold], (err, result) => {
+    if (err) {
+      console.error('Error saving alert settings:', err);
+      return res.status(500).json({ error: 'Error saving alert settings' });
+    }
+
+    res.json({ success: true, message: 'Alert settings saved' });
+  });
+});
+
+// Get pending alerts for a subscriber
+app.get('/api/alerts/:subscriberID', (req, res) => {
+  const subscriberID = req.params.subscriberID;
+
+  const sql = `
+    SELECT 
+      ct.TransactionID,
+      ct.Amount,
+      ct.MerchantName,
+      ct.Description,
+      ct.TransactionDate,
+      ct.Category,
+      ct.TransactionType,
+      ct.Status
+    FROM CARD_TRANSACTION ct
+    JOIN EXTERNAL_ACCOUNT ea ON ct.AccountID = ea.AccountID
+    WHERE ea.SubscriberID = ?
+      AND ct.Status = 'Pending'
+    ORDER BY ct.TransactionDate DESC
+  `;
+
+  db.query(sql, [subscriberID], (err, results) => {
+    if (err) {
+      console.error('Error fetching alerts:', err);
+      return res.status(500).json({ error: 'Error fetching alerts' });
+    }
+
+    res.json(results);
+  });
+});
+
+// accept transaction and update status to approved
+app.post('/api/alerts/accept', (req, res) => {
+  const { transactionID } = req.body;
+
+  if (!transactionID) {
+    return res.status(400).json({ error: 'transactionID is required' });
+  }
+
+  const sql = `
+    UPDATE CARD_TRANSACTION
+    SET Status = 'Approved'
+    WHERE TransactionID = ?
+  `;
+
+  db.query(sql, [transactionID], (err, result) => {
+    if (err) {
+      console.error('Error approving transaction:', err);
+      return res.status(500).json({ error: 'Error approving transaction' });
+    }
+
+    res.json({ success: true, message: 'Transaction approved' });
+  });
+});
+
+// decline transaction
+app.post('/api/alerts/decline', (req, res) => {
+  const { transactionID } = req.body;
+
+  if (!transactionID) {
+    return res.status(400).json({ error: 'transactionID is required' });
+  }
+
+  const sql = `
+    UPDATE CARD_TRANSACTION
+    SET Status = 'Declined'
+    WHERE TransactionID = ?
+  `;
+
+  db.query(sql, [transactionID], (err, result) => {
+    if (err) {
+      console.error('Error declining transaction:', err);
+      return res.status(500).json({ error: 'Error declining transaction' });
+    }
+
+    res.json({ success: true, message: 'Transaction declined' });
+  });
+});
+
+// simulate transaction for demo purposes
+app.post('/api/transactions/simulate', (req, res) => {
+  const { accountID, amount } = req.body;
+
+  if (!accountID || !amount) {
+    return res.status(400).json({ error: 'accountID and amount are required' });
+  }
+
+  const getSubscriberSql = `
+    SELECT SubscriberID
+    FROM EXTERNAL_ACCOUNT
+    WHERE AccountID = ?
+  `;
+
+  db.query(getSubscriberSql, [accountID], (err, accountResults) => {
+    if (err) {
+      console.error('Error finding account:', err);
+      return res.status(500).json({ error: 'Error finding account' });
+    }
+
+    if (accountResults.length === 0) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const subscriberID = accountResults[0].SubscriberID;
+
+    const settingsSql = `
+      SELECT AlertThreshold, AlertsEnabled
+      FROM USER_ALERT_SETTINGS
+      WHERE SubscriberID = ?
+    `;
+
+    db.query(settingsSql, [subscriberID], (err, settingsResults) => {
+      if (err) {
+        console.error('Error fetching alert settings:', err);
+        return res.status(500).json({ error: 'Error fetching alert settings' });
+      }
+
+      let status = 'Approved';
+
+      if (settingsResults.length > 0) {
+        const settings = settingsResults[0];
+
+        if (
+          settings.AlertsEnabled &&
+          settings.AlertThreshold !== null &&
+          Number(amount) > Number(settings.AlertThreshold)
+        ) {
+          status = 'Pending';
+        }
+      }
+
+      const insertSql = `
+        INSERT INTO CARD_TRANSACTION
+        (AccountID, Amount, TransactionDate, MerchantName, Description, Category, TransactionType, Status)
+        VALUES (?, ?, NOW(), ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        insertSql,
+        [
+          accountID,
+          amount,
+          'Demo Merchant',
+          'Simulated transaction',
+          'Personal',
+          'Debit',
+          status
+        ],
+        (err, result) => {
+          if (err) {
+            console.error('Error simulating transaction:', err);
+            return res.status(500).json({ error: 'Error simulating transaction' });
+          }
+
+          res.json({
+            success: true,
+            message:
+              status === 'Pending'
+                ? 'Simulated transaction created and alert triggered'
+                : 'Simulated transaction created below threshold',
+            status
+          });
+        }
+      );
+    });
   });
 });
 

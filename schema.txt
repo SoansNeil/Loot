@@ -40,7 +40,8 @@ CREATE TABLE EXTERNAL_ACCOUNT
 );
 
 
-
+USE LootDB;
+//employee feature
 CREATE TABLE SERVICE_FORMS (
     formID INT AUTO_INCREMENT PRIMARY KEY,
     customerName VARCHAR(100) NOT NULL,
@@ -53,7 +54,7 @@ CREATE TABLE SERVICE_FORMS (
 
     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
 );
-
+//budgeting feature
 CREATE TABLE Budgeting (
 TID INT AUTO_INCREMENT,
 Amount DECIMAL(15,2) NOT NULL,
@@ -71,7 +72,7 @@ REFERENCES EXTERNAL_ACCOUNT(AccountID),
 CONSTRAINT CHECK_ExpenseType
 CHECK (ExpenseType IN ('Expense','Income','Transfer'))
 );
-
+//analyze feature
 CREATE TABLE CARD_TRANSACTION
 (
   TransactionID INT AUTO_INCREMENT NOT NULL,
@@ -89,18 +90,20 @@ CREATE TABLE CARD_TRANSACTION
   CONSTRAINT CHECK_TransactionType
     CHECK (TransactionType IN ('Debit', 'Credit'))
 );
+//budgeting feature
 CREATE TABLE scheduled_transfers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(10,2) NOT NULL,
     from_account VARCHAR(50) NOT NULL,
     to_account VARCHAR(50) NOT NULL,
-    to_subscriber VARCHAR(50) NOT NULL,
     schedule_type ENUM('now', 'later', 'recurring') NOT NULL,
     transfer_date DATE NULL,
     transfer_time TIME NULL,
     status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+//employee service form feature
 CREATE TABLE `CLOSED_FORMS` (
   `formID` int NOT NULL AUTO_INCREMENT,
   `customerName` varchar(100) NOT NULL,
@@ -113,3 +116,19 @@ CREATE TABLE `CLOSED_FORMS` (
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`formID`)
 );
+
+//For family goals feature
+CREate table Family_Goal(
+GoalID  INT AUTO_INCREMENT NOT NULL,
+GName Varchar(50) NOT NULL,
+Description varchar(255),
+Goal DECIMAL(15,2) Not null,
+CurrAmt DECIMAL(15,2) Not null,
+AmtLeft DECIMAL(15,2)  GENERATED ALWAYS AS (Goal - CurrAmt) STORED,
+    PRIMARY KEY (GoalID),
+    status varchar(50) Not null,
+    constraint check_status 
+    check(status in ("In Progress", "Completed"))
+    )
+  FamAccount int not null,;
+    
