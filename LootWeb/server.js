@@ -15,7 +15,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 app.use(cookieParser());
-app.use(express.json());
 
 
 const db = mysql.createConnection({
@@ -151,27 +150,39 @@ const hashPassword = crypto
       return res.send('Invalid username or password');
     }
     const subscriberID = results[0].subscriberID;
-    res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
+    res.redirect(`/MT-Dashboard.html?subscriberID=${subscriberID}`);
   });
 });
 
-
-
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
-  const bankName = req.body.bank;
+  const bankName = req.body.bankName;
   const accountType = req.body.accountType;
+  const currentBalance = req.body.currentBalance;
+  const currency = req.body.currency;
+  const syncStatus = req.body.syncStatus;
+  const subscriberId = req.body.subscriberId;
+
   //const hashAccountNumber = crypto
   //.createHash('sha256')
   //.update(req.body.accountNumber)
   //.digest('hex');
   //const routingNumber = req.body.routingNumber;
   //const accountNickname = req.body.accountNickname;
-const sql = 'INSERT INTO EXTERNAL_ACCOUNT (bank, accountType) VALUES (?, ?)'; // Add more values as DB expands
-  db.query(sql, [bank, accountType], (err, result) => {
+const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, currency, syncStatus, subscriberId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus,subscriberId], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('Error connecting external account');
+      res.json({
+      success: true,
+      bankName,
+      accountType,
+      currentBalance,
+      currency,
+      syncStatus,
+      subscriberId
+    });
     }
     res.send('External account connected successfully!');
   });
@@ -1010,6 +1021,200 @@ app.post('/add-goal', (req, res) => {
            });
     });
 });
+// Save or update alert settings
+app.post('/api/alerts/save', (req, res) => {
+  const { subscriberID, threshold } = req.body;
+
+  if (!subscriberID || threshold === undefined || threshold === null || threshold === '') {
+    return res.status(400).json({ error: 'subscriberID and threshold are required' });
+  }
+
+  const sql = `
+    INSERT INTO USER_ALERT_SETTINGS (SubscriberID, AlertThreshold, AlertsEnabled)
+    VALUES (?, ?, TRUE)
+    ON DUPLICATE KEY UPDATE
+      AlertThreshold = VALUES(AlertThreshold),
+      AlertsEnabled = TRUE
+  `;
+
+  db.query(sql, [subscriberID, threshold], (err, result) => {
+    if (err) {
+      console.error('Error saving alert settings:', err);
+      return res.status(500).json({ error: 'Error saving alert settings' });
+    }
+
+    res.json({ success: true, message: 'Alert settings saved' });
+  });
+});
+
+// Get pending alerts for a subscriber
+app.get('/api/alerts/:subscriberID', (req, res) => {
+  const subscriberID = req.params.subscriberID;
+
+  const sql = `
+    SELECT 
+      ct.TransactionID,
+      ct.Amount,
+      ct.MerchantName,
+      ct.Description,
+      ct.TransactionDate,
+      ct.Category,
+      ct.TransactionType,
+      ct.Status
+    FROM CARD_TRANSACTION ct
+    JOIN EXTERNAL_ACCOUNT ea ON ct.AccountID = ea.AccountID
+    WHERE ea.SubscriberID = ?
+      AND ct.Status = 'Pending'
+    ORDER BY ct.TransactionDate DESC
+  `;
+
+  db.query(sql, [subscriberID], (err, results) => {
+    if (err) {
+      console.error('Error fetching alerts:', err);
+      return res.status(500).json({ error: 'Error fetching alerts' });
+    }
+
+    res.json(results);
+  });
+});
+
+// accept transaction and update status to approved
+app.post('/api/alerts/accept', (req, res) => {
+  const { transactionID } = req.body;
+
+  if (!transactionID) {
+    return res.status(400).json({ error: 'transactionID is required' });
+  }
+
+  const sql = `
+    UPDATE CARD_TRANSACTION
+    SET Status = 'Approved'
+    WHERE TransactionID = ?
+  `;
+
+  db.query(sql, [transactionID], (err, result) => {
+    if (err) {
+      console.error('Error approving transaction:', err);
+      return res.status(500).json({ error: 'Error approving transaction' });
+    }
+
+    res.json({ success: true, message: 'Transaction approved' });
+  });
+});
+
+// decline transaction
+app.post('/api/alerts/decline', (req, res) => {
+  const { transactionID } = req.body;
+
+  if (!transactionID) {
+    return res.status(400).json({ error: 'transactionID is required' });
+  }
+
+  const sql = `
+    UPDATE CARD_TRANSACTION
+    SET Status = 'Declined'
+    WHERE TransactionID = ?
+  `;
+
+  db.query(sql, [transactionID], (err, result) => {
+    if (err) {
+      console.error('Error declining transaction:', err);
+      return res.status(500).json({ error: 'Error declining transaction' });
+    }
+
+    res.json({ success: true, message: 'Transaction declined' });
+  });
+});
+
+// simulate transaction for demo purposes
+app.post('/api/transactions/simulate', (req, res) => {
+  const { accountID, amount } = req.body;
+
+  if (!accountID || !amount) {
+    return res.status(400).json({ error: 'accountID and amount are required' });
+  }
+
+  const getSubscriberSql = `
+    SELECT SubscriberID
+    FROM EXTERNAL_ACCOUNT
+    WHERE AccountID = ?
+  `;
+
+  db.query(getSubscriberSql, [accountID], (err, accountResults) => {
+    if (err) {
+      console.error('Error finding account:', err);
+      return res.status(500).json({ error: 'Error finding account' });
+    }
+
+    if (accountResults.length === 0) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+
+    const subscriberID = accountResults[0].SubscriberID;
+
+    const settingsSql = `
+      SELECT AlertThreshold, AlertsEnabled
+      FROM USER_ALERT_SETTINGS
+      WHERE SubscriberID = ?
+    `;
+
+    db.query(settingsSql, [subscriberID], (err, settingsResults) => {
+      if (err) {
+        console.error('Error fetching alert settings:', err);
+        return res.status(500).json({ error: 'Error fetching alert settings' });
+      }
+
+      let status = 'Approved';
+
+      if (settingsResults.length > 0) {
+        const settings = settingsResults[0];
+
+        if (
+          settings.AlertsEnabled &&
+          settings.AlertThreshold !== null &&
+          Number(amount) > Number(settings.AlertThreshold)
+        ) {
+          status = 'Pending';
+        }
+      }
+
+      const insertSql = `
+        INSERT INTO CARD_TRANSACTION
+        (AccountID, Amount, TransactionDate, MerchantName, Description, Category, TransactionType, Status)
+        VALUES (?, ?, NOW(), ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        insertSql,
+        [
+          accountID,
+          amount,
+          'Demo Merchant',
+          'Simulated transaction',
+          'Personal',
+          'Debit',
+          status
+        ],
+        (err, result) => {
+          if (err) {
+            console.error('Error simulating transaction:', err);
+            return res.status(500).json({ error: 'Error simulating transaction' });
+          }
+
+          res.json({
+            success: true,
+            message:
+              status === 'Pending'
+                ? 'Simulated transaction created and alert triggered'
+                : 'Simulated transaction created below threshold',
+            status
+          });
+        }
+      );
+    });
+  });
+});
+
 //Server checks
 app.use((req, res) => {
   res.status(404).send('Webpage not found');
