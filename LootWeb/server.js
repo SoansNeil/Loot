@@ -396,7 +396,7 @@ app.post('/ConfirmTransfer', (req, res) => {
       return res.send('Error processing transfer. Please try again.');
     }
     
-    const deductSql = 'UPDATE external_account SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ?';
+    const deductSql = 'UPDATE EXTERNAL_ACCOUNT SET CurrentBalance = CurrentBalance - ? WHERE AccountID = ?';
     db.query(deductSql, [amount, fromAccount], (err, deductResult) => {
       if (err) {
         return db.rollback(() => {
@@ -404,7 +404,7 @@ app.post('/ConfirmTransfer', (req, res) => {
         });
       }
 
-      const addSql = 'UPDATE external_account SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?';
+      const addSql = 'UPDATE EXTERNAL_ACCOUNT SET CurrentBalance = CurrentBalance + ? WHERE AccountID = ?';
       db.query(addSql, [amount, toAccount], (err, addResult) => {
         if (err) {
           return db.rollback(() => {
