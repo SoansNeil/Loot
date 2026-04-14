@@ -1,592 +1,371 @@
 <!DOCTYPE HTML>
-<!--
-	Alpha by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
-	<head>
-		<title>Family</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
-	<body class="landing is-preload">
-		<div id="page-wrapper">
+<head>
+    <title>Family</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body class="landing is-preload">
+<div id="page-wrapper">
 
-			<!-- Header -->
-				<header id="header" class="alt">
-					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="Dashboard.html">Dashboard</a></li>
-							<li><a href="index.html">Log Out</a></li>
-							
-						</ul>
-					</nav>
-				</header>
+    <!-- Header -->
+    <header id="header" class="alt">
+        <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+        <nav id="nav">
+            <ul>
+                <li><a href="Dashboard.html">Dashboard</a></li>
+                <li><a href="index.html">Log Out</a></li>
+            </ul>
+        </nav>
+    </header>
 
-			<!-- Banner -->
-				<section id="banner">
-					<h3>Here you will be able to plan and manage financial goals with users on your family plan. </h3>
+    <!-- Banner -->
+    <section id="banner">
+        <h3>Here you will be able to plan and manage financial goals with users on your family plan.</h3>
+    </section>
 
-				</section>
+    <!-- Main -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
 
-			<!-- Main -->
-			   <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <!-- Family Members Section -->
+        <section class="family-section" style="text-align: center;">
+            <h2>Users on your family plan</h2>
+            <button id="displayFam">Click for Family Accounts</button>
+            <div id="FamAcc"></div>
 
-                <section class="family-section" style="text-align: center;">
-                    <h2> Users on your family plan</h2>
-                    <button id="displayFam"> Click for Family Accounts </button>
-                    <div id="FamAcc"></div>
-					
-					 <div style="margin-top: 1.8rem;">
-           			 <a href="#" id="toggleFamilyFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">Click here to add a family member to your plan</a>
-       				 </div>
+            <div style="margin-top: 1.8rem;">
+                <a href="#" id="toggleFamilyFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">
+                    Click here to add a family member to your plan
+                </a>
+            </div>
 
+            <div id="dropdownFamilyForm" style="display: none;">
+                <div class="signUp-box" style="margin-top: 1.5rem;">
+                    <h2>Add New Family Member</h2>
+                    <form id="addFamilyMemberForm">
+                        <div class="input-grid">
+                            <div class="input-field">
+                                <label>First Name *</label>
+                                <input type="text" name="FName" required>
+                            </div>
+                            <div class="input-field">
+                                <label>Last Name *</label>
+                                <input type="text" name="LName" required>
+                            </div>
+                            <div class="input-field">
+                                <label>Username *</label>
+                                <input type="text" name="Username" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="signUp-btn">Add Family Member</button>
+                    </form>
+                </div>
+            </div>
+        </section>
 
-		<div id="dropdownFamilyForm" style="display: none;">
-			<div class="signUp-box" style="margin-top: 1.5rem;">
-				<h2>Add New Family Member</h2>
+        <br><br>
 
-				<form id="addFamilyMemberForm" action="/add-family-member" method="POST">
-					<div class="input-grid">
-						<div class="input-field">
-							<label>First Name *</label>
-							<input type="text" name="FName" required>
-						</div>
+        <!-- Family Goals Section -->
+        <section style="text-align: center;">
+            <h2>Family Goals</h2>
+            <div id="goalsDisplay" style="margin-bottom: 2rem;"></div>
 
-						<div class="input-field">
-							<label>Last Name *</label>
-							<input type="text" name="LName" required>
-						</div>
+            <div style="margin-top: 1.8rem;">
+                <a href="#" id="toggleGoalFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">
+                    Click here to add a new goal to your family plan
+                </a>
+            </div>
 
-						<div class="input-field">
-							<label>Username *</label>
-							<input type="text" name="Username" required>
-						</div>
-					</div>
+            <div id="dropdownGoalForm" style="display: none;">
+                <div class="signUp-box" style="margin-top: 1.5rem;">
+                    <form id="addGoalForm">
+                        <div class="input-grid">
+                            <div class="input-field">
+                                <label>Goal Name</label>
+                                <input type="text" name="GName" required>
+                            </div>
+                            <div class="input-field">
+                                <label>Goal Description</label>
+                                <input type="text" name="Description">
+                            </div>
+                            <div class="input-field">
+                                <label>Goal Amount</label>
+                                <input type="number" name="Goal" step="0.01" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="signUp-btn">Add Goal to plan</button>
+                    </form>
+                    <p><strong>Note:</strong> Amount Left will be automatically calculated as (Goal - Current Amount).</p>
+                </div>
+            </div>
+        </section>
 
-            <button type="submit" class="signUp-btn">Add Family Member</button>
+    </div><!-- end main div -->
 
-            </form>
-			
-                </section>
-				<br><br>
+</div><!-- end page-wrapper -->
 
+<!-- Template Scripts FIRST -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.dropotron.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 
-				 <Section>
-					
-				<H2 style="text-align: center;">Family Goals</H2>
-				<div id="goalsDisplay" style="margin-bottom: 2rem;"></div>
-				<div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+<!-- Your script LAST -->
+<script>
+    // ✅ Get subscriberID once at the top, use everywhere
+    const urlParams = new URLSearchParams(window.location.search);
+    const subscriberID = urlParams.get('subscriberID');
 
-					 <div style="margin-top: 1.8rem; text-align: center;">
-           			 <a href="#" id="toggleGoalFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">Click here to add a new goal to your family plan</a>
-       				 </div>
-					
-        <div id="dropdownGoalForm" style="display: none;">
-			<div class="signUp-box" style="margin-top: 1.5rem;">
+    if (!subscriberID) {
+        alert('No subscriber ID found. Please log in again.');
+    }
 
-				<form id="addGoalForm" action="/add-goal" method="POST">
-					<div class="input-grid">
-						<div class="input-field">
-							<label>Goal Name </label>
-							<input type="text" name="GName" required>
-						</div>
+    // ── Family Members ──────────────────────────────────────
 
-						<div class="input-field">
-							<label>Goal Description</label>
-							<input type="text" name="Description" >
-						</div>
+    document.getElementById('displayFam').addEventListener('click', async () => {
+        const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+        const text = await res.text();
+        document.getElementById('FamAcc').innerHTML = text;
+    });
 
-						<div class="input-field">
-							<label>Goal Amount</label>
-							<input type="number" name="Goal" step="0.01" required>
-						</div>
+    // Toggle family form
+    document.getElementById('toggleFamilyFormLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        const form = document.getElementById('dropdownFamilyForm');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
 
-					</div>
-					<div id="ExAcc"></div>
+    // Submit family member
+    document.getElementById('addFamilyMemberForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-            <button type="submit" class="signUp-btn">Add Goal to plan</button>
-            
-        </form>
-        <div class="note">
-            <strong>Note:</strong> Amount Left will be automatically calculated as (Goal - Current Amount).
-        </div>
-    </div>
+        const FName = e.target.querySelector('[name="FName"]').value;
+        const LName = e.target.querySelector('[name="LName"]').value;
+        const Username = e.target.querySelector('[name="Username"]').value;
 
-			</Section>
-			<Br></Br>
-			<!-- Contribution Modal -->
-				<div id="accountsModal" class="modal">
-				<div class="modal-content">
-					<span class="close-modal" onclick="document.getElementById('accountsModal').style.display='none'">&times;</span>
-					<div id="modalContent"></div>
-				</div>
-			</div>
-			
-
-
-						
-			<script>
-			const urlParams = new URLSearchParams(window.location.search);
-			const subscriberID = urlParams.get('subscriberID');
-
-			const button = document.getElementById('displayFam');
-
-			button.addEventListener('click', async () => {
-				const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-				const text = await res.text();
-
-				document.getElementById("FamAcc").innerHTML = text;
-			});
-
-			const toggleLink = document.getElementById('toggleFamilyFormLink');
-			const dropdownForm = document.getElementById('dropdownFamilyForm');
-
-			// Make the link show/hide the form when clicked
-			if (toggleLink && dropdownForm) {
-				toggleLink.addEventListener('click', function(e) {
-					e.preventDefault();  // Stops page from jumping to top
-					if (dropdownForm.style.display === 'none' || dropdownForm.style.display === '') {
-						dropdownForm.style.display = 'block';
-					} else {
-						dropdownForm.style.display = 'none';
-					}
-				});
-			}
-
-			
-			const familyForm = document.getElementById('addFamilyMemberForm');
-		if (familyForm) {
-    familyForm.addEventListener('submit', async function(e) {
-        e.preventDefault();  // Prevent page from reloading
-        
-        //  form values
-        const firstName = familyForm.querySelector('input[name="FName"]').value;
-        const lastName = familyForm.querySelector('input[name="LName"]').value;
-        const username = familyForm.querySelector('input[name="Username"]').value;
-        
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const subscriberID = urlParams.get('subscriberID');
-        
-        if (!subscriberID) {
-            alert('Error: No subscriber ID found. Please log in again.');
-            return;
-        }
-        
         try {
-            const response = await fetch(`/add-family-member?subscriberID=${subscriberID}`, {
+            const res = await fetch(`/add-family-member?subscriberID=${subscriberID}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    FName: firstName,
-                    LName: lastName,
-                    Username: username
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ FName, LName, Username })
             });
-            
-            const result = await response.json();
-            
+
+            const result = await res.json();
+
             if (result.success) {
-                alert(`${firstName} ${lastName} (${username}) has been added to your family plan!`);
-                familyForm.reset();
-                dropdownForm.style.display = 'none';
-                
-                // Refresh the family accounts display
-                const displayButton = document.getElementById('displayFam');
-                if (displayButton) {
-                    displayButton.click();
-                }
+                alert(`${FName} ${LName} added to your family plan!`);
+                e.target.reset();
+                document.getElementById('dropdownFamilyForm').style.display = 'none';
+                document.getElementById('displayFam').click();
             } else {
                 alert(result.message || 'Failed to add family member.');
             }
-        } catch (error) {
-            alert('Error adding family member: ' + error.message);
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
     });
-}
 
-			const toggleLink1 = document.getElementById('toggleGoalFormLink');
-			const dropdownForm1 = document.getElementById('dropdownGoalForm');
+    // ── Goals ────────────────────────────────────────────────
 
-				// Make the link show/hide the form when clicked
-			if (toggleLink1 && dropdownForm1) {
-				toggleLink1.addEventListener('click', function(e) {
-					e.preventDefault();  // Stops page from jumping to top
-					if (dropdownForm1.style.display === 'none' || dropdownForm1.style.display === '') {
-						dropdownForm1.style.display = 'block';
-					} else {
-						dropdownForm1.style.display = 'none';
-					}
-				});
-			}
-
-			const goalForm = document.getElementById('addGoalForm');
-		if (goalForm) {
-    goalForm.addEventListener('submit', async function(e) {
+    // Toggle goal form
+    document.getElementById('toggleGoalFormLink').addEventListener('click', (e) => {
         e.preventDefault();
-        
-        // Get form values
-        const goalName = goalForm.querySelector('input[name="GName"]').value;
-        const goalDescription = goalForm.querySelector('input[name="Description"]').value;
-        const goalAmount = goalForm.querySelector('input[name="Goal"]').value;
-  
-        if (!goalName || !goalAmount) {
-            alert('Please fill in Goal Name and Goal Amount');
-            return;
-        }
-        
-        
-        if (!subscriberID) {
-            alert('Error: No subscriber ID found. Please log in again.');
-            return;
-        }
-        
+        const form = document.getElementById('dropdownGoalForm');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Submit goal
+    document.getElementById('addGoalForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const GName = e.target.querySelector('[name="GName"]').value;
+        const Description = e.target.querySelector('[name="Description"]').value;
+        const Goal = parseFloat(e.target.querySelector('[name="Goal"]').value);
+
         try {
-            const response = await fetch('/add-goal', {
+            const res = await fetch('/add-goal', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    subscriberID: subscriberID,  // Send subscriberID in body
-                    GName: goalName,
-                    Description: goalDescription,
-                    Goal: parseFloat(goalAmount)  // Convert to number
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscriberID, GName, Description, Goal })
             });
-          
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Server error: ${response.status} - ${errorText}`);
-            }
-            
-            const result = await response.json();
-            
+
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+            const result = await res.json();
+
             if (result.success) {
-                alert(`Goal "${goalName}" has been added to your family plan!`);
-                goalForm.reset();
-                dropdownForm1.style.display = 'none';
+                alert(`Goal "${GName}" added!`);
+                e.target.reset();
+                document.getElementById('dropdownGoalForm').style.display = 'none';
+                loadFamilyGoals();
             } else {
                 alert(result.message || 'Failed to add goal.');
             }
-        } catch (error) {
-            console.error('Error details:', error);
-            alert('Error adding goal: ' + error.message);
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
     });
-}
-		
-// Function to display family goals with green status bar
-function displayGoalsWithStatusBar(goals) {
-    let html = '<div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">';
-    
-    goals.forEach(goal => {
-        const goalId = goal.GoalID || goal.id || `goal_${Math.random()}`;
-        const goalAmount = parseFloat(goal.Goal) || parseFloat(goal.GoalAmount) || 0;
-        const currentAmount = parseFloat(goal.CurrAmt) || parseFloat(goal.CurrentAmount) || 0;
-        const goalName = goal.GoalName || goal.GName || 'Unnamed Goal';
-        const description = goal.Description || goal.GoalDescription || '';
-        
-        const progress = (currentAmount / goalAmount) * 100;
-        const progressPercent = Math.min(progress, 100).toFixed(2);
-        const remaining = goalAmount - currentAmount;
-        
-		let displayStatus = goal.Status || 'In Progress';
-		if (currentAmount >= goalAmount) {
-    	displayStatus = 'Complete';
-		}
-        html += `
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
-                    <h3 style="margin: 0; color: #2c3e50;">${escapeHtml(goalName)}</h3>
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #4a6741;">
-                        $${currentAmount.toFixed(2)} / $${goalAmount.toFixed(2)}
-                    </span>
-                </div>
-                ${description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(description)}</p>` : ''}
-                <div style="margin: 1rem 0;">
-                    <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 30px; position: relative;">
+
+    // ── Load & Display Goals ─────────────────────────────────
+
+    async function loadFamilyGoals() {
+        try {
+            const res = await fetch(`/get-family-goals?subscriberID=${subscriberID}`);
+            const result = await res.json();
+
+            const display = document.getElementById('goalsDisplay');
+
+            if (result.success && result.goals && result.goals.length > 0) {
+                displayGoals(result.goals);
+            } else {
+                display.innerHTML = '<p style="text-align:center; padding: 2rem;">No goals yet. Add your first family goal above!</p>';
+            }
+        } catch (err) {
+            document.getElementById('goalsDisplay').innerHTML = '<p style="color:red; text-align:center;">Error loading goals. Please refresh.</p>';
+        }
+    }
+
+    function displayGoals(goals) {
+        let html = '<div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">';
+
+        goals.forEach(goal => {
+            const goalAmount = parseFloat(goal.Goal) || 0;
+            const currentAmount = parseFloat(goal.CurrAmt) || 0;
+            const progressPercent = Math.min((currentAmount / goalAmount) * 100, 100).toFixed(2);
+            const remaining = goalAmount - currentAmount;
+            const isComplete = currentAmount >= goalAmount;
+
+            html += `
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h3 style="margin: 0; color: #2c3e50;">${escapeHtml(goal.GName)}</h3>
+                        <span style="font-weight: bold; color: #4a6741;">$${currentAmount.toFixed(2)} / $${goalAmount.toFixed(2)}</span>
+                    </div>
+                    ${goal.Description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(goal.Description)}</p>` : ''}
+                    <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 30px;">
                         <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem;">
                             ${progressPercent}%
                         </div>
                     </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                        <span style="color: #666; font-size: 0.9rem;">${isComplete ? '🎉 Goal Completed!' : `$${remaining.toFixed(2)} remaining`}</span>
+                        <span style="color: #4a6741; font-size: 0.9rem;">Status: ${isComplete ? 'Completed' : 'In Progress'}</span>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <button onclick="showContributeOptions('${goal.GoalID}', '${escapeHtml(goal.GName)}', ${goalAmount}, ${currentAmount}, this)"
+                            style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                            Contribute Money
+                        </button>
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                    <span style="color: #666; font-size: 0.9rem;">
-                        ${progressPercent >= 100 ? ' Goal Completed!' : `$${remaining.toFixed(2)} remaining to reach goal`}
-                    </span>
-                    <span style="color: #4a6741; font-size: 0.9rem; font-weight: 500;">
-   					 Status: ${displayStatus}
-					</span>
-                </div>
-                <div style="margin-top: 1rem; text-align: right;">
-                    <button onclick="displayExternalAccountsForContribution('${goalId}', '${escapeHtml(goalName)}', ${goalAmount}, ${currentAmount}, this)"  
-        style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
-     	Contribute Money
-		</button>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    
-    let goalsDisplay = document.getElementById('goalsDisplay');
-    if (!goalsDisplay) {
-        goalsDisplay = document.createElement('div');
-        goalsDisplay.id = 'goalsDisplay';
-        const dropdownGoalForm = document.getElementById('dropdownGoalForm');
-        if (dropdownGoalForm && dropdownGoalForm.parentNode) {
-            dropdownGoalForm.parentNode.insertBefore(goalsDisplay, dropdownGoalForm.nextSibling);
-        }
-    }
-    goalsDisplay.innerHTML = html;
-}
-// Helps escape HTML
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+            `;
+        });
 
-// shows goals automatically (not button)
-async function loadFamilyGoals() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const subscriberID = urlParams.get('subscriberID');
-    const famAccount = urlParams.get('famAccount');
-    
-    if (!subscriberID && !famAccount) {
-        console.error('No subscriberID or famAccount found');
-        return;
+        html += '</div>';
+        document.getElementById('goalsDisplay').innerHTML = html;
     }
-    
-    try {
-        const response = await fetch(`/get-family-goals?subscriberID=${subscriberID}&famAccount=${famAccount}`);
-        const result = await response.json();
-        
-        if (result.success && result.goals && result.goals.length > 0) {
-            displayGoalsWithStatusBar(result.goals);
-        } else {
-            const goalsDisplay = document.getElementById('goalsDisplay');
-            if (goalsDisplay) {
-                goalsDisplay.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No goals added yet. Use the form above to add your first family goal!</p></div>';
-            }
-        }
-    } catch (error) {
-        console.error('Error fetching goals:', error);
-        const goalsDisplay = document.getElementById('goalsDisplay');
-        if (goalsDisplay) {
-            goalsDisplay.innerHTML = '<div style="text-align: center; padding: 2rem; color: red;">Error loading goals. Please refresh the page.</div>';
-        }
-    }
-}
-async function displayExternalAccountsForContribution(goalId, goalName, goalTarget, currentAmount, buttonElement) {
-    if (!subscriberID) {
-        alert('Error: No subscriber ID found');
-        return;
-    }
-    
-    if (!buttonElement) {
-        console.error('Button element not found');
-        alert('Error: Could not process request');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
-        const accounts = await response.json();
-        
-        console.log('Accounts loaded:', accounts); // Debug
-        
-        // Find the parent goal container
-        const goalContainer = buttonElement.closest('div[style*="background: white; border-radius: 12px;"]');
-        
-        if (!goalContainer) {
-            console.error('Goal container not found');
-            alert('Error: Could not find goal container');
+
+    // ── Contributions ────────────────────────────────────────
+
+    window.showContributeOptions = async function(goalId, goalName, goalTarget, currentAmount, btn) {
+        const goalContainer = btn.closest('div[style*="background: white"]');
+        let existing = goalContainer.querySelector('.contribute-panel');
+
+        if (existing) {
+            existing.style.display = existing.style.display === 'none' ? 'block' : 'none';
             return;
         }
-        
-        // Check if accounts are already displayed
-        let existingAccountsDiv = goalContainer.querySelector('.external-accounts-container');
-        
-        if (existingAccountsDiv) {
-            // hide or show 
-            existingAccountsDiv.style.display = existingAccountsDiv.style.display === 'none' ? 'block' : 'none';
-            return;
-        }
-        
-        // Create container for external accounts
-        const accountsDiv = document.createElement('div');
-        accountsDiv.className = 'external-accounts-container';
-        accountsDiv.style.cssText = 'margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #e0e0e0;';
-        
-        let accountsHtml = `
-            <h4 style="color: #4a6741; margin-bottom: 1rem;">Select an External Account to Contribute:</h4>
-            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-        `;
-        
-        if (!accounts || accounts.length === 0) {
-            accountsHtml += '<p style="color: red; width: 100%;">No external accounts found. Please add an account in your Dashboard.</p>';
-        } else {
-            accounts.forEach(account => {
-                const maxContribution = Math.min(parseFloat(account.currentBalance), (goalTarget - currentAmount));
-                accountsHtml += `
-                    <div style="border: 1px solid #ddd; border-radius: 10px; padding: 1rem; background: #f9f9f9; text-align:center;flex: 1; min-width: 250px;">
-                        <p><strong> ${escapeHtml(account.bank)}</strong></p>
-                        <p style="font-size: 0.9rem; color: #666;">${escapeHtml(account.accountType)}</p>
-                        <p><strong>Balance:</strong> ${account.currency || '$'} ${parseFloat(account.currentBalance).toFixed(2)}</p>
-                        <div style="margin-top: 0.8rem;">
-                            <input type="number" id="amount_${goalId}_${account.accountID}" 
-                                   class="contribution-amount-input" 
-								   step="0.01"
-                                   placeholder="Enter amount (max $${maxContribution.toFixed(2)})" 
-                                   style="width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
-                            <button onclick="processContributionInline(${account.accountID}, '${goalId}', ${goalTarget}, ${currentAmount}, ${parseFloat(account.currentBalance)}, '${escapeHtml(goalName)}')" 
-                                    style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">
-                                Contribute $$$
+
+        try {
+            const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
+            const accounts = await res.json();
+
+            const panel = document.createElement('div');
+            panel.className = 'contribute-panel';
+            panel.style.cssText = 'margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #e0e0e0;';
+
+            let inner = `<h4 style="color: #4a6741; margin-bottom: 1rem;">Select an account to contribute:</h4>
+                         <div style="display: flex; flex-wrap: wrap; gap: 1rem;">`;
+
+            if (!accounts || accounts.length === 0) {
+                inner += '<p style="color: red;">No external accounts found. Please add one in your Dashboard.</p>';
+            } else {
+                accounts.forEach(account => {
+                    const max = Math.min(parseFloat(account.currentBalance), goalTarget - currentAmount);
+                    inner += `
+                        <div style="border: 1px solid #ddd; border-radius: 10px; padding: 1rem; background: #f9f9f9; flex: 1; min-width: 220px; text-align: center;">
+                            <p><strong>${escapeHtml(account.bank)}</strong></p>
+                            <p style="color: #666;">${escapeHtml(account.accountType)}</p>
+                            <p><strong>Balance:</strong> $${parseFloat(account.currentBalance).toFixed(2)}</p>
+                            <input type="number" id="contrib_${goalId}_${account.accountID}" step="0.01" placeholder="Max $${max.toFixed(2)}"
+                                style="width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                            <button onclick="submitContribution(${account.accountID}, '${goalId}', ${goalTarget}, ${currentAmount}, ${parseFloat(account.currentBalance)}, '${escapeHtml(goalName)}')"
+                                style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">
+                                Contribute
                             </button>
                         </div>
-                    </div>
-                `;
+                    `;
+                });
+            }
+
+            inner += '</div>';
+            panel.innerHTML = inner;
+            btn.parentElement.appendChild(panel);
+
+        } catch (err) {
+            alert('Error loading accounts: ' + err.message);
+        }
+    };
+
+    window.submitContribution = async function(accountID, goalId, goalTarget, currentAmount, accountBalance, goalName) {
+        const input = document.getElementById(`contrib_${goalId}_${accountID}`);
+        const amount = parseFloat(input.value);
+        const remaining = goalTarget - currentAmount;
+
+        if (!amount || amount <= 0) return alert('Please enter a valid amount.');
+        if (amount > remaining) return alert(`Cannot exceed remaining amount: $${remaining.toFixed(2)}`);
+        if (amount > accountBalance) return alert(`Insufficient balance: $${accountBalance.toFixed(2)}`);
+
+        try {
+            const res = await fetch('/contribute-to-goal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goalId, subscriberID, accountID, amount })
             });
+
+            const result = await res.json();
+
+            if (result.success) {
+                alert(`Successfully contributed $${amount.toFixed(2)} to "${goalName}"!`);
+                loadFamilyGoals();
+            } else {
+                alert(result.message || 'Contribution failed.');
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
-        
-        
-        accountsDiv.innerHTML = accountsHtml;
-        
-        // Insert after the button's container (the div with text-align: right)
-        const buttonContainer = buttonElement.parentElement;
-        buttonContainer.appendChild(accountsDiv);
-        
-    } catch (error) {
-        console.error('Error fetching accounts:', error);
-        alert('Error loading external accounts: ' + error.message);
-    }
-}
+    };
 
-window.processContributionInline = async function(accountID, goalId, goalTarget, currentAmount, accountBalance, goalName) {
-    const amountInput = document.getElementById(`amount_${goalId}_${accountID}`);
-    
-    if (!amountInput) {
-        alert('Error: Could not find amount input');
-        return;
-    }
-    
-    const amount = parseFloat(amountInput.value);
-    const remaining = goalTarget - currentAmount;
-    
-    if (!amount || amount <= 0) {
-        alert('Please enter a valid contribution amount.');
-        return;
-    }
-    
-    if (amount > remaining) {
-        alert(`Contribution cannot exceed remaining goal amount: $${remaining.toLocaleString()}`);
-        return;
-    }
-    
-    if (amount > accountBalance) {
-        alert(`Insufficient balance. Available: $${accountBalance.toLocaleString()}`);
-        return;
-    }
-    
-    try {
-        const response = await fetch('/contribute-to-goal', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                goalId: goalId,
-                subscriberID: subscriberID,
-                accountID: accountID,
-                amount: amount
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alert(`Successfully contributed $${amount.toFixed(2)} to "${goalName}"!`);
-            // Refresh goals to update progress bar
-            await loadFamilyGoals();
-        } else {
-            alert(result.message || 'Contribution failed.');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error: ' + error.message);
-    }
-}
+    // ── Helpers ──────────────────────────────────────────────
 
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-window.processContribution = async function(accountID, goalId, goalTarget, currentAmount) {
-    const amountInput = document.getElementById(`amount_${accountID}`);
-    const amount = parseFloat(amountInput.value);
-    const remaining = goalTarget - currentAmount;
-    
-    if (!amount || amount <= 0) {
-        alert('Please enter a valid contribution amount.');
-        return;
-    }
-    
-    if (amount > remaining) {
-        alert(`Contribution cannot exceed remaining goal amount: $${remaining.toLocaleString()}`);
-        return;
-    }
-    
-    try {
-        const response = await fetch('/contribute-to-goal', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                goalId: goalId,
-                subscriberID: subscriberID,
-                accountID: accountID,
-                amount: amount
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alert(`Successfully contributed $${amount.toLocaleString()} to the goal!`);
-            document.getElementById('accountsModal').style.display = 'none';
-            loadFamilyGoals();
-        } else {
-            alert(result.message || 'Contribution failed.');
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
+    // ── Init ─────────────────────────────────────────────────
 
-window.addEventListener('DOMContentLoaded', () => {
-    loadFamilyGoals();
-});
+    window.addEventListener('DOMContentLoaded', loadFamilyGoals);
 
 </script>
 
-					</section>
-					
-
-				</div>
-				
-
-				<!-- Scripts -->
-				<script src="assets/js/jquery.min.js"></script>
-				<script src="assets/js/jquery.dropotron.min.js"></script>
-				<script src="assets/js/jquery.scrollex.min.js"></script>
-				<script src="assets/js/browser.min.js"></script>
-				<script src="assets/js/breakpoints.min.js"></script>
-				<script src="assets/js/util.js"></script>
-				<script src="assets/js/main.js"></script>
-			</body>
-			</html>
-
+</body>
+</html>

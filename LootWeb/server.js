@@ -402,7 +402,7 @@ app.post('/add-goal', (req, res) => {
   const goalDescription = req.body.Description;
   const goalAmount = req.body.Goal;
   const currentAmount = 0;
-  const status = "in progress"; // Automatically set status
+  const status = "In Progress"; // Automatically set status
   
   const subscriberId = req.body.subscriberID;
   
@@ -973,43 +973,6 @@ const sql = 'INSERT INTO Budgeting (amount, ExpenseType, category, dateRecorded,
   });
 });
 
-app.post('/add-goal', (req, res) => {
-    const { GName, Description, Goal, CurrAmt, status } = req.body;
-    
-    // Validate input
-    if (!GName || !Goal || !CurrAmt || !status) {
-        return res.status(400).send('All required fields must be filled');
-    }
-    
-    // Insert query (AmtLeft auto-calculated by database)
-    const query = `INSERT INTO Family_Goal (GName, Description, Goal, CurrAmt, status) 
-                   VALUES (?, ?, ?, ?, ?)`;
-    
-    db.query(query, [GName, Description || '', Goal, CurrAmt, status], (err, result) => {
-        if (err) {
-            console.error('Error inserting data:', err);
-            return res.status(500).send('Database error: ' + err.message);
-        }
-        
-        // Get the inserted record with calculated AmtLeft
-        const selectQuery = `SELECT * FROM Family_Goal WHERE GoalID = ?`;
-        db.query(selectQuery, [result.insertId], (err, rows) => {
-            if (err) {
-                console.error('Error fetching inserted record:', err);
-                return res.send(`
-                    <h2>Goal Added Successfully!</h2>
-                    <p>Goal ID: ${result.insertId}</p>
-                    <a href="/">Add Another Goal</a><br>
-                    <a href="/view-goals">View All Goals</a>
-                `);
-            }
-            
-            const goal = rows[0];
-            // Send success page
-            res.send(`Goal Created!`);
-           });
-    });
-});
 // Save or update alert settings
 app.post('/api/alerts/save', (req, res) => {
   const { subscriberID, threshold } = req.body;
