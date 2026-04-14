@@ -522,7 +522,7 @@ app.post('/contribute-to-goal', (req, res) => {
     console.log('amount:', amount);
     
     // First, check if the goal exists and see the table structure
-    const checkGoalSql = 'SELECT * FROM FAMILY_GOAL WHERE GoalID = ?';
+    const checkGoalSql = 'SELECT * FROM Family_Goal WHERE GoalID = ?';
     
     db.query(checkGoalSql, [goalId], (err, goalResult) => {
         if (err) {
@@ -559,7 +559,7 @@ app.post('/contribute-to-goal', (req, res) => {
             }
             
             // Try to update the goal
-            const updateGoalSql = 'UPDATE FAMILY_GOAL SET CurrAmt = CurrAmt + ? WHERE GoalID = ?';
+            const updateGoalSql = 'UPDATE Family_Goal SET CurrAmt = CurrAmt + ? WHERE GoalID = ?';
             console.log('Update SQL:', updateGoalSql);
             console.log('Update values:', [amount, goalId]);
             
