@@ -215,7 +215,7 @@ app.post('/displayExAcc', (req, res) => {
 app.get('/getExternalAccountsJSON', (req, res) => {
   const subscriberID = req.query.subscriberID;
 
-  const sql = 'SELECT AccountID, Bank, AccountType, CurrentBalance, SyncStatus, Currency FROM EXTERNAL_ACCOUNT WHERE SubscriberID = ?';
+  const sql = 'SELECT accountID, bank, accountType, currentBalance, currency, syncStatus FROM EXTERNAL_ACCOUNT WHERE subscriberID = ?';
   db.query(sql, [subscriberID], (err, result) => {
     if (err) {
       console.error('Error fetching external accounts:', err);
