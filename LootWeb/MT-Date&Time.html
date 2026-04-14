@@ -32,6 +32,11 @@
             <h2>Select a Transfer Date and Time</h2>
         </header>
 
+        <!-- Transfer summary -->
+        <section class="box" id="transferSummary" style="margin-bottom: 1rem;">
+            <p id="summaryText" style="text-align: center; color: #4a6741; font-weight: bold;"></p>
+        </section>
+
         <section class="box">
             <form id="scheduleForm" action="/StoreSchedule" method="POST">
 
@@ -43,16 +48,22 @@
 
                 <!-- Schedule Options -->
                 <div class="schedule-options">
-                    <h3>Schedule Transfer</h3>
+                    <h3>When would you like to transfer?</h3>
 
-                    <div class="schedule-option" onclick="selectOption('now')" id="optNow">
+                    <div class="schedule-option" onclick="selectOption('now')" id="optNow"
+                        style="border: 2px solid #e5e5e5; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; cursor: pointer;">
                         <input type="radio" name="scheduleType" value="now" id="scheduleNow">
-                        <label for="scheduleNow"><strong>Transfer Now</strong> - Process immediately</label>
+                        <label for="scheduleNow" style="cursor: pointer;">
+                            <strong>Transfer Now</strong> — Process immediately
+                        </label>
                     </div>
 
-                    <div class="schedule-option" onclick="selectOption('later')" id="optLater">
+                    <div class="schedule-option" onclick="selectOption('later')" id="optLater"
+                        style="border: 2px solid #e5e5e5; border-radius: 8px; padding: 1rem; cursor: pointer;">
                         <input type="radio" name="scheduleType" value="later" id="scheduleLater">
-                        <label for="scheduleLater"><strong>Transfer Later</strong> - Schedule for the future</label>
+                        <label for="scheduleLater" style="cursor: pointer;">
+                            <strong>Transfer Later</strong> — Schedule for the future
+                        </label>
                     </div>
                 </div>
 
@@ -93,31 +104,77 @@
 
 <!-- Page Script LAST -->
 <script>
-    // Populate hidden fields from URL params
+    // ── Populate hidden fields from URL ──────────────────────
     const params = new URLSearchParams(window.location.search);
-    document.getElementById('amount').value = params.get('amount');
-    document.getElementById('fromAccount').value = params.get('accountID');
-    document.getElementById('toAccount').value = params.get('toAccount');
-    document.getElementById('hiddenSubscriberID').value = params.get('subscriberID');
+    const amount = params.get('amount');
+    const accountID = params.get('accountID');
+    const toAccount = params.get('toAccount');
+    const subID = params.get('subscriberID');
 
-    // Set minimum date to today
+    document.getElementById('amount').value = amount;
+    document.getElementById('fromAccount').value = accountID;
+    document.getElementById('toAccount').value = toAccount;
+    document.getElementById('hiddenSubscriberID').value = subID;
+
+    // ── Show transfer summary ────────────────────────────────
+    if (amount && accountID && toAccount) {
+        document.getElementById('summaryText').textContent =
+            `Transferring $${parseFloat(amount).toFixed(2)} from Account #${accountID} to Account #${toAccount}`;
+    } else {
+        document.getElementById('summaryText').textContent = 'Missing transfer details. Please go back and try again.';
+        document.getElementById('summaryText').style.color = 'red';
+    }
+
+    // ── Set minimum date to today ────────────────────────────
     const today = new Date().toLocaleDateString('en-CA');
     document.getElementById('transferDate').min = today;
 
-    // Show/hide date picker based on selection
+    // ── Show/hide date picker ────────────────────────────────
     function selectOption(option) {
         const picker = document.getElementById('dateTimePicker');
-        const nowRadio = document.getElementById('scheduleNow');
-        const laterRadio = document.getElementById('scheduleLater');
+        const optNow = document.getElementById('optNow');
+        const optLater = document.getElementById('optLater');
 
         if (option === 'later') {
             picker.style.display = 'block';
-            laterRadio.checked = true;
+            document.getElementById('scheduleLater').checked = true;
+            optLater.style.borderColor = '#75975e';
+            optNow.style.borderColor = '#e5e5e5';
         } else {
             picker.style.display = 'none';
-            nowRadio.checked = true;
+            document.getElementById('scheduleNow').checked = true;
+            optNow.style.borderColor = '#75975e';
+            optLater.style.borderColor = '#e5e5e5';
         }
     }
+
+    // ── Form validation before submit ────────────────────────
+    document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+        const scheduleType = document.querySelector('input[name="scheduleType"]:checked');
+
+        if (!scheduleType) {
+            e.preventDefault();
+            alert('Please select Transfer Now or Transfer Later.');
+            return;
+        }
+
+        if (scheduleType.value === 'later') {
+            const date = document.getElementById('transferDate').value;
+            const time = document.getElementById('transferTime').value;
+
+            if (!date || !time) {
+                e.preventDefault();
+                alert('Please select both a date and time for your transfer.');
+                return;
+            }
+        }
+
+        if (!amount || !accountID || !toAccount || !subID) {
+            e.preventDefault();
+            alert('Missing transfer details. Please go back and try again.');
+            return;
+        }
+    });
 </script>
 
 </body>
