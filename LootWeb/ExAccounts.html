@@ -14,12 +14,14 @@
         <header id="header">
             <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="index.html#plans">Plans</a></li>
-                    <li><a href="Dashboard.html">Dashboard</a></li>
-                    <li><a href="budget.html">Budget</a></li>
-                </ul>
+            <ul>
+                <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
+                <li><a href="index.html">Log Out</a></li>
+                <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
+                <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
+                <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
+                <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+            </ul>
             </nav>
         </header>
 
@@ -98,6 +100,7 @@
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/nav.js"></script>
 
     <!-- Your script LAST, after all template scripts -->
     <script>
