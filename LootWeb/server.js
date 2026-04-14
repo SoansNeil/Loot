@@ -276,7 +276,7 @@ app.post('/displayExAcc',(req,res)=>{
 app.post('/displayFamAcc', (req, res) => {
   const subscriberID = req.query.subscriberID;
 
-  const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+  const getUserFamSql = 'SELECT FamAccount FROM SUBSCRIBER_ACCOUNT WHERE subscriberID = ?';
   db.query(getUserFamSql, [subscriberID], (err, userResult) => {
     if (err) {
       console.error('Error fetching user FamAccount:', err);
@@ -289,7 +289,7 @@ app.post('/displayFamAcc', (req, res) => {
 
     const famAccount = userResult[0].FamAccount;
 
-    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM subscriber_account WHERE FamAccount = ?';
+    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM SUBSCRIBER_ACCOUNT WHERE FamAccount = ?';
     db.query(getFamilyMemberSql, [famAccount], (err, familyResults) => {
       if (err) {
         console.error('Error fetching family accounts:', err);
@@ -327,7 +327,7 @@ app.get('/check-user', async (req, res) => {
     
     try {
         const result = await db.query(
-            'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?', 
+            'SELECT * FROM SUBSCRIBER_ACCOUNT WHERE FName = ? AND LName = ? AND Username = ?', 
             [FName, LName, Username]
         );
         
@@ -344,7 +344,7 @@ app.post('/add-family-member', async (req, res) => {
     
     try {
        
-        const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+        const getUserFamSql = 'SELECT FamAccount FROM SUBSCRIBER_ACCOUNT WHERE subscriberID = ?';
         
         db.query(getUserFamSql, [subscriberID], (err, userResult) => {
             if (err) {
@@ -359,7 +359,7 @@ app.post('/add-family-member', async (req, res) => {
             const familyAccountId = userResult[0].FamAccount;
             
             // CHECK that ALL THREE fields match (FName, LName, AND Username)
-            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
+            const checkUserSql = 'SELECT * FROM SUBSCRIBER_ACCOUNT WHERE FName = ? AND LName = ? AND Username = ?';
             db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
                 if (err) {
                     console.error('Error checking user:', err);
@@ -374,7 +374,7 @@ app.post('/add-family-member', async (req, res) => {
                 }
                 
                 
-                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
+                const updateSql = 'UPDATE SUBSCRIBER_ACCOUNT SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
                 db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
                     if (err) {
                         console.error('Error updating family member:', err);
