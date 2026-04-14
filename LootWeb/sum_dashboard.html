@@ -5,18 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- chart.js library-->
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-    <div id="page-wrapper">
+<div id="page-wrapper">
 
-        <!-- Header -->
-        <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-            <nav id="nav">
-                <ul>
+    <!-- Header -->
+    <header id="header">
+        <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+        <nav id="nav">
+            <ul>
+                <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
                 <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
                 <li><a href="index.html">Log Out</a></li>
                 <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
@@ -24,58 +24,60 @@
                 <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
                 <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
             </ul>
-            </nav>
+        </nav>
+    </header>
+
+    <section id="main" class="container">
+        <header class="major">
+            <h2>Welcome! Here's your monthly spending so far.</h2>
         </header>
 
-        <section id="main" class="container">
-            <header class="major">
-                <h2>Welcome! Here's your monthly spending so far.</h2>
-            </header>
-
-            <!-- chart container -->
-            <div class="chart-card">
-                <div class="month-filter">
-                    <label for="monthSelect">Month:</label>
-                    <input type="month" id="monthSelect">
-                </div>
-
-                <h3>Spending by Category</h3>
-                <div class="chart-wrapper">
-                    <canvas id="categoryDonutChart"></canvas>
-                </div>
-                <p id="chartMessage"></p>
-
-                <div id="categoryTotalsSection">
-                    <h4>Category Totals</h4>
-                        <ul id="categoryTotalsList"></ul>
-                </div>
-
-                <div id="transactionDetailsSection">
-                    <h4 id="transactionDetailsTitle">Transactions</h4>
-                        <ul id="transactionDetailsList"></ul>
-                </div>
+        <div class="chart-card">
+            <div class="month-filter">
+                <label for="monthSelect">Month:</label>
+                <input type="month" id="monthSelect">
             </div>
-        </section>
 
-    </div>
+            <h3>Spending by Category</h3>
+            <div class="chart-wrapper">
+                <canvas id="categoryDonutChart"></canvas>
+            </div>
+            <p id="chartMessage"></p>
 
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/jquery.dropotron.min.js"></script>
-    <script src="assets/js/jquery.scrollex.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
-    <script src="assets/js/nav.js"></script>
+            <div id="categoryTotalsSection">
+                <h4>Category Totals</h4>
+                <ul id="categoryTotalsList"></ul>
+            </div>
 
+            <div id="transactionDetailsSection">
+                <h4 id="transactionDetailsTitle">Transactions</h4>
+                <ul id="transactionDetailsList"></ul>
+            </div>
+        </div>
+    </section>
 
-    <script>
+</div><!-- end page-wrapper -->
+
+<!-- Template Scripts FIRST -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.dropotron.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/nav.js"></script>
+
+<!-- Page Script LAST -->
+<script>
+    // ✅ Get accountId from URL instead of hardcoding
+    const params = new URLSearchParams(window.location.search);
+    const accountId = params.get('accountId') || subscriberID;
+
     let donutChart = null;
-    const accountId = 1; //replace with logged in users account ID once feature is implemented
     let selectedCategory = null;
 
-    const categoryColors = { //defines colors for each category in donut chart using predefined colors from chart.js color palette
+    const categoryColors = {
         "Food & drink": "#ff9f40",
         "Bills & utilities": "#ff6384",
         "Personal": "#9966ff",
@@ -85,18 +87,15 @@
     };
 
     const monthInput = document.getElementById("monthSelect");
+    const now = new Date();
+    monthInput.value = now.toISOString().slice(0, 7);
 
-    const now = new Date(); //set date to current month by default
-    monthInput.value = now.toISOString().slice(0, 7); //turns date to string and keeps format with month and year only
+    function loadCategoryChart() {
+        const [year, month] = monthInput.value.split("-");
 
-    function loadCategoryChart() { //function to get category totalsfor donut chart and trans list
-        const [year, month] = monthInput.value.split("-"); //splits month and year into two variables for query parameters
-
-        fetch(`/api/category-totals/${accountId}?month=${month}&year=${year}`) //sends request to backend to get category totals for month and year user selects
+        fetch(`/api/category-totals/${accountId}?month=${month}&year=${year}`)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch chart data');
-                }
+                if (!response.ok) throw new Error('Failed to fetch chart data');
                 return response.json();
             })
             .then(data => {
@@ -106,98 +105,79 @@
                 const transactionTitle = document.getElementById('transactionDetailsTitle');
                 const transactionList = document.getElementById('transactionDetailsList');
 
-                categoryTotalsList.innerHTML = ''; //clears category listto be refilled with new data after month changes
+                categoryTotalsList.innerHTML = '';
 
-                if (!data || data.length === 0) { //if no trans data available, output message
+                if (!data || data.length === 0) {
                     message.textContent = 'No transaction data available for this month.';
-
-                    if (donutChart) { //checks if chart exists before getting rid of it to avoid errors
-                        donutChart.destroy(); //destroys chart if no data exists for selected date to avoid showing data from previous selected date
-                        donutChart = null; //reset chart var
+                    if (donutChart) {
+                        donutChart.destroy();
+                        donutChart = null;
                     }
-
-                    transactionTitle.textContent = 'Transactions'; //resets trans list title to default title
-                    transactionList.innerHTML = ''; //clears trans list details
+                    transactionTitle.textContent = 'Transactions';
+                    transactionList.innerHTML = '';
                     selectedCategory = null;
                     return;
                 }
 
-                message.textContent = ''; //clears message if data exists
+                message.textContent = '';
 
-                const labels = data.map(item => item.Category); //gets category names from data to use as labels in chart
-                const totals = data.map(item => Number(item.Total)); //gets category totals from data to use as total values in chart
+                const labels = data.map(item => item.Category);
+                const totals = data.map(item => Number(item.Total));
 
-                if (!donutChart) { //if chart doesnt exist ...
-                    donutChart = new Chart(ctx, { //create new chart
-                        type: 'doughnut', //use donut chart from chart.js
+                if (!donutChart) {
+                    donutChart = new Chart(ctx, {
+                        type: 'doughnut',
                         data: {
-                            labels: labels, //use category names as labels for chart
-                            datasets: [{ //define dataset for chart
-                            label: 'Spending by Category', //dataset label for chart
-                            data: totals, //use category totals data for chart values
-                            backgroundColor: labels.map(category => categoryColors[category] || "#cccccc") //set background colors for categories in chart using predefined colors
+                            labels: labels,
+                            datasets: [{
+                                label: 'Spending by Category',
+                                data: totals,
+                                backgroundColor: labels.map(c => categoryColors[c] || "#cccccc")
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: true,
                             plugins: {
-                                legend: {
-                                    position: 'bottom' //put chart legend at bottom of chart
-                                },
-                                title: {
-                                    display: false //dont show chart built in title since added own title in html
-                                }
+                                legend: { position: 'bottom' },
+                                title: { display: false }
                             }
                         }
                     });
-                } 
-                else { //if chart exists, update with new data
-                    donutChart.data.labels = labels; //replace chart labels with new category names
-                    donutChart.data.datasets[0].data = totals; //replace chart data with new values for totals
-                    donutChart.data.datasets[0].backgroundColor = //update chart colors in case categories change from month to month
-                    labels.map(category => categoryColors[category] || "#cccccc");
-
-                 donutChart.update(); //update chart to show new data
+                } else {
+                    donutChart.data.labels = labels;
+                    donutChart.data.datasets[0].data = totals;
+                    donutChart.data.datasets[0].backgroundColor = labels.map(c => categoryColors[c] || "#cccccc");
+                    donutChart.update();
                 }
 
-                data.forEach(item => { //for each category total, create list item in category total list with category name and total amount
+                data.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'category-item';
+                    if (selectedCategory === item.Category) li.classList.add('active');
 
-                    if (selectedCategory === item.Category) { //if category is selected, add active class
-                        li.classList.add('active');
-                    }
-
-                    //setting html inside list item that shows category name and total up to 2 decimal places
-                    li.innerHTML = ` 
+                    li.innerHTML = `
                         <div class="category-row">
                             <span>${item.Category}</span>
                             <span>$${Number(item.Total).toFixed(2)}</span>
                         </div>
                     `;
 
-                    li.addEventListener('click', () => { //when category is clicked
+                    li.addEventListener('click', () => {
                         selectedCategory = item.Category;
-
-                        document.querySelectorAll('.category-item').forEach(el => { //remove active class from all category items
-                            el.classList.remove('active');
-                        });
-                        li.classList.add('active'); //and add active class to clicked category
-
-                        loadCategoryTransactions(item.Category); //call function to load transactions for selected category
+                        document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+                        li.classList.add('active');
+                        loadCategoryTransactions(item.Category);
                     });
 
-                    categoryTotalsList.appendChild(li); //add category item to category total list
+                    categoryTotalsList.appendChild(li);
                 });
 
-                // reload the selected category's transactions after month change
-                if (selectedCategory) { //if a category is currently selected
-                    const stillExists = data.some(item => item.Category === selectedCategory); //check if previously selected category still exists in new data after month change
-
-                    if (stillExists) { //if category still exists in new data, reload transactions for that category
-                        loadCategoryTransactions(selectedCategory); //call function to load transactions for selected category
-                    } else { //else if category doesnt exist in new data, reset title, clear list, and reset selected category since previously selected category no longer exists in new data after month change
+                if (selectedCategory) {
+                    const stillExists = data.some(item => item.Category === selectedCategory);
+                    if (stillExists) {
+                        loadCategoryTransactions(selectedCategory);
+                    } else {
                         transactionTitle.textContent = 'Transactions';
                         transactionList.innerHTML = '';
                         selectedCategory = null;
@@ -206,41 +186,35 @@
             })
             .catch(error => {
                 console.error('Error loading chart:', error);
-                document.getElementById('chartMessage').textContent =
-                    'Unable to load spending chart right now.';
+                document.getElementById('chartMessage').textContent = 'Unable to load spending chart right now.';
             });
-    } //end of loadCategoryChart function
+    }
 
     function loadCategoryTransactions(category) {
-        const [year, month] = monthInput.value.split("-"); //splits month and year into two variables for query parameters
+        const [year, month] = monthInput.value.split("-");
 
-        fetch(`/api/category-transactions/${accountId}/${encodeURIComponent(category)}?month=${month}&year=${year}`) //send request to backend for category transactions
+        fetch(`/api/category-transactions/${accountId}/${encodeURIComponent(category)}?month=${month}&year=${year}`)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch transactions');
-                }
+                if (!response.ok) throw new Error('Failed to fetch transactions');
                 return response.json();
             })
             .then(data => {
-                const title = document.getElementById('transactionDetailsTitle'); //get html elements for trans title and list
+                const title = document.getElementById('transactionDetailsTitle');
                 const list = document.getElementById('transactionDetailsList');
 
-                title.textContent = `${category} Transactions`; //update title
-                list.innerHTML = ''; //clear trans list if any exists to add new transactions for selected category
+                title.textContent = `${category} Transactions`;
+                list.innerHTML = '';
 
-                if (!data || data.length === 0) { //if no transactions for category selected output message
+                if (!data || data.length === 0) {
                     list.innerHTML = '<li class="transaction-item">No transactions found for this category.</li>';
                     return;
                 }
 
-                data.forEach(item => { //for each transaction ...
-                    const li = document.createElement('li'); //create list item
-                    li.className = 'transaction-item'; //add class for styling
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'transaction-item';
+                    const formattedDate = new Date(item.TransactionDate).toLocaleDateString();
 
-                    const date = new Date(item.TransactionDate); //convert transaction date string to date object
-                    const formattedDate = date.toLocaleDateString(); //format date to be more readable for users
-
-                    //lines 239-247 set html for each trans list item to show merchant name, amount, date, and description. Also formats amount to 2 decimal places
                     li.innerHTML = `
                         <div class="transaction-row">
                             <strong>${item.MerchantName || 'Unknown Merchant'}</strong>
@@ -251,7 +225,7 @@
                         </div>
                     `;
 
-                    list.appendChild(li); //add trans list item to trans list in html
+                    list.appendChild(li);
                 });
             })
             .catch(error => {
@@ -260,13 +234,11 @@
                 document.getElementById('transactionDetailsList').innerHTML =
                     '<li class="transaction-item">Unable to load transactions right now.</li>';
             });
-        } //end of loadCategoryTransactions function
+    }
 
-        monthInput.addEventListener("change", () => { //when month input changes, reload category chart, totals, and transactions for new data
-            loadCategoryChart();
-        });
-
-    loadCategoryChart(); //run function to load chart when page first loads with default month set to current month
+    monthInput.addEventListener("change", loadCategoryChart);
+    loadCategoryChart();
 </script>
+
 </body>
 </html>

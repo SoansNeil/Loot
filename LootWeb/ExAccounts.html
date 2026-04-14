@@ -62,7 +62,6 @@
                                 <option>Pending</option>
                             </select>
                         </div>
-                        <input type="hidden" name="subscriberId" value="1">
                     </div>
 
                     <div class="col">
@@ -110,6 +109,7 @@
     e.preventDefault();
     
     const formData = new FormData(form);
+    formData.set('subscriberId', subscriberID);
     
     const res = await fetch("/externalAccount", {
         method: "POST",

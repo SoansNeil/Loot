@@ -8,13 +8,14 @@
 </head>
 
 <body>
-    <div id="page-wrapper">
+<div id="page-wrapper">
 
-        <!-- Header -->
-        <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-            <nav id="nav">
-                <ul>
+    <!-- Header -->
+    <header id="header">
+        <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+        <nav id="nav">
+            <ul>
+                <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
                 <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
                 <li><a href="index.html">Log Out</a></li>
                 <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
@@ -22,77 +23,102 @@
                 <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
                 <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
             </ul>
-            </nav>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <section id="main" class="container">
+        <header class="major">
+            <h2>Select a Transfer Date and Time</h2>
         </header>
-        <div class="hiddenInfo">
-                <form id="scheduleForm" action="/StoreSchedule" method="POST">
-                    <input type="hidden" name="amount" id="amount" value="">
-                    <input type="hidden" name="fromAccount" id="fromAccount" value="">
-                    <input type="hidden" name="toAccount" id="toAccount" value="">
-                    <input type="hidden" name="subscriberID" id="subscriberID" value="">
 
-                    <input type="date" id="startDate" style="display:none;">
-                    
+        <section class="box">
+            <form id="scheduleForm" action="/StoreSchedule" method="POST">
 
-        <!-- Empty section for now -->
-        <div class="Schedule"></div>
-             <h2> Select a Transfer Date and time </h2>
-    
-                    <div class="schedule-options">
-                        <h2>Schedule Transfer</h2>
-                        
+                <!-- Hidden fields populated by JS -->
+                <input type="hidden" name="amount" id="amount">
+                <input type="hidden" name="fromAccount" id="fromAccount">
+                <input type="hidden" name="toAccount" id="toAccount">
+                <input type="hidden" name="subscriberID" id="hiddenSubscriberID">
+
+                <!-- Schedule Options -->
+                <div class="schedule-options">
+                    <h3>Schedule Transfer</h3>
+
                     <div class="schedule-option" onclick="selectOption('now')" id="optNow">
-                            <input type="radio" name="scheduleType" value="now" id="scheduleNow">
-                            <label for="scheduleNow"><strong>Transfer Now</strong> - Process immediately</label>
-                        </div>
-
-                        <div class="schedule-option" onclick="selectOption('later')" id="optLater">
-                            <input type="radio" name="scheduleType" value="later" id="scheduleLater">
-                            <label for="scheduleLater"><strong>Transfer Later</strong> - Schedule for the future</label>
-                        </div>
-
-        
-                    <div class="date-time-picker" id="dateTimePicker">
-                        <h2> For a Transfer scheduled in the Future</h2>
-                        <h3> Please Select a Date and Time</h3>
-                        <div class="form-group">
-                              
-                        <div class="form-row">
-                            <div class="form-group">
-                                 <div class="time-note">Select the date for this transfer</div>
-                                <label for="transferDate" class="required-field">Date:</label>
-                                <input type="date" name="transferDate" id="transferDate" >
-                               
-                            </div>
-                            
-                            <div class="form-group">
-                                <div class="time-note">Select the time (24-hour format)</div>
-                                <label for="transferTime" class="required-field">Time:</label>
-                                <input type="time" name="transferTime" id="transferTime" >
-                                
-                            </div>
-                        </div>
-                        <button type="submit" form="scheduleForm">Finalize Transfer </button>
+                        <input type="radio" name="scheduleType" value="now" id="scheduleNow">
+                        <label for="scheduleNow"><strong>Transfer Now</strong> - Process immediately</label>
                     </div>
-             <script>
-        const params = new URLSearchParams(window.location.search);
-        document.getElementById('amount').value = params.get('amount');
-        document.getElementById('fromAccount').value = params.get('accountID');
-         document.getElementById('toAccount').value = params.get('toAccount');
-        document.getElementById('subscriberID').value = params.get('subscriberID');
 
-        const carrySub=()=> window.location.assign(`Dashboard.html?subscriberID=${subscriberID}`);
-        // Today Instant transfer
-        const today = new Date().toLocaleDateString('en-CA');
-       document.getElementById('transferDate').min = today;
-        document.getElementById('startDate').min = today;
-            
-            document.getElementById('futureSection').style.display = 'none';
-           
-            if (option === 'later') {
-                document.getElementById('futureSection').style.display = 'block';
-            } 
-        
-    </script>
-            </header>
-            <script src="assets/js/nav.js"></script>
+                    <div class="schedule-option" onclick="selectOption('later')" id="optLater">
+                        <input type="radio" name="scheduleType" value="later" id="scheduleLater">
+                        <label for="scheduleLater"><strong>Transfer Later</strong> - Schedule for the future</label>
+                    </div>
+                </div>
+
+                <!-- Future Date/Time Picker (hidden until 'later' is selected) -->
+                <div id="dateTimePicker" style="display: none; margin-top: 2rem;">
+                    <h3>Select a Date and Time</h3>
+                    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                        <div>
+                            <label for="transferDate">Date:</label>
+                            <input type="date" name="transferDate" id="transferDate">
+                        </div>
+                        <div>
+                            <label for="transferTime">Time (24hr):</label>
+                            <input type="time" name="transferTime" id="transferTime">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="button">Finalize Transfer</button>
+                </div>
+
+            </form>
+        </section>
+    </section>
+
+</div><!-- end page-wrapper -->
+
+<!-- Template Scripts FIRST -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.dropotron.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/nav.js"></script>
+
+<!-- Page Script LAST -->
+<script>
+    // Populate hidden fields from URL params
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('amount').value = params.get('amount');
+    document.getElementById('fromAccount').value = params.get('accountID');
+    document.getElementById('toAccount').value = params.get('toAccount');
+    document.getElementById('hiddenSubscriberID').value = params.get('subscriberID');
+
+    // Set minimum date to today
+    const today = new Date().toLocaleDateString('en-CA');
+    document.getElementById('transferDate').min = today;
+
+    // Show/hide date picker based on selection
+    function selectOption(option) {
+        const picker = document.getElementById('dateTimePicker');
+        const nowRadio = document.getElementById('scheduleNow');
+        const laterRadio = document.getElementById('scheduleLater');
+
+        if (option === 'later') {
+            picker.style.display = 'block';
+            laterRadio.checked = true;
+        } else {
+            picker.style.display = 'none';
+            nowRadio.checked = true;
+        }
+    }
+</script>
+
+</body>
+</html>

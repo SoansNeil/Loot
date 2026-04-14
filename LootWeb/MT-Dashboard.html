@@ -12,20 +12,20 @@
 
         <!-- Header -->
         <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+            <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
                 <ul>
-                <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
-                <li><a href="index.html">Log Out</a></li>
-                <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
-                <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
-                <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
-                <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
-            </ul>
+                    <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
+                    <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
+                    <li><a href="index.html">Log Out</a></li>
+                    <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
+                    <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
+                    <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
+                    <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+                </ul>
             </nav>
         </header>
 
-        <!-- Empty section for now -->
         <section id="main" class="container">
             <header class="major">
                 <h2>Welcome to your personal Dashboard!</h2>
@@ -34,34 +34,14 @@
         </section>
 
         <section>
-         <h2 > Your Checking Account has</h2>
-        
-           
-          <button id="displayExAcc">Show External Accounts</button>
-<div id="ExAcc"></div>
-
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const subscriberID = urlParams.get('subscriberID');
-
-const button = document.getElementById('displayExAcc');
-
-button.addEventListener('click', async () => {
-    const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-    const text = await res.text();
-
-    // Show results on the page instead of alert
-    document.getElementById("ExAcc").innerHTML = text;
-});
-</script>
-
+            <h2>Your Checking Account has</h2>
+            <button id="displayExAcc">Show External Accounts</button>
+            <div id="ExAcc"></div>
         </section>
-        
 
     </div>
-    
 
-    <!-- Scripts -->
+    <!-- Template Scripts FIRST -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -70,5 +50,14 @@ button.addEventListener('click', async () => {
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/nav.js"></script>
+
+    <script>
+        document.getElementById('displayExAcc').addEventListener('click', async () => {
+            const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+            const text = await res.text();
+            document.getElementById('ExAcc').innerHTML = text;
+        });
+    </script>
+
 </body>
 </html>

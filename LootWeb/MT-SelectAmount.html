@@ -8,13 +8,14 @@
 </head>
 
 <body>
-    <div id="page-wrapper">
+<div id="page-wrapper">
 
-        <!-- Header -->
-        <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-            <nav id="nav">
-                <ul>
+    <!-- Header -->
+    <header id="header">
+        <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+        <nav id="nav">
+            <ul>
+                <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
                 <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
                 <li><a href="index.html">Log Out</a></li>
                 <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
@@ -22,48 +23,62 @@
                 <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
                 <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
             </ul>
-            </nav>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <section id="main" class="container">
+        <header class="major">
+            <h3>How much would you like to transfer?</h3>
         </header>
 
-        <!-- Empty section for now -->
-        <section id="main" class="container">
-            <header class="major">
-               <h3>How much would you like to transfer?</h3>
-            </header></section>
-
-            
-    
-        <section>
+        <section class="box">
             <div class="Transfer-Amount"></div>
+
             <form action="/StoreAmount" method="POST">
-               <input type="hidden" name="balance" id="balanceOG">
-            <input type="hidden" name="accountID" id="accountID" value="">
-            <input type="hidden" name="toAccount" id="toAccount" value="">
-            <input type="hidden" name="subscriberID" id="subscriberID" value="">
-           
-            
+                <input type="hidden" name="balance" id="balanceOG">
+                <input type="hidden" name="accountID" id="accountID">
+                <input type="hidden" name="toAccount" id="toAccount">
+                <input type="hidden" name="subscriberID" id="hiddenSubscriberID">
 
-                <label>Amount of Money you would like to Transfer</label>
-                <input type="double" name="Tamount" id="Tamount" required>
+                <label>Amount to Transfer</label>
+                <input type="number" name="Tamount" id="Tamount" step="0.01" min="0" required>
 
-                <button type="submit">Next</button>
-                </form>
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="button">Next</button>
+                </div>
+            </form>
+        </section>
+    </section>
 
-                </section>
-                
+</div><!-- end page-wrapper -->
+
+<!-- Template Scripts FIRST -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.dropotron.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/nav.js"></script>
+
+<!-- Page Script LAST -->
 <script>
     const params = new URLSearchParams(window.location.search);
-    
+
     const balance = params.get('balance');
-    if(balance) {
-        const div = document.createElement('p');
-        div.textContent = 'Your available balance: ' + balance;
-        document.querySelector('.Transfer-Amount').appendChild(div);
-    } 
+    if (balance) {
+        const p = document.createElement('p');
+        p.textContent = 'Your available balance: $' + parseFloat(balance).toFixed(2);
+        document.querySelector('.Transfer-Amount').appendChild(p);
+    }
+
     document.getElementById('balanceOG').value = params.get('balance');
     document.getElementById('accountID').value = params.get('accountID');
     document.getElementById('toAccount').value = params.get('toAccount');
-    document.getElementById('subscriberID').value = params.get('subscriberID'); 
-      
-    </script>
-    <script src="assets/js/nav.js"></script>
+    document.getElementById('hiddenSubscriberID').value = params.get('subscriberID');
+</script>
+
+</body>
+</html>

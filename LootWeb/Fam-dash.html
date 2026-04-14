@@ -12,6 +12,7 @@
     <!-- Header -->
     <header id="header" class="alt">
         <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+        <nav id="nav">
         <ul>
                 <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
                 <li><a href="index.html">Log Out</a></li>
@@ -20,6 +21,7 @@
                 <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
                 <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
         </ul>
+    </nav>
     </header>
 
     <!-- Banner -->
@@ -120,8 +122,6 @@
 <!-- Your script LAST -->
 <script>
     // ✅ Get subscriberID once at the top, use everywhere
-    const urlParams = new URLSearchParams(window.location.search);
-    const subscriberID = urlParams.get('subscriberID');
 
     if (!subscriberID) {
         alert('No subscriber ID found. Please log in again.');

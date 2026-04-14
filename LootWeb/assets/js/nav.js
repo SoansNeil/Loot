@@ -7,4 +7,3 @@ const goToBudget     = () => window.location.assign(`budget.html?subscriberID=${
 const goToFamily     = () => window.location.assign(`Fam-dash.html?subscriberID=${subscriberID}`);
 const goToSummary    = () => window.location.assign(`sum_dashboard.html?subscriberID=${subscriberID}`);
 const goToDashboard  = () => window.location.assign(`Dashboard.html?subscriberID=${subscriberID}`);
-const goToExternalAccounts = () => window.location.assign(`ExAccounts.html?subscriberID=${subscriberID}`);
