@@ -104,26 +104,53 @@
 
     <!-- Your script LAST, after all template scripts -->
     <script>
-        const form = document.getElementById("createExAcct-form");
+        async function loadAccounts() {
+        const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
+        const accounts = await res.json();
 
-        form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData(form);
-    formData.set('subscriberId', subscriberID);
-    
-    const res = await fetch("/externalAccount", {
-        method: "POST",
-        body: new URLSearchParams(formData)
-    });
+        const tbody = document.getElementById('accounts-tbody');
+        tbody.innerHTML = '';
 
-    if (res.ok) {
-        alert("Account added!");
-        form.reset();
-    } else {
-        alert("Something went wrong.");
+        if (!accounts || accounts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6">No accounts found.</td></tr>';
+            return;
+        }
+
+        accounts.forEach(account => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${account.bank}</td>
+            <td>${account.accountType}</td>
+            <td>$${parseFloat(account.currentBalance).toFixed(2)}</td>
+            <td>${account.currency}</td>
+            <td>${account.syncStatus}</td>
+            <td>${subscriberID}</td>
+            `;
+            tbody.appendChild(row);
+        });
     }
-});
+    const form = document.getElementById("createExAcct-form");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+    
+        const formData = new FormData(form);
+        formData.set('subscriberId', subscriberID);
+    
+        const res = await fetch("/externalAccount", {
+            method: "POST",
+            body: new URLSearchParams(formData)
+        });
+
+        if (res.ok) {
+            alert("Account added!");
+            form.reset();
+            loadAccounts();
+        } else {
+        alert("Something went wrong.");
+        }
+    });
+    loadAccounts();
     </script>
 
 </body>
