@@ -102,6 +102,12 @@ app.post('/login', (req, res) => {
   });
 });
 
+// ── Current User ─────────────────────────────────────────────
+
+app.get('/api/me', authenticateToken, (req, res) => {
+  res.json({ id: req.user.id, username: req.user.username, role: req.user.role });
+});
+
 // ── Dashboard Routes ─────────────────────────────────────────
 
 app.get('/employeeDashboard', authenticateToken, (req, res) => {

@@ -43,7 +43,8 @@
                         </div>
                         <div class="field-group">
                             <label>Employee ID</label>
-                            <input type="text" name="employeeID" required>
+                            <input type="text" name="employeeID" id="employeeID" readonly
+                                style="background: #f0f4ee; color: #4a6741; cursor: default;">
                         </div>
                         <div class="field-group">
                             <label>Priority</label>
@@ -77,6 +78,11 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
+        fetch('/api/me')
+            .then(r => r.json())
+            .then(user => { document.getElementById('employeeID').value = user.id; })
+            .catch(() => {});
+
         document.getElementById('serviceCustomer-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
