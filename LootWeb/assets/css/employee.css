@@ -159,6 +159,10 @@
 
 /* ══ employeeDashboard.html ═════════════════════════════════ */
 
+.box.special.features {
+    overflow: visible !important;
+}
+
 .box.special.features .features-row section {
     transition: transform 0.2s, box-shadow 0.2s !important;
 }
