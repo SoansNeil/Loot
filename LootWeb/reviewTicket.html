@@ -120,7 +120,7 @@
                 return;
             }
 
-            ticketList.innerHTML = forms.map(f => `
+            ticketList.innerHTML = forms.map((f, i) => `
                 <div class="ticket-card" data-id="${f.formID}" onclick="selectTicket(${f.formID})">
                     <div class="ticket-card-left">
                         <span class="ticket-subject">${f.subject || '(No subject)'}</span>
@@ -128,7 +128,7 @@
                     </div>
                     <div class="ticket-card-right">
                         <span class="priority-badge ${priorityClass(f.priority)}">${f.priority || 'Low'}</span>
-                        <span class="form-id-badge">#${f.formID}</span>
+                        <span class="form-id-badge">#${i + 1}</span>
                     </div>
                 </div>
             `).join('');
