@@ -304,7 +304,7 @@ app.post('/ConfirmTransfer', (req, res) => {
   const amount = Number(req.body.amount);
   const { fromAccount, toAccount, subscriberID } = req.body;
 
-  // ✅ Fixed: get connection from pool for transaction
+  // Fixed: get connection from pool for transaction
   db.getConnection((err, connection) => {
     if (err) return res.send('Error getting database connection. Please try again.');
 
@@ -350,7 +350,7 @@ app.post('/ConfirmTransfer', (req, res) => {
               }
 
               connection.release();
-              // ✅ subscriberID now correctly passed back
+              // subscriberID now correctly passed back
               return res.send(`
                 Transfer of $${amount} completed successfully!
                 <a href="/Dashboard.html?subscriberID=${subscriberID}"><button>Return to Dashboard</button></a>
@@ -367,13 +367,18 @@ app.post('/ConfirmTransfer', (req, res) => {
 
 schedule.scheduleJob('* * * * *', function () {
   const now = new Date();
-  const currentDate = now.toLocaleDateString('en-CA');
-  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+  const pad = n => String(n).padStart(2, '0');
+  const currentDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-  const findSql = `SELECT * FROM scheduled_transfers WHERE status = 'pending' AND transfer_date = ? AND transfer_time <= ?`;
+  const findSql = `SELECT * FROM scheduled_transfers WHERE status = 'pending' AND transfer_date <= ? AND transfer_time <= ?`;
 
   db.query(findSql, [currentDate, currentTime], (err, transfers) => {
-    if (err || !transfers || transfers.length === 0) return;
+    if (err) {
+      console.error('Scheduled transfer query error:', err);
+      return;
+    }
+    if (!transfers || transfers.length === 0) return;
 
     transfers.forEach(transfer => {
       // ✅ Fixed: use connection from pool for scheduled transactions
@@ -382,6 +387,7 @@ schedule.scheduleJob('* * * * *', function () {
 
         connection.beginTransaction(err => {
           if (err) {
+            console.error('Scheduled transfer begin transaction error:', err);
             connection.release();
             return;
           }
@@ -391,8 +397,10 @@ schedule.scheduleJob('* * * * *', function () {
             [transfer.amount, transfer.from_account, transfer.amount],
             (err, result) => {
               if (err || result.affectedRows === 0) {
-                connection.query('UPDATE scheduled_transfers SET status = "failed" WHERE id = ?', [transfer.id]);
-                return connection.rollback(() => connection.release());
+                console.error(`Scheduled transfer ${transfer.id} deduct failed — insufficient funds or account not found`);
+                return connection.rollback(() => {
+                  connection.query('UPDATE scheduled_transfers SET status = "failed" WHERE id = ?', [transfer.id], () => connection.release());
+                });
               }
 
               connection.query(
@@ -400,18 +408,26 @@ schedule.scheduleJob('* * * * *', function () {
                 [transfer.amount, transfer.to_account],
                 err => {
                   if (err) {
-                    connection.query('UPDATE scheduled_transfers SET status = "failed" WHERE id = ?', [transfer.id]);
-                    return connection.rollback(() => connection.release());
+                    console.error(`Scheduled transfer ${transfer.id} credit failed:`, err);
+                    return connection.rollback(() => {
+                      connection.query('UPDATE scheduled_transfers SET status = "failed" WHERE id = ?', [transfer.id], () => connection.release());
+                    });
                   }
 
                   connection.query(
                     'UPDATE scheduled_transfers SET status = "completed" WHERE id = ?',
                     [transfer.id],
                     err => {
-                      if (err) return connection.rollback(() => connection.release());
+                      if (err) {
+                        console.error(`Scheduled transfer ${transfer.id} status update failed:`, err);
+                        return connection.rollback(() => connection.release());
+                      }
 
                       connection.commit(err => {
-                        if (err) return connection.rollback(() => connection.release());
+                        if (err) {
+                          console.error(`Scheduled transfer ${transfer.id} commit failed:`, err);
+                          return connection.rollback(() => connection.release());
+                        }
                         connection.release();
                         console.log('Scheduled transfer completed:', transfer.id);
                       });

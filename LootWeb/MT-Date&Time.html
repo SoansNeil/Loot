@@ -126,7 +126,9 @@
     }
 
     // ── Set minimum date to today ────────────────────────────
-    const today = new Date().toLocaleDateString('en-CA');
+    const _now = new Date();
+    const _pad = n => String(n).padStart(2, '0');
+    const today = `${_now.getFullYear()}-${_pad(_now.getMonth() + 1)}-${_pad(_now.getDate())}`;
     document.getElementById('transferDate').min = today;
 
     // ── Show/hide date picker ────────────────────────────────
