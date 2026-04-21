@@ -67,13 +67,6 @@
 
 /* ══ updateCustomer.html ════════════════════════════════════ */
 
-/* Override the fixed height on login-box so it grows with content */
-.login-box {
-    width: 580px !important;
-    height: auto !important;
-    min-height: unset !important;
-}
-
 .edit-card {
     width: 100%;
     margin-top: 1.5rem;
@@ -81,23 +74,6 @@
     padding-top: 1.2rem;
 }
 
-.edit-save-btn {
-    width: 100%;
-    margin-top: 1.2rem;
-    height: 38px;
-    border: none;
-    border-radius: 5px;
-    background-color: #75975e;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.15s;
-}
-
-.edit-save-btn:hover {
-    background-color: #4a6741;
-}
 
 .edit-card-header {
     display: flex;
@@ -154,10 +130,31 @@
     box-sizing: border-box;
 }
 
-.field-group input:focus {
+.field-group input:focus,
+.field-group select:focus,
+.field-group textarea:focus {
     border-color: #75975e;
     background: #fff;
     outline: none;
+}
+
+.field-group select,
+.field-group textarea {
+    width: 100% !important;
+    padding: 8px 10px !important;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    color: #333;
+    background: #fafafa;
+    transition: border-color 0.15s, background 0.15s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.field-group textarea {
+    resize: vertical;
+    min-height: 120px;
 }
 
 /* ══ reviewTicket.html ══════════════════════════════════════ */

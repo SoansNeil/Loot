@@ -1,83 +1,74 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Sign Up - Loot</title>
+    <title>Create Employee - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
-<header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+<body class="is-preload">
+    <div id="page-wrapper">
+
+        <header id="header" class="alt">
+            <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
                 <ul>
-							<li><a href="employeeDashboard.html">Employee Dashboard</a></li>
-							<li><a href="employeeCreation.html">Create Employee</a></li>
-                            <li><a href="serviceCustomer.html">Submit Service Ticket</a></li>
-                            <li><a href="updateCustomer.html">Customer Service</a></li>
-							<li><a href="reviewTicket.html">Review Tickets</a></li>
-				</ul>
+                    <li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+                    <li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+                    <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Ticket</a></li>
+                    <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+                    <li><a href="reviewTicket.html" style="color: #000000;">Review Tickets</a></li>
+                </ul>
             </nav>
         </header>
 
-        <!-- Empty section for now -->
         <section id="main" class="container">
             <header class="major">
                 <h2>Create New Employee</h2>
             </header>
-            <!-- sign up form -->
-            <div class="signUp-box">
-                <h2>Employee Creation</h2>
 
-            <form id="employeeCreation-form">
+            <div class="tickets-wrapper">
+                <h2 style="text-align: center; padding-top: 0;">Employee Creation</h2>
 
-                <div class="input-grid">
-
-                    <div class="input-field">
-                    <label>Employee First Name</label>
-                    <input type="text" name="eFName" required>
+                <form id="employeeCreation-form">
+                    <div class="edit-grid">
+                        <div class="field-group">
+                            <label>First Name</label>
+                            <input type="text" name="eFName" required>
+                        </div>
+                        <div class="field-group">
+                            <label>Last Name</label>
+                            <input type="text" name="eLName" required>
+                        </div>
+                        <div class="field-group">
+                            <label>Username</label>
+                            <input type="text" name="eUsername" required>
+                        </div>
+                        <div class="field-group">
+                            <label>Password</label>
+                            <input type="password" name="ePassword" required>
+                        </div>
+                        <div class="field-group">
+                            <label>Email</label>
+                            <input type="email" name="employeeEmail" required>
+                        </div>
+                        <div class="field-group">
+                            <label>Phone Number</label>
+                            <input type="text" name="ePhone" required>
+                        </div>
+                        <div class="field-group full-width">
+                            <label>Birthday</label>
+                            <input type="date" name="eBirthday" required>
+                        </div>
                     </div>
-
-                    <div class="input-field">
-                    <label>Employee Last Name</label>
-                    <input type="text" name="eLName" required>
-                     </div>
-
-                    <div class="input-field">
-                    <label>Employee Email</label>
-                    <input type="email" name="employeeEmail" required>
-                    </div>
-
-                    <div class="input-field">
-                    <label>Employee Password</label>
-                    <input type="password" name="ePassword" required>
-                    </div>
-
-                    <div class="input-field">
-                    <label>Employee Username</label>
-                    <input type="text" name="eUsername" required>
-                    </div>
-
-                    <div class="input-field">
-                    <label>Employee Phone Number</label>
-                    <input type="text" name="ePhone" required>
-                    </div>
-
-                    <div class="full-field">
-                    <label>Employee Birthday</label>
-                    <input type="date" name="eBirthday" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="signUp-btn">Create Employee</button>
-            </form>
-        </div>
-            
-            
+                    <button type="submit" class="action-btn">Create Employee</button>
+                </form>
+            </div>
         </section>
 
     </div>
 
-    <!-- Scripts -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -86,18 +77,15 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        const createUser = document.getElementById('employeeCreation-form');
-        createUser.addEventListener('submit', async(e)=>{
+        document.getElementById('employeeCreation-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(createUser);
-            const res = await fetch('/employeeCreation', 
-            {
+            const formData = new FormData(e.target);
+            const res = await fetch('/employeeCreation', {
                 method: 'POST',
                 body: new URLSearchParams(formData)
             });
-            const text = await res.text();
-            alert(text);
-        })
+            alert(await res.text());
+        });
     </script>
 </body>
 </html>

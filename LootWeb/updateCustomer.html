@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
-<body>
+<body class="is-preload">
     <div id="page-wrapper">
+
         <header id="header" class="alt">
-            <h1 style="font-size: xx-large;"><a style="color: #000000;" href="index.html">Loot</a></h1>
+            <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
                 <ul>
                     <li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
@@ -27,18 +28,21 @@
                 <h2>Retrieve Customer</h2>
             </header>
 
-            <div class="login-box" style="padding: 2rem; display: flex; flex-direction: column; align-items: center;">
-                <h2>Enter credentials</h2>
+            <div class="tickets-wrapper">
+                <h2 style="text-align: center; padding-top: 0;">Enter Customer Username</h2>
 
                 <form id="retrieve-form">
-                    <label>Customer Username</label>
-                    <input type="text" name="username">
-                    <button type="submit" class="login-btn">Retrieve</button>
+                    <div class="field-group">
+                        <label>Customer Username</label>
+                        <input type="text" name="username" required>
+                    </div>
+                    <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Retrieve</button>
                 </form>
 
                 <div id="result"></div>
             </div>
         </section>
+
     </div>
 
     <script>
@@ -49,10 +53,9 @@
         e.preventDefault();
         result.textContent = 'Retrieving user…';
 
-        const formData = new FormData(form);
         const res = await fetch('/retrieveUser', {
             method: 'POST',
-            body: new URLSearchParams(formData)
+            body: new URLSearchParams(new FormData(form))
         });
 
         if (res.status === 403) { result.textContent = 'Access denied. Must be logged in as an employee.'; return; }
@@ -60,7 +63,6 @@
         if (!res.ok)            { result.textContent = 'Retrieval failed.'; return; }
 
         const user = await res.json();
-
         const birthday = user.Birthday ? user.Birthday.split('T')[0] : '';
 
         result.innerHTML = `
@@ -97,7 +99,7 @@
                         <input name="Birthday" type="date" value="${birthday}">
                     </div>
                 </div>
-                <button type="submit" class="edit-save-btn">Save Changes</button>
+                <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Save Changes</button>
             </form>
         </div>
         `;
