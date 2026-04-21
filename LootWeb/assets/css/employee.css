@@ -159,105 +159,21 @@
 
 /* ══ employeeDashboard.html ═════════════════════════════════ */
 
-/* Strip the default box background so the cards stand alone */
-.box.special.features {
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    border: none !important;
-}
-
-/* Two-column grid for each row of cards */
-.box.special.features .features-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.2rem;
-    padding: 0 0 1.2rem !important;
-    border: none !important;
-}
-
-.box.special.features .features-row::before,
-.box.special.features .features-row::after {
-    display: none !important;
-}
-
-/* Base card */
 .box.special.features .features-row section {
-    background: white !important;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08) !important;
-    padding: 1.8rem 1.5rem 1.5rem !important;
-    border: none !important;
-    border-left: 5px solid #75975e !important;
-    transition: transform 0.2s, box-shadow 0.2s, border-left-width 0.2s !important;
-    text-align: left !important;
-    width: auto !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
 }
 
 .box.special.features .features-row section:hover {
     transform: translateY(-5px) !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.13) !important;
-    border-left-width: 7px !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Per-card accent colors */
-.box.special.features .features-row:nth-child(1) section:nth-child(1) { border-left-color: #75975e !important; }
-.box.special.features .features-row:nth-child(1) section:nth-child(2) { border-left-color: #4a6741 !important; }
-.box.special.features .features-row:nth-child(2) section:nth-child(1) { border-left-color: #8fad78 !important; }
-.box.special.features .features-row:nth-child(2) section:nth-child(2) { border-left-color: #5c7a4a !important; }
-
-/* Solid icon block (Option 1) */
-.box.special.features .features-row section .icon.major {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 56px !important;
-    height: 56px !important;
-    border-radius: 12px !important;
-    background-color: #75975e !important;
-    margin: 0 0 1rem 0 !important;
-    line-height: 1 !important;
-}
-
-.box.special.features .features-row:nth-child(1) section:nth-child(1) .icon.major { background-color: #75975e !important; }
-.box.special.features .features-row:nth-child(1) section:nth-child(2) .icon.major { background-color: #4a6741 !important; }
-.box.special.features .features-row:nth-child(2) section:nth-child(1) .icon.major { background-color: #8fad78 !important; }
-.box.special.features .features-row:nth-child(2) section:nth-child(2) .icon.major { background-color: #5c7a4a !important; }
-
-/* White icon inside the block */
-.box.special.features .features-row section .icon.major::before {
-    font-size: 1.5rem !important;
-    color: white !important;
-    margin: 0 !important;
-    line-height: 1 !important;
-    width: auto !important;
-    height: auto !important;
-    background: none !important;
-    border-radius: 0 !important;
-}
-
-/* Card text */
 .box.special.features .features-row section h3 {
-    font-size: 1.05rem !important;
     font-weight: 700 !important;
-    color: #333 !important;
-    margin: 0 0 0.5rem 0 !important;
 }
 
 .box.special.features .features-row section a {
-    font-size: 0.82rem !important;
-    font-weight: 600 !important;
-    color: #75975e !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    text-decoration: none !important;
-    border-bottom: 1px solid transparent !important;
-    transition: border-color 0.15s, color 0.15s !important;
-}
-
-.box.special.features .features-row section a:hover {
-    border-bottom-color: #75975e !important;
-    color: #4a6741 !important;
+    font-weight: 700 !important;
 }
 
 /* ══ reviewTicket.html ══════════════════════════════════════ */
