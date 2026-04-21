@@ -160,24 +160,55 @@
 /* ══ employeeDashboard.html ═════════════════════════════════ */
 
 .box.special.features {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
     overflow: visible !important;
 }
 
+.box.special.features .features-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.4rem !important;
+    padding: 0 0 1.4rem !important;
+    border: none !important;
+    overflow: visible !important;
+}
+
+.box.special.features .features-row::before,
+.box.special.features .features-row::after {
+    display: none !important;
+}
+
 .box.special.features .features-row section {
-    transition: transform 0.2s, box-shadow 0.2s !important;
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.09) !important;
+    padding: 2rem 1.5rem !important;
+    border: none !important;
+    border-left: 5px solid #75975e !important;
+    text-align: center !important;
+    width: auto !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 .box.special.features .features-row section:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-6px) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14) !important;
 }
+
+.box.special.features .features-row:nth-child(1) section:nth-child(1) { border-left-color: #75975e !important; }
+.box.special.features .features-row:nth-child(1) section:nth-child(2) { border-left-color: #4a6741 !important; }
+.box.special.features .features-row:nth-child(2) section:nth-child(1) { border-left-color: #8fad78 !important; }
+.box.special.features .features-row:nth-child(2) section:nth-child(2) { border-left-color: #5c7a4a !important; }
 
 .box.special.features .features-row section h3 {
     font-weight: 700 !important;
 }
 
 .box.special.features .features-row section a {
-    font-weight: 700 !important;
+    font-weight: 600 !important;
 }
 
 /* ══ reviewTicket.html ══════════════════════════════════════ */
