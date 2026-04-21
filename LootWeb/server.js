@@ -758,17 +758,17 @@ app.post('/api/transactions/simulate', (req, res) => {
 // ── Forms ────────────────────────────────────────────────────
 
 app.post('/submitForm', (req, res) => {
-  const { customerName, customerEmail, employeeID, subject, priority, description } = req.body;
+  const { customerUsername, customerName, customerEmail, employeeID, subject, priority, description } = req.body;
 
-  const sql = 'INSERT INTO SERVICE_FORMS (customerName, customerEmail, employeeID, subject, priority, description) VALUES (?,?,?,?,?,?)';
-  db.query(sql, [customerName, customerEmail, employeeID, subject, priority, description], (err) => {
+  const sql = 'INSERT INTO SERVICE_FORMS (customerUsername, customerName, customerEmail, employeeID, subject, priority, description) VALUES (?,?,?,?,?,?,?)';
+  db.query(sql, [customerUsername, customerName, customerEmail, employeeID, subject, priority, description], (err) => {
     if (err) return res.status(500).send('Error submitting form');
     res.send('Form successfully submitted');
   });
 });
 
 app.get('/getForms', (_req, res) => {
-  db.query('SELECT formID, customerName, subject, priority, createdAt FROM SERVICE_FORMS ORDER BY createdAt DESC', (err, result) => {
+  db.query('SELECT formID, customerUsername, customerName, subject, priority, createdAt FROM SERVICE_FORMS ORDER BY createdAt DESC', (err, result) => {
     if (err) return res.status(500).json({ error: 'Error retrieving forms' });
     res.json(result);
   });

@@ -32,14 +32,38 @@
                 <h2 style="text-align: center; padding-top: 0;">Submit a Service Ticket</h2>
 
                 <form id="serviceCustomer-form">
+                    <input type="hidden" name="customerName" id="customerName">
+                    <input type="hidden" name="customerEmail" id="customerEmail">
+
                     <div class="edit-grid">
+                        <div class="field-group full-width">
+                            <label>Customer Username</label>
+                            <div style="display: flex; gap: 0.6rem;">
+                                <input type="text" name="customerUsername" id="usernameInput"
+                                    placeholder="Enter username…" style="flex: 1;" autocomplete="off">
+                                <button type="button" id="lookupBtn"
+                                    style="flex-shrink:0; padding:0 1.1rem; height:38px; border:none;
+                                           border-radius:5px; background:#75975e; color:white;
+                                           font-size:0.9rem; font-weight:600; cursor:pointer;
+                                           transition:background 0.15s;"
+                                    onmouseover="this.style.background='#4a6741'"
+                                    onmouseout="this.style.background='#75975e'">Look Up</button>
+                            </div>
+                            <span id="lookupStatus" style="font-size:0.8rem; margin-top:4px; min-height:1.1em; display:block;"></span>
+                        </div>
                         <div class="field-group">
                             <label>Customer Name</label>
-                            <input type="text" name="customerName" required>
+                            <div id="display-customerName"
+                                style="padding:8px 10px; border-radius:5px; font-size:0.95rem;
+                                       background:#f5f5f5; color:#aaa; border:1px solid #e5e5e5;
+                                       min-height:36px; transition: background 0.2s, color 0.2s;">—</div>
                         </div>
                         <div class="field-group">
                             <label>Customer Email</label>
-                            <input type="email" name="customerEmail" required>
+                            <div id="display-customerEmail"
+                                style="padding:8px 10px; border-radius:5px; font-size:0.95rem;
+                                       background:#f5f5f5; color:#aaa; border:1px solid #e5e5e5;
+                                       min-height:36px; transition: background 0.2s, color 0.2s;">—</div>
                         </div>
                         <div class="field-group">
                             <label>Employee ID</label>
@@ -83,14 +107,77 @@
             .then(user => { document.getElementById('employeeID').value = user.id; })
             .catch(() => {});
 
+        let customerResolved = false;
+
+        async function lookupCustomer() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const status   = document.getElementById('lookupStatus');
+            const nameBox  = document.getElementById('display-customerName');
+            const emailBox = document.getElementById('display-customerEmail');
+
+            if (!username) { status.textContent = 'Please enter a username.'; status.style.color = '#c00'; return; }
+
+            status.textContent = 'Looking up…';
+            status.style.color = '#888';
+
+            const res = await fetch('/retrieveUser', {
+                method: 'POST',
+                body: new URLSearchParams({ username })
+            });
+
+            if (res.status === 404) {
+                status.textContent = 'No customer found with that username.';
+                status.style.color = '#c00';
+                customerResolved = false;
+                nameBox.textContent  = '—';
+                emailBox.textContent = '—';
+                nameBox.style.cssText  += '; background:#f5f5f5; color:#aaa; border-color:#e5e5e5;';
+                emailBox.style.cssText += '; background:#f5f5f5; color:#aaa; border-color:#e5e5e5;';
+                document.getElementById('customerName').value  = '';
+                document.getElementById('customerEmail').value = '';
+                return;
+            }
+            if (!res.ok) { status.textContent = 'Lookup failed. Try again.'; status.style.color = '#c00'; return; }
+
+            const user = await res.json();
+            const fullName = `${user.FName} ${user.LName}`;
+
+            document.getElementById('customerName').value  = fullName;
+            document.getElementById('customerEmail').value = user.Email;
+
+            nameBox.textContent  = fullName;
+            emailBox.textContent = user.Email;
+            nameBox.style.cssText  += '; background:#f0f4ee; color:#4a6741; border-color:#c5d9bb;';
+            emailBox.style.cssText += '; background:#f0f4ee; color:#4a6741; border-color:#c5d9bb;';
+
+            status.textContent = 'Customer found.';
+            status.style.color = '#4a6741';
+            customerResolved = true;
+        }
+
+        document.getElementById('lookupBtn').addEventListener('click', lookupCustomer);
+        document.getElementById('usernameInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); lookupCustomer(); }
+        });
+
         document.getElementById('serviceCustomer-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
+            if (!customerResolved) {
+                alert('Please look up a valid customer username before submitting.');
+                return;
+            }
             const res = await fetch('/submitForm', {
                 method: 'POST',
-                body: new URLSearchParams(formData)
+                body: new URLSearchParams(new FormData(e.target))
             });
-            alert(await res.text());
+            const text = await res.text();
+            alert(text);
+            if (res.ok) {
+                e.target.reset();
+                document.getElementById('display-customerName').textContent  = '—';
+                document.getElementById('display-customerEmail').textContent = '—';
+                customerResolved = false;
+            }
         });
     </script>
 </body>

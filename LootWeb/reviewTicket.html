@@ -47,6 +47,10 @@
                         <input type="hidden" name="description">
 
                         <div class="detail-grid">
+                            <div class="detail-field full-width">
+                                <label>Customer Username</label>
+                                <div class="detail-value" id="d-customerUsername"></div>
+                            </div>
                             <div class="detail-field">
                                 <label>Customer Name</label>
                                 <div class="detail-value" id="d-customerName"></div>
@@ -154,9 +158,10 @@
             reviewForm.querySelector('[name="Comments"]').value     = '';
 
             // Populate display fields
-            document.getElementById('panel-id-badge').textContent   = `#${form.formID}`;
-            document.getElementById('d-customerName').textContent   = form.customerName;
-            document.getElementById('d-customerEmail').textContent  = form.customerEmail;
+            document.getElementById('panel-id-badge').textContent      = `#${form.formID}`;
+            document.getElementById('d-customerUsername').textContent  = form.customerUsername || '—';
+            document.getElementById('d-customerName').textContent      = form.customerName;
+            document.getElementById('d-customerEmail').textContent     = form.customerEmail;
             document.getElementById('d-subject').textContent        = form.subject;
             document.getElementById('d-priority').textContent       = form.priority;
             document.getElementById('d-description').textContent    = form.description;
