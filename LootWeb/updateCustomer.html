@@ -5,38 +5,143 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        /* Override the fixed height on login-box so it grows with content */
+        .login-box {
+            width: 580px !important;
+            height: auto !important;
+            min-height: unset !important;
+        }
+
+        /* Edit card that appears after retrieval */
+        .edit-card {
+            width: 100%;
+            margin-top: 1.5rem;
+            border-top: 2px solid #75975e;
+            padding-top: 1.2rem;
+        }
+
+        .edit-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .edit-card-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #555;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .subscriber-badge {
+            background-color: #f0f4ee;
+            color: #4a6741;
+            border: 1px solid #c5d9bb;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Two-column grid for form fields */
+        .edit-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.9rem 1.2rem;
+            width: 100%;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-group label {
+            font-size: 0.8rem !important;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin: 0 !important;
+            display: block !important;
+        }
+
+        .field-group input {
+            width: 100% !important;
+            padding: 8px 10px !important;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95rem;
+            color: #333;
+            background: #fafafa;
+            transition: border-color 0.15s, background 0.15s;
+            box-sizing: border-box;
+        }
+
+        .field-group input:focus {
+            border-color: #75975e;
+            background: #fff;
+            outline: none;
+        }
+
+        .edit-save-btn {
+            width: 100%;
+            margin-top: 1.2rem;
+            height: 38px;
+            border: none;
+            border-radius: 5px;
+            background-color: #75975e;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .edit-save-btn:hover {
+            background-color: #4a6741;
+        }
+    </style>
 </head>
 <body>
     <div id="page-wrapper">
-       <header id="header" class="alt">
-					<h1 style ="font-size: xx-large;"><a style= "color: #000000;"href="index.html">Loot</a> </h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
-							<li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
-                            <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Ticket</a></li>
-                            <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
-							<li><a href="reviewTicket.html" style="color: #000000;">Review Tickets</a></li>
-						</ul>
-					</nav>
-				</header>
+        <header id="header" class="alt">
+            <h1 style="font-size: xx-large;"><a style="color: #000000;" href="index.html">Loot</a></h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+                    <li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+                    <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Ticket</a></li>
+                    <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+                    <li><a href="reviewTicket.html" style="color: #000000;">Review Tickets</a></li>
+                </ul>
+            </nav>
+        </header>
 
         <section id="main" class="container">
             <header class="major">
                 <h2>Retrieve Customer</h2>
             </header>
 
-            <div class="login-box" style="width: 600px; min-height: 1100px; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;" >
+            <div class="login-box" style="padding: 2rem; display: flex; flex-direction: column; align-items: center;">
                 <h2>Enter credentials</h2>
 
                 <form id="retrieve-form">
                     <label>Customer Username</label>
                     <input type="text" name="username">
-
                     <button type="submit" class="login-btn">Retrieve</button>
                 </form>
 
-                <div id="result" style="margin-top: 1.2rem;"></div>
+                <div id="result"></div>
             </div>
         </section>
     </div>
@@ -53,55 +158,72 @@
         const res = await fetch('/retrieveUser', {
             method: 'POST',
             body: new URLSearchParams(formData)
-        })
+        });
 
-        if (res.status === 403) {
-            result.textContent = 'Access denied. Must be logged in as an employee.';
-            return;
-        }
-        if (res.status === 404) {
-            result.textContent = 'User not found.';
-            return;
-        }
-         if (!res.ok) {
-            result.textContent = 'Retrieval failed.';
-            return;
-        }
+        if (res.status === 403) { result.textContent = 'Access denied. Must be logged in as an employee.'; return; }
+        if (res.status === 404) { result.textContent = 'User not found.'; return; }
+        if (!res.ok)            { result.textContent = 'Retrieval failed.'; return; }
 
         const user = await res.json();
+
+        const birthday = user.Birthday ? user.Birthday.split('T')[0] : '';
+
         result.innerHTML = `
-        <form id="edit-form">
-            <input type="hidden" name="SubscriberID" value="${user.SubscriberID}">
-            <p><strong>ID:</strong> ${user.SubscriberID}</p>
-            <label>First Name: <input name="FName" value="${user.FName}" required></label><br>
-            <label>Last Name: <input name="LName" value="${user.LName}" required></label><br>
-            <label>Username: <input name="Username" value="${user.Username}" required></label><br>
-            <label>Email: <input name="Email" value="${user.Email}" required></label><br>
-            <label>Phone: <input name="PhoneNumber" value="${user.PhoneNumber}" required></label><br>
-            <label>Birthday: <input name="Birthday" value="${user.Birthday || ''}" type="date"></label><br>
-            <button type="submit">Save Changes</button>
-        </form>
+        <div class="edit-card">
+            <div class="edit-card-header">
+                <h3>Customer Details</h3>
+                <span class="subscriber-badge">ID #${user.SubscriberID}</span>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" name="SubscriberID" value="${user.SubscriberID}">
+                <div class="edit-grid">
+                    <div class="field-group">
+                        <label>First Name</label>
+                        <input name="FName" value="${user.FName}" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Last Name</label>
+                        <input name="LName" value="${user.LName}" required>
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Username</label>
+                        <input name="Username" value="${user.Username}" required>
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Email</label>
+                        <input name="Email" type="email" value="${user.Email}" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Phone</label>
+                        <input name="PhoneNumber" value="${user.PhoneNumber}" required>
+                    </div>
+                    <div class="field-group">
+                        <label>Birthday</label>
+                        <input name="Birthday" type="date" value="${birthday}">
+                    </div>
+                </div>
+                <button type="submit" class="edit-save-btn">Save Changes</button>
+            </form>
+        </div>
         `;
 
-        const editForm = document.getElementById('edit-form');
-        editForm.addEventListener('submit', async(e) =>{
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(editForm);
             const updateRes = await fetch('/updateUser', {
                 method: 'POST',
-                body: new URLSearchParams(formData)
+                body: new URLSearchParams(new FormData(document.getElementById('edit-form')))
             });
-            const newText = await updateRes.text();
-            alert(newText);
+            alert(await updateRes.text());
         });
     });
-</script>
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/jquery.dropotron.min.js"></script>
-<script src="assets/js/jquery.scrollex.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+    </script>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.dropotron.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
