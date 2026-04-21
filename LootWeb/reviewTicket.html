@@ -1,104 +1,187 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<title>Loot</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
-	<body class="is-preload">
-		<div id="page-wrapper">
+<head>
+    <title>Review Tickets - Loot</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
+</head>
+<body class="is-preload">
+    <div id="page-wrapper">
 
-			<!-- Header -->
-				<header id="header" class="alt">
-					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
-							<li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
-                            <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Ticket</a></li>
-                            <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
-							<li><a href="reviewTicket.html" style="color: #000000;">Review Tickets</a></li>
-						</ul>
-                    </nav>
-                </header>
-        <div class="signUp-box">
+        <header id="header" class="alt">
+            <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="employeeDashboard.html" style="color: #000000;">Employee Dashboard</a></li>
+                    <li><a href="employeeCreation.html" style="color: #000000;">Create Employee</a></li>
+                    <li><a href="serviceCustomer.html" style="color: #000000;">Submit Service Ticket</a></li>
+                    <li><a href="updateCustomer.html" style="color: #000000;">Customer Service</a></li>
+                    <li><a href="reviewTicket.html" style="color: #000000;">Review Tickets</a></li>
+                </ul>
+            </nav>
+        </header>
+
         <section id="main" class="container">
             <header class="major">
                 <h2>Review Forms</h2>
             </header>
-        <div>
-            <form id="retrieveTicket-form">
-            <label>Ticket Number</label>
-            <input type="text" name="formID">
-            <button type="submit" class="signUp-btn">Retrieve Ticket</button>
-            </form>
-            <div id="result" style="margin-top: 1.2rem;"></div>
-        </div>
-        </section>
-        </div> 
-        </div>
-    <!--Scripts-->
-    <script>
-        const retrieve = document.getElementById('retrieveTicket-form');
-        const result = document.getElementById('result');
-        retrieve.addEventListener('submit', async(e)=>{
-            e.preventDefault();
-            const formData = new FormData(retrieve);
-            const res = await fetch('/retrieveForm', 
-            {
-                method: 'POST',
-                body: new URLSearchParams(formData)
-            });
-             if (res.status === 403) {
-            result.textContent = 'Access denied. Must be logged in as an employee.';
-            return;
-        }
-        if (res.status === 404) {
-            result.textContent = 'Form not found.';
-            return;
-        }
-         if (!res.ok) {
-            result.textContent = 'Retrieval failed.';
-            return;
-        }
-            const form = await res.json();
-            result.innerHTML = `
-            <form id="review-form">
-            <input type="hidden" name="formID" value="${form.formID}">
-            <input type="hidden" name="customerName" value="${form.customerName}">
-            <input type="hidden" name="customerEmail" value="${form.customerEmail}">
-            <input type="hidden" name="employeeID" value="${form.EmployeeID}">
-            <input type="hidden" name="subject" value="${form.subject}">
-            <input type="hidden" name="priority" value="${form.priority}">
-            <input type="hidden" name="description" value="${form.description}">
 
-            <p><strong>Form ID:</strong> ${form.formID}</p>
-            <p><strong>Customer Name: </strong> ${form.customerName}</p><br>
-            <p><strong>Customer Email: </strong> ${form.customerEmail}</p><br>
-            <p><strong>Employee ID: </strong> ${form.EmployeeID}</p><br>
-            <p><strong>Subject: </strong> ${form.subject}</p><br>
-            <p><strong>Priority: </strong> ${form.priority}</p><br>
-            <p><strong>Description: </strong> ${form.description}</p><br>
-            <p><strong>Time Submitted: </strong> ${form.createdAt}</p><br>
-            <label>Additional Comments: <input name="Comments" type="text"></label><br>
-            <button type="submit">Submit Review</button>
-            </form>
-        `;
-        const review = document.getElementById('review-form');
-        review.addEventListener('submit',async(e)=>{
-            e.preventDefault();
-            const fD = new FormData(review);
-            const res = await fetch('/reviewForm', 
-            {
+            <div class="tickets-wrapper">
+                <h2 style="text-align:center; padding-top: 0;">Open Tickets</h2>
+                <div id="ticket-list"><p class="empty-state">Loading tickets…</p></div>
+
+                <div class="review-panel" id="review-panel">
+                    <div class="review-panel-header">
+                        <h3>Ticket Details</h3>
+                        <span class="form-id-badge" id="panel-id-badge"></span>
+                    </div>
+                    <form id="review-form">
+                        <input type="hidden" name="formID">
+                        <input type="hidden" name="customerName">
+                        <input type="hidden" name="customerEmail">
+                        <input type="hidden" name="employeeID">
+                        <input type="hidden" name="subject">
+                        <input type="hidden" name="priority">
+                        <input type="hidden" name="description">
+
+                        <div class="detail-grid">
+                            <div class="detail-field">
+                                <label>Customer Name</label>
+                                <div class="detail-value" id="d-customerName"></div>
+                            </div>
+                            <div class="detail-field">
+                                <label>Customer Email</label>
+                                <div class="detail-value" id="d-customerEmail"></div>
+                            </div>
+                            <div class="detail-field">
+                                <label>Subject</label>
+                                <div class="detail-value" id="d-subject"></div>
+                            </div>
+                            <div class="detail-field">
+                                <label>Priority</label>
+                                <div class="detail-value" id="d-priority"></div>
+                            </div>
+                            <div class="detail-field full-width">
+                                <label>Description</label>
+                                <div class="detail-value" id="d-description"></div>
+                            </div>
+                            <div class="detail-field">
+                                <label>Employee ID</label>
+                                <div class="detail-value" id="d-employeeID"></div>
+                            </div>
+                            <div class="detail-field">
+                                <label>Time Submitted</label>
+                                <div class="detail-value" id="d-createdAt"></div>
+                            </div>
+                            <div class="detail-field full-width">
+                                <label>Additional Comments</label>
+                                <input type="text" name="Comments" placeholder="Enter any comments…">
+                            </div>
+                        </div>
+                        <button type="submit" class="review-submit-btn">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const ticketList  = document.getElementById('ticket-list');
+        const reviewPanel = document.getElementById('review-panel');
+        const reviewForm  = document.getElementById('review-form');
+
+        function priorityClass(p) {
+            if (!p) return 'priority-low';
+            const v = p.toLowerCase();
+            if (v === 'high')   return 'priority-high';
+            if (v === 'medium') return 'priority-medium';
+            return 'priority-low';
+        }
+
+        function formatDate(raw) {
+            if (!raw) return '—';
+            const d = new Date(raw);
+            return isNaN(d) ? raw : d.toLocaleString();
+        }
+
+        async function loadTickets() {
+            const res = await fetch('/getForms');
+            if (!res.ok) { ticketList.innerHTML = '<p class="empty-state">Failed to load tickets.</p>'; return; }
+            const forms = await res.json();
+
+            if (!forms.length) {
+                ticketList.innerHTML = '<p class="empty-state">No open tickets.</p>';
+                return;
+            }
+
+            ticketList.innerHTML = forms.map(f => `
+                <div class="ticket-card" data-id="${f.formID}" onclick="selectTicket(${f.formID})">
+                    <div class="ticket-card-left">
+                        <span class="ticket-subject">${f.subject || '(No subject)'}</span>
+                        <span class="ticket-meta">${f.customerName} &middot; ${formatDate(f.createdAt)}</span>
+                    </div>
+                    <div class="ticket-card-right">
+                        <span class="priority-badge ${priorityClass(f.priority)}">${f.priority || 'Low'}</span>
+                        <span class="form-id-badge">#${f.formID}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectTicket(formID) {
+            // Highlight selected card
+            document.querySelectorAll('.ticket-card').forEach(c => c.classList.remove('active'));
+            const card = document.querySelector(`.ticket-card[data-id="${formID}"]`);
+            if (card) card.classList.add('active');
+
+            const res = await fetch('/retrieveForm', {
                 method: 'POST',
-                body: new URLSearchParams(fD)
+                body: new URLSearchParams({ formID })
+            });
+            if (!res.ok) { alert('Failed to load ticket details.'); return; }
+            const form = await res.json();
+
+            // Populate hidden fields
+            reviewForm.querySelector('[name="formID"]').value       = form.formID;
+            reviewForm.querySelector('[name="customerName"]').value = form.customerName;
+            reviewForm.querySelector('[name="customerEmail"]').value = form.customerEmail;
+            reviewForm.querySelector('[name="employeeID"]').value   = form.EmployeeID;
+            reviewForm.querySelector('[name="subject"]').value      = form.subject;
+            reviewForm.querySelector('[name="priority"]').value     = form.priority;
+            reviewForm.querySelector('[name="description"]').value  = form.description;
+            reviewForm.querySelector('[name="Comments"]').value     = '';
+
+            // Populate display fields
+            document.getElementById('panel-id-badge').textContent   = `#${form.formID}`;
+            document.getElementById('d-customerName').textContent   = form.customerName;
+            document.getElementById('d-customerEmail').textContent  = form.customerEmail;
+            document.getElementById('d-subject').textContent        = form.subject;
+            document.getElementById('d-priority').textContent       = form.priority;
+            document.getElementById('d-description').textContent    = form.description;
+            document.getElementById('d-employeeID').textContent     = form.EmployeeID;
+            document.getElementById('d-createdAt').textContent      = formatDate(form.createdAt);
+
+            reviewPanel.classList.add('visible');
+            reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('/reviewForm', {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(reviewForm))
             });
             const text = await res.text();
             alert(text);
+            reviewPanel.classList.remove('visible');
+            await loadTickets();
         });
-        });
+
+        loadTickets();
     </script>
+
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -106,5 +189,5 @@
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
-    </body>
+</body>
 </html>

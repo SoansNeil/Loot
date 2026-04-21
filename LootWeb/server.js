@@ -761,6 +761,13 @@ app.post('/submitForm', (req, res) => {
   });
 });
 
+app.get('/getForms', (_req, res) => {
+  db.query('SELECT formID, customerName, subject, priority, createdAt FROM SERVICE_FORMS ORDER BY createdAt DESC', (err, result) => {
+    if (err) return res.status(500).json({ error: 'Error retrieving forms' });
+    res.json(result);
+  });
+});
+
 app.post('/retrieveForm', (req, res) => {
   const formID = req.body.formID;
 
