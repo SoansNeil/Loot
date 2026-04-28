@@ -178,7 +178,7 @@
 
             let filtered = allTickets.filter(f => {
                 if (name && !(f.customerName || '').toLowerCase().includes(name)) return false;
-                if (empID && !String(f.EmployeeID || '').toLowerCase().includes(empID)) return false;
+                if (empID && !String(f.employeeID ?? f.EmployeeID ?? '').toLowerCase().includes(empID)) return false;
                 if (priority && (f.priority || '').toLowerCase() !== priority.toLowerCase()) return false;
                 if (dateFrom && new Date(f.createdAt) < new Date(dateFrom)) return false;
                 return true;
