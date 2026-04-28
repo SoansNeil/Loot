@@ -202,6 +202,8 @@
 .box.special.features .features-row:nth-child(1) section:nth-child(2) { border-left-color: #4a6741 !important; }
 .box.special.features .features-row:nth-child(2) section:nth-child(1) { border-left-color: #8fad78 !important; }
 .box.special.features .features-row:nth-child(2) section:nth-child(2) { border-left-color: #5c7a4a !important; }
+.box.special.features .features-row:nth-child(3) section:nth-child(1) { border-left-color: #75975e !important; }
+.box.special.features .features-row:nth-child(3) section:nth-child(2) { border-left-color: #4a6741 !important; }
 
 .box.special.features .features-row section h3 {
     font-weight: 700 !important;

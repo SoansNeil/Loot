@@ -1,19 +1,19 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Family</title>
+    <title>Family - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
 <body class="landing is-preload">
 <div id="page-wrapper">
 
-    <!-- Header -->
     <header id="header" class="alt">
         <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
         <nav id="nav">
-        <ul>
+            <ul>
                 <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
                 <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
                 <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
@@ -21,96 +21,95 @@
                 <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
                 <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
                 <li><a href="index.html">Log Out</a></li>
-        </ul>
-    </nav>
+            </ul>
+        </nav>
     </header>
 
-    <!-- Banner -->
     <section id="banner">
-        <h3>Here you will be able to plan and manage financial goals with users on your family plan.</h3>
+        <h3>Family Joint Account</h3>
+        <p>Plan and manage financial goals together with your family plan members.</p>
     </section>
 
-    <!-- Main -->
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+    <section id="main" class="container">
 
-        <!-- Family Members Section -->
-        <section class="family-section" style="text-align: center;">
-            <h2>Users on your family plan</h2>
-            <button id="displayFam">Click for Family Accounts</button>
-            <div id="FamAcc"></div>
-
-            <div style="margin-top: 1.8rem;">
-                <a href="#" id="toggleFamilyFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">
-                    Click here to add a family member to your plan
-                </a>
+        <!-- Family Members -->
+        <div class="tickets-wrapper">
+            <div class="section-header">
+                <h3>Family Members</h3>
             </div>
 
-            <div id="dropdownFamilyForm" style="display: none;">
-                <div class="signUp-box" style="margin-top: 1.5rem;">
-                    <h2>Add New Family Member</h2>
+            <button id="displayFam" class="action-btn">Show Family Accounts</button>
+            <div id="FamAcc" style="margin-top: 1rem;"></div>
+
+            <div class="panel-divider">
+                <a href="#" id="toggleFamilyFormLink" style="color: #75975e; font-weight: 600; text-decoration: underline; cursor: pointer;">
+                    Add a family member to your plan
+                </a>
+
+                <div id="dropdownFamilyForm" style="display: none; margin-top: 1.5rem;">
                     <form id="addFamilyMemberForm">
-                        <div class="input-grid">
-                            <div class="input-field">
-                                <label>First Name *</label>
+                        <div class="edit-grid">
+                            <div class="field-group">
+                                <label>First Name</label>
                                 <input type="text" name="FName" required>
                             </div>
-                            <div class="input-field">
-                                <label>Last Name *</label>
+                            <div class="field-group">
+                                <label>Last Name</label>
                                 <input type="text" name="LName" required>
                             </div>
-                            <div class="input-field">
-                                <label>Username *</label>
+                            <div class="field-group full-width">
+                                <label>Username</label>
                                 <input type="text" name="Username" required>
                             </div>
                         </div>
-                        <button type="submit" class="signUp-btn">Add Family Member</button>
+                        <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Add Family Member</button>
                     </form>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <br><br>
+        <br>
 
-        <!-- Family Goals Section -->
-        <section style="text-align: center;">
-            <h2>Family Goals</h2>
-            <div id="goalsDisplay" style="margin-bottom: 2rem;"></div>
-
-            <div style="margin-top: 1.8rem;">
-                <a href="#" id="toggleGoalFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">
-                    Click here to add a new goal to your family plan
-                </a>
+        <!-- Family Goals -->
+        <div class="tickets-wrapper">
+            <div class="section-header">
+                <h3>Family Goals</h3>
             </div>
 
-            <div id="dropdownGoalForm" style="display: none;">
-                <div class="signUp-box" style="margin-top: 1.5rem;">
+            <div id="goalsDisplay" style="margin-bottom: 1.5rem;"></div>
+
+            <div class="panel-divider">
+                <a href="#" id="toggleGoalFormLink" style="color: #75975e; font-weight: 600; text-decoration: underline; cursor: pointer;">
+                    Add a new goal to your family plan
+                </a>
+
+                <div id="dropdownGoalForm" style="display: none; margin-top: 1.5rem;">
                     <form id="addGoalForm">
-                        <div class="input-grid">
-                            <div class="input-field">
+                        <div class="edit-grid">
+                            <div class="field-group">
                                 <label>Goal Name</label>
                                 <input type="text" name="GName" required>
                             </div>
-                            <div class="input-field">
-                                <label>Goal Description</label>
-                                <input type="text" name="Description">
-                            </div>
-                            <div class="input-field">
+                            <div class="field-group">
                                 <label>Goal Amount</label>
                                 <input type="number" name="Goal" step="0.01" required>
                             </div>
+                            <div class="field-group full-width">
+                                <label>Description</label>
+                                <input type="text" name="Description">
+                            </div>
                         </div>
-                        <button type="submit" class="signUp-btn">Add Goal to plan</button>
+                        <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Add Goal</button>
                     </form>
-                    <p><strong>Note:</strong> Amount Left will be automatically calculated as (Goal - Current Amount).</p>
+                    <p style="margin-top: 0.75rem; color: #888; font-size: 0.85rem;">Amount remaining is automatically calculated as Goal minus current contributions.</p>
                 </div>
             </div>
-        </section>
+        </div>
 
-    </div><!-- end main div -->
+    </section>
 
-</div><!-- end page-wrapper -->
+</div>
 
-<!-- Template Scripts FIRST -->
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/jquery.dropotron.min.js"></script>
 <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -120,30 +119,24 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/nav.js"></script>
 
-<!-- Your script LAST -->
 <script>
-    // ✅ Get subscriberID once at the top, use everywhere
-
     if (!subscriberID) {
         alert('No subscriber ID found. Please log in again.');
     }
 
     // ── Family Members ──────────────────────────────────────
-
     document.getElementById('displayFam').addEventListener('click', async () => {
         const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
         const text = await res.text();
         document.getElementById('FamAcc').innerHTML = text;
     });
 
-    // Toggle family form
     document.getElementById('toggleFamilyFormLink').addEventListener('click', (e) => {
         e.preventDefault();
         const form = document.getElementById('dropdownFamilyForm');
         form.style.display = form.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Submit family member
     document.getElementById('addFamilyMemberForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -175,15 +168,12 @@
     });
 
     // ── Goals ────────────────────────────────────────────────
-
-    // Toggle goal form
     document.getElementById('toggleGoalFormLink').addEventListener('click', (e) => {
         e.preventDefault();
         const form = document.getElementById('dropdownGoalForm');
         form.style.display = form.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Submit goal
     document.getElementById('addGoalForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -217,26 +207,24 @@
     });
 
     // ── Load & Display Goals ─────────────────────────────────
-
     async function loadFamilyGoals() {
         try {
             const res = await fetch(`/get-family-goals?subscriberID=${subscriberID}`);
             const result = await res.json();
-
             const display = document.getElementById('goalsDisplay');
 
             if (result.success && result.goals && result.goals.length > 0) {
                 displayGoals(result.goals);
             } else {
-                display.innerHTML = '<p style="text-align:center; padding: 2rem;">No goals yet. Add your first family goal above!</p>';
+                display.innerHTML = '<p style="color: #999; font-size: 0.95rem;">No goals yet. Add your first family goal above!</p>';
             }
         } catch (err) {
-            document.getElementById('goalsDisplay').innerHTML = '<p style="color:red; text-align:center;">Error loading goals. Please refresh.</p>';
+            document.getElementById('goalsDisplay').innerHTML = '<p style="color: red;">Error loading goals. Please refresh.</p>';
         }
     }
 
     function displayGoals(goals) {
-        let html = '<div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">';
+        let html = '<div style="display: flex; flex-direction: column; gap: 1.5rem;">';
 
         goals.forEach(goal => {
             const goalAmount = parseFloat(goal.Goal) || 0;
@@ -246,24 +234,24 @@
             const isComplete = currentAmount >= goalAmount;
 
             html += `
-                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 3px 14px rgba(0,0,0,0.09); border-left: 5px solid #75975e;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <h3 style="margin: 0; color: #2c3e50;">${escapeHtml(goal.GName)}</h3>
+                        <h3 style="margin: 0; color: #2c3e50; font-weight: 700;">${escapeHtml(goal.GName)}</h3>
                         <span style="font-weight: bold; color: #4a6741;">$${currentAmount.toFixed(2)} / $${goalAmount.toFixed(2)}</span>
                     </div>
-                    ${goal.Description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(goal.Description)}</p>` : ''}
-                    <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 30px;">
-                        <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem;">
+                    ${goal.Description ? `<p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">${escapeHtml(goal.Description)}</p>` : ''}
+                    <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 28px;">
+                        <div style="background: linear-gradient(90deg, #75975e, #4a6741); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem;">
                             ${progressPercent}%
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span style="color: #666; font-size: 0.9rem;">${isComplete ? '🎉 Goal Completed!' : `$${remaining.toFixed(2)} remaining`}</span>
-                        <span style="color: #4a6741; font-size: 0.9rem;">Status: ${isComplete ? 'Completed' : 'In Progress'}</span>
+                        <span style="color: #666; font-size: 0.85rem;">${isComplete ? 'Goal Completed!' : `$${remaining.toFixed(2)} remaining`}</span>
+                        <span style="color: #4a6741; font-size: 0.85rem; font-weight: 600;">${isComplete ? 'Completed' : 'In Progress'}</span>
                     </div>
                     <div style="margin-top: 1rem; text-align: right;">
                         <button onclick="showContributeOptions('${goal.GoalID}', '${escapeHtml(goal.GName)}', ${goalAmount}, ${currentAmount}, this)"
-                            style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                            class="action-btn" style="width: auto; padding: 8px 20px; border-radius: 25px;">
                             Contribute Money
                         </button>
                     </div>
@@ -276,7 +264,6 @@
     }
 
     // ── Contributions ────────────────────────────────────────
-
     window.showContributeOptions = async function(goalId, goalName, goalTarget, currentAmount, btn) {
         const goalContainer = btn.closest('div[style*="background: white"]');
         let existing = goalContainer.querySelector('.contribute-panel');
@@ -292,25 +279,25 @@
 
             const panel = document.createElement('div');
             panel.className = 'contribute-panel';
-            panel.style.cssText = 'margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #e0e0e0;';
+            panel.style.cssText = 'margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #75975e;';
 
-            let inner = `<h4 style="color: #4a6741; margin-bottom: 1rem;">Select an account to contribute:</h4>
+            let inner = `<h4 style="color: #4a6741; margin-bottom: 1rem; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em;">Select an account to contribute:</h4>
                          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">`;
 
             if (!accounts || accounts.length === 0) {
-                inner += '<p style="color: red;">No external accounts found. Please add one in your Dashboard.</p>';
+                inner += '<p style="color: red;">No external accounts found. Please add one in External Accounts.</p>';
             } else {
                 accounts.forEach(account => {
                     const max = Math.min(parseFloat(account.currentBalance), goalTarget - currentAmount);
                     inner += `
                         <div style="border: 1px solid #ddd; border-radius: 10px; padding: 1rem; background: #f9f9f9; flex: 1; min-width: 220px; text-align: center;">
-                            <p><strong>${escapeHtml(account.bank)}</strong></p>
-                            <p style="color: #666;">${escapeHtml(account.accountType)}</p>
-                            <p><strong>Balance:</strong> $${parseFloat(account.currentBalance).toFixed(2)}</p>
+                            <p style="font-weight: 700; margin-bottom: 0.25rem;">${escapeHtml(account.bank)}</p>
+                            <p style="color: #666; font-size: 0.85rem; margin-bottom: 0.5rem;">${escapeHtml(account.accountType)}</p>
+                            <p style="margin-bottom: 0.75rem;"><strong>Balance:</strong> $${parseFloat(account.currentBalance).toFixed(2)}</p>
                             <input type="number" id="contrib_${goalId}_${account.accountID}" step="0.01" placeholder="Max $${max.toFixed(2)}"
-                                style="width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                                style="width: 100%; padding: 8px 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95rem; box-sizing: border-box;">
                             <button onclick="submitContribution(${account.accountID}, '${goalId}', ${goalTarget}, ${currentAmount}, ${parseFloat(account.currentBalance)}, '${escapeHtml(goalName)}')"
-                                style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">
+                                class="action-btn" style="border-radius: 20px; margin-top: 0;">
                                 Contribute
                             </button>
                         </div>
@@ -356,8 +343,6 @@
         }
     };
 
-    // ── Helpers ──────────────────────────────────────────────
-
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -365,10 +350,7 @@
         return div.innerHTML;
     }
 
-    // ── Init ─────────────────────────────────────────────────
-
     window.addEventListener('DOMContentLoaded', loadFamilyGoals);
-
 </script>
 
 </body>

@@ -1,184 +1,144 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Budget Plan</title>
+    <title>Budget Plan - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
-
-<body>
+<body class="is-preload">
     <div id="page-wrapper">
 
-        <!-- Header -->
         <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+            <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
-            <ul>
-				<li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
-                <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
-                <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
-                <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
-                <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
-                <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
-                <li><a href="index.html">Log Out</a></li>
-            </ul>
+                <ul>
+                    <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
+                    <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
+                    <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
+                    <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
+                    <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
+                    <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+                    <li><a href="index.html">Log Out</a></li>
+                </ul>
             </nav>
         </header>
 
-                 <section id="main" class="container">
-    <header class="major">
-        <h2>Start Your Budgeting Journey Now!</h2>
-    </header>
-
-    <div class="grid">
-
-         <!-- Category Breakdown -->
-        <section class="box">
-
-             <header class="major">
-       <h3>Category Breakdown</h3>
-    </header>
-            
-
-            <canvas id="myChart" style="max-width:400px; margin:20px auto;"></canvas>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Amount</th>
-                    </tr>
-                    
-                </thead>
-
-                 <tbody id="budgetSum"></tbody>
-
-            </table>
-
-        </section>
-
-        <!-- Add Budget -->
-       <section class="box">
+        <section id="main" class="container">
             <header class="major">
-            <h2>Add Budget</h2>
-            </header>
-            
-            <form id="createBudget-form">
-
-                    <h3>Account Information</h3>
-
-                   <div class="col">
-                   <h5>Account ID</h5>
-                    <input type="number" id="accountId" name="accountId" min="0" required>
-                </div>
-
-                <h4></h4>
-
-                <div class="row">
-                  <h5>Type</h5>
-                    <select id="type" name="ExpenseType" required>
-                        <option value="Income">Income</option>
-                        <option value="Expense">Expense</option>
-                    </select>
-                </div>
-
-                <h4></h4>
-
-                <div class="cols-3">
-                    <h5>Amount</h5>
-                    <input type="number" id="amount" name="amount" min="0" required>
-                </div>
-                
-                <h4></h4>
-
-                <div class="row">
-                    <h5>Category</h5>
-                    <select id="category" name="category" required>
-                        <option>Salary</option>
-                        <option>Rent</option>
-                        <option>Groceries</option>
-                        <option>Personal</option>
-                        <option>Utilities</option>
-                        <option>Transportation</option>
-                        <option>Other</option>
-                    </select>
-                </div>
-
-                <h4></h4>
-
-                <div class="col">
-                   <h5>Date</h5>
-                    <input type="date" id="date" name="DateRecorded" required>
-                </div>
-
-                <input type="hidden" name="subscriberId" value="1">
-
-                <h4></h4>
-
-                <div class="col">
-                    <button class="button small" type="submit">Add</button>
-                    <button class="button small" type="reset">Clear</button>
-                </div>
-
-            </form>
-
-            
-            <header class="major">
-            <h3>Recent Transactions</h3>
-            </header>
-            
-
-            <table id="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Category</th>
-                        <th>Amount</th>
-                        <th>Subscriber ID</th>
-                        <th>Account ID</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="transactionSum"></tbody>
-            </table>
-
-        </section>
-
-        <!-- Summary -->
-        <section class="box">
-             <header class="major">
-             <h2>Summary</h2>
+                <h2>Start Your Budgeting Journey Now!</h2>
             </header>
 
-            <div class="summary">
+            <div class="grid">
 
-                <div class="card">
-                    <div class="muted">Income</div>
-                    <div id="incomeTotal">$0.00</div>
-                </div>
+                <!-- Category Breakdown -->
+                <section class="box">
+                    <div class="section-header">
+                        <h3>Category Breakdown</h3>
+                    </div>
+                    <canvas id="myChart" style="max-width:400px; margin:20px auto;"></canvas>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budgetSum"></tbody>
+                    </table>
+                </section>
 
-                <div class="card">
-                    <div class="muted">Expenses</div>
-                    <div id="expenseTotal">$0.00</div>
-                </div>
+                <!-- Add Budget -->
+                <section class="box">
+                    <div class="section-header">
+                        <h3>Add Budget Entry</h3>
+                    </div>
 
-                <div class="card">
-                    <div class="muted">Balance</div>
-                    <div id="balanceTotal">$0.00</div>
-                </div>
+                    <form id="createBudget-form">
+                        <div class="edit-grid">
+                            <div class="field-group">
+                                <label>Account ID</label>
+                                <input type="number" id="accountId" name="accountId" min="0" required>
+                            </div>
+                            <div class="field-group">
+                                <label>Type</label>
+                                <select id="type" name="ExpenseType" required>
+                                    <option value="Income">Income</option>
+                                    <option value="Expense">Expense</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Amount</label>
+                                <input type="number" id="amount" name="amount" min="0" required>
+                            </div>
+                            <div class="field-group">
+                                <label>Category</label>
+                                <select id="category" name="category" required>
+                                    <option>Salary</option>
+                                    <option>Rent</option>
+                                    <option>Groceries</option>
+                                    <option>Personal</option>
+                                    <option>Utilities</option>
+                                    <option>Transportation</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="field-group full-width">
+                                <label>Date</label>
+                                <input type="date" id="date" name="DateRecorded" required>
+                            </div>
+                        </div>
+                        <input type="hidden" name="subscriberId" value="1">
+                        <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Add Entry</button>
+                    </form>
+
+                    <div class="panel-divider">
+                        <div class="section-header">
+                            <h3>Recent Transactions</h3>
+                        </div>
+                        <table id="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Subscriber</th>
+                                    <th>Account</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionSum"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Summary -->
+                <section class="box">
+                    <div class="section-header">
+                        <h3>Summary</h3>
+                    </div>
+                    <div class="summary">
+                        <div class="card">
+                            <div class="muted">Income</div>
+                            <div id="incomeTotal">$0.00</div>
+                        </div>
+                        <div class="card">
+                            <div class="muted">Expenses</div>
+                            <div id="expenseTotal">$0.00</div>
+                        </div>
+                        <div class="card">
+                            <div class="muted">Balance</div>
+                            <div id="balanceTotal">$0.00</div>
+                        </div>
+                    </div>
+                </section>
 
             </div>
-
         </section>
 
     </div>
 
-</section>
-
-
-    <!-- Scripts -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -190,137 +150,100 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="assets/js/nav.js"></script>
 
-         <script>
-
+    <script>
         let incomeTotalValue = 0;
         let expenseTotalValue = 0;
         let categoryTotals = {};
         let chart;
 
-             function updateCateChart(){
-
+        function updateCateChart() {
             const labels = Object.keys(categoryTotals);
             const data = Object.values(categoryTotals);
-
             const ctx = document.getElementById("myChart").getContext("2d");
 
-            if (chart){
-                chart.destroy();
-            }
+            if (chart) chart.destroy();
 
             chart = new Chart(ctx, {
                 type: "doughnut",
                 data: {
                     labels: labels,
                     datasets: [{
-                        data: data, 
-                        backgroundColor: ["#2412c7", "#c90902", "#178a1d", "#ebe01e", "#6924f2", "#f5820f", "#f5f3e4"
-                        ]
+                        data: data,
+                        backgroundColor: ["#2412c7", "#c90902", "#178a1d", "#ebe01e", "#6924f2", "#f5820f", "#f5f3e4"]
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: "bottom"
-                        }
-                    }
+                    plugins: { legend: { position: "bottom" } }
                 }
             });
         }
-        
-       const form = document.getElementById("createBudget-form");
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+        const form = document.getElementById("createBudget-form");
 
-    const formData = new FormData(form);
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-    const res = await fetch("/create-budget", {
-        method: "POST",
-        body: new URLSearchParams(formData)
-    });
+            const formData = new FormData(form);
+            const res = await fetch("/create-budget", {
+                method: "POST",
+                body: new URLSearchParams(formData)
+            });
 
-    const data = await res.json();
+            const data = await res.json();
 
-    if(data.success){
+            if (data.success) {
+                const amount = parseFloat(data.amount);
+                const type = data.ExpenseType;
+                const category = data.category;
+                const date = data.DateRecorded;
+                const subscriberId = formData.get("subscriberId");
+                const accountId = formData.get("accountId");
 
-        const amount = parseFloat(data.amount);
-        const type = data.ExpenseType;
-        const category = data.category;
-        const date = data.DateRecorded;
-        const subscriberId = formData.get("subscriberId");
-        const accountId = formData.get("accountId");
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td>${type}</td>
+                    <td>${category}</td>
+                    <td>$${amount.toFixed(2)}</td>
+                    <td>${subscriberId}</td>
+                    <td>${accountId}</td>
+                `;
+                document.getElementById("transactionSum").appendChild(row);
 
-        // Add row to transaction table
-        const row = document.createElement("tr");
+                if (type === "Income") {
+                    incomeTotalValue += amount;
+                } else if (type === "Expense") {
+                    expenseTotalValue += amount;
+                }
 
-        row.innerHTML = `
-            <td>${date}</td>
-            <td>${type}</td>
-            <td>${category}</td>
-            <td>$${amount.toFixed(2)}</td>
-            <td>${subscriberId}</td>
-            <td>${accountId}</td>
-            <td></td>
-        `;
+                if (!categoryTotals[category]) categoryTotals[category] = 0;
+                categoryTotals[category] += amount;
 
-        document.getElementById("transactionSum").appendChild(row);
+                updateSummary();
+                updateCategories();
+                updateCateChart();
+            }
 
-        // Update totals
-        if(type === "Income"){
-            incomeTotalValue += amount;
-        } else if(type === "Expense"){
-            expenseTotalValue += amount;
+            form.reset();
+        });
+
+        function updateSummary() {
+            document.getElementById("incomeTotal").textContent = "$" + incomeTotalValue.toFixed(2);
+            document.getElementById("expenseTotal").textContent = "$" + expenseTotalValue.toFixed(2);
+            document.getElementById("balanceTotal").textContent = "$" + (incomeTotalValue - expenseTotalValue).toFixed(2);
         }
 
-        // Update category totals
-        if(!categoryTotals[category]){
-            categoryTotals[category] = 0;
+        function updateCategories() {
+            const budgetSum = document.getElementById("budgetSum");
+            budgetSum.innerHTML = "";
+            for (const category in categoryTotals) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${category}</td><td>$${categoryTotals[category].toFixed(2)}</td>`;
+                budgetSum.appendChild(row);
+            }
         }
-
-        categoryTotals[category] += amount;
-
-        updateSummary();
-        updateCategories();
-        updateCateChart();
-    }
-
-    form.reset();
-});
-
-function updateSummary(){
-
-    document.getElementById("incomeTotal").textContent =
-        "$" + incomeTotalValue.toFixed(2);
-
-    document.getElementById("expenseTotal").textContent =
-        "$" + expenseTotalValue.toFixed(2);
-
-    document.getElementById("balanceTotal").textContent =
-        "$" + (incomeTotalValue - expenseTotalValue).toFixed(2);
-}
-
-function updateCategories(){
-
-    const budgetSum = document.getElementById("budgetSum");
-    budgetSum.innerHTML = "";
-
-    for(const category in categoryTotals){
-
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-            <td>${category}</td>
-            <td>$${categoryTotals[category].toFixed(2)}</td>
-        `;
-
-        budgetSum.appendChild(row);
-    }
-}
-      
     </script>
-
 
 </body>
 </html>

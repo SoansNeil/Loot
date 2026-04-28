@@ -1,16 +1,15 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Transfer Funds - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
-
-<body>
+<body class="is-preload">
     <div id="page-wrapper">
 
-        <!-- Header -->
         <header id="header">
             <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
@@ -28,20 +27,21 @@
 
         <section id="main" class="container">
             <header class="major">
-                <h2>Welcome to your personal Dashboard!</h2>
-                <h3>Here you will be able to view and manage all of your accounts</h3>
+                <h2>Transfer Funds</h2>
             </header>
-        </section>
 
-        <section>
-            <h2>Your Checking Account has</h2>
-            <button id="displayExAcc">Show External Accounts</button>
-            <div id="ExAcc"></div>
+            <div class="tickets-wrapper">
+                <div class="section-header">
+                    <h3>Your Accounts</h3>
+                </div>
+                <p style="color: #666; margin-bottom: 1.2rem; font-size: 0.95rem;">Select the account you want to transfer from.</p>
+                <button id="displayExAcc" class="action-btn">Load My Accounts</button>
+                <div id="ExAcc" style="margin-top: 1.5rem;"></div>
+            </div>
         </section>
 
     </div>
 
-    <!-- Template Scripts FIRST -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>

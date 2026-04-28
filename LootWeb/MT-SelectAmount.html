@@ -1,16 +1,15 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Transfer Amount</title>
+    <title>Transfer Amount - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
-
-<body>
+<body class="is-preload">
 <div id="page-wrapper">
 
-    <!-- Header -->
     <header id="header">
         <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
         <nav id="nav">
@@ -26,14 +25,17 @@
         </nav>
     </header>
 
-    <!-- Main -->
     <section id="main" class="container">
         <header class="major">
-            <h3>How much would you like to transfer?</h3>
+            <h2>Transfer Amount</h2>
         </header>
 
-        <section class="box">
-            <div class="Transfer-Amount"></div>
+        <div class="tickets-wrapper">
+            <div class="section-header">
+                <h3>How much would you like to transfer?</h3>
+            </div>
+
+            <div class="Transfer-Amount" style="margin-bottom: 1.2rem;"></div>
 
             <form action="/StoreAmount" method="POST">
                 <input type="hidden" name="balance" id="balanceOG">
@@ -41,19 +43,18 @@
                 <input type="hidden" name="toAccount" id="toAccount">
                 <input type="hidden" name="subscriberID" id="hiddenSubscriberID">
 
-                <label>Amount to Transfer</label>
-                <input type="number" name="Tamount" id="Tamount" step="0.01" min="0" required>
-
-                <div style="margin-top: 1.5rem;">
-                    <button type="submit" class="button">Next</button>
+                <div class="field-group">
+                    <label>Amount to Transfer</label>
+                    <input type="number" name="Tamount" id="Tamount" step="0.01" min="0" required>
                 </div>
+
+                <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Next</button>
             </form>
-        </section>
+        </div>
     </section>
 
-</div><!-- end page-wrapper -->
+</div>
 
-<!-- Template Scripts FIRST -->
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/jquery.dropotron.min.js"></script>
 <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -63,14 +64,14 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/nav.js"></script>
 
-<!-- Page Script LAST -->
 <script>
     const params = new URLSearchParams(window.location.search);
 
     const balance = params.get('balance');
     if (balance) {
         const p = document.createElement('p');
-        p.textContent = 'Your available balance: $' + parseFloat(balance).toFixed(2);
+        p.style.cssText = 'color: #4a6741; font-weight: 700; font-size: 1.05rem;';
+        p.textContent = 'Available balance: $' + parseFloat(balance).toFixed(2);
         document.querySelector('.Transfer-Amount').appendChild(p);
     }
 

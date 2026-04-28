@@ -1,28 +1,27 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>External Accounts</title>
+    <title>External Accounts - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
 </head>
-
-<body>
+<body class="is-preload">
     <div id="page-wrapper">
 
-        <!-- Header -->
         <header id="header">
             <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
             <nav id="nav">
-            <ul>
-                <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
-                <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
-                <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
-                <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
-                <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
-                <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
-                <li><a href="index.html">Log Out</a></li>
-            </ul>
+                <ul>
+                    <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
+                    <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
+                    <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
+                    <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
+                    <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
+                    <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+                    <li><a href="index.html">Log Out</a></li>
+                </ul>
             </nav>
         </header>
 
@@ -31,32 +30,32 @@
                 <h2>External Accounts</h2>
             </header>
 
-            <!-- Add Bank Account -->
-            <section class="box">
-                <header class="major">
-                    <h2>Add Bank Account</h2>
-                </header>
+            <div class="tickets-wrapper">
+
+                <div class="section-header">
+                    <h3>Add Bank Account</h3>
+                </div>
 
                 <form id="createExAcct-form">
-                    <div class="input-grid">
-                        <div class="input-field">
-                            <h5>Bank</h5>
+                    <div class="edit-grid">
+                        <div class="field-group">
+                            <label>Bank Name</label>
                             <input type="text" id="bankName" name="bankName" required>
                         </div>
-                        <div class="input-field">
-                            <h5>Account Type</h5>
+                        <div class="field-group">
+                            <label>Account Type</label>
                             <input type="text" id="accountType" name="accountType" required>
                         </div>
-                        <div class="input-field">
-                            <h5>Balance</h5>
+                        <div class="field-group">
+                            <label>Balance</label>
                             <input type="number" id="currentBalance" name="currentBalance" min="0" required>
                         </div>
-                        <div class="input-field">
-                            <h5>Currency</h5>
+                        <div class="field-group">
+                            <label>Currency</label>
                             <input type="text" id="currency" name="currency" required>
                         </div>
-                        <div class="input-field">
-                            <h5>Status</h5>
+                        <div class="field-group">
+                            <label>Status</label>
                             <select id="syncStatus" name="syncStatus" required>
                                 <option>Active</option>
                                 <option>Failed</option>
@@ -64,35 +63,33 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="col">
-                        <button class="button small" type="submit">Add</button>
-                        <button class="button small" type="reset">Clear</button>
-                    </div>
+                    <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Add Account</button>
                 </form>
-            </section>
 
-            <!-- Accounts Table -->
-            <section class="box">
-                <table id="accounts-table" width="100%">
-                    <thead>
-                        <tr>
-                            <th>Bank</th>
-                            <th>Type</th>
-                            <th>Balance</th>
-                            <th>Currency</th>
-                            <th>Status</th>
-                            <th>Subscriber</th>
-                        </tr>
-                    </thead>
-                    <tbody id="accounts-tbody"></tbody>
-                </table>
-            </section>
+                <div class="panel-divider">
+                    <div class="section-header">
+                        <h3>Linked Accounts</h3>
+                    </div>
+                    <table id="accounts-table" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Bank</th>
+                                <th>Type</th>
+                                <th>Balance</th>
+                                <th>Currency</th>
+                                <th>Status</th>
+                                <th>Subscriber</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accounts-tbody"></tbody>
+                    </table>
+                </div>
 
+            </div>
         </section>
+
     </div>
 
-    <!-- Template Scripts FIRST -->
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/jquery.dropotron.min.js"></script>
     <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -102,55 +99,56 @@
     <script src="assets/js/main.js"></script>
     <script src="assets/js/nav.js"></script>
 
-    <!-- Your script LAST, after all template scripts -->
     <script>
         async function loadAccounts() {
-        const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
-        const accounts = await res.json();
+            const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
+            const accounts = await res.json();
 
-        const tbody = document.getElementById('accounts-tbody');
-        tbody.innerHTML = '';
+            const tbody = document.getElementById('accounts-tbody');
+            tbody.innerHTML = '';
 
-        if (!accounts || accounts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">No accounts found.</td></tr>';
-            return;
+            if (!accounts || accounts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No accounts found.</td></tr>';
+                return;
+            }
+
+            accounts.forEach(account => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${account.bank}</td>
+                    <td>${account.accountType}</td>
+                    <td>$${parseFloat(account.currentBalance).toFixed(2)}</td>
+                    <td>${account.currency}</td>
+                    <td>${account.syncStatus}</td>
+                    <td>${subscriberID}</td>
+                `;
+                tbody.appendChild(row);
+            });
         }
 
-        accounts.forEach(account => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-            <td>${account.bank}</td>
-            <td>${account.accountType}</td>
-            <td>$${parseFloat(account.currentBalance).toFixed(2)}</td>
-            <td>${account.currency}</td>
-            <td>${account.syncStatus}</td>
-            <td>${subscriberID}</td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-    const form = document.getElementById("createExAcct-form");
+        const form = document.getElementById("createExAcct-form");
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-    
-        const formData = new FormData(form);
-        formData.set('subscriberId', subscriberID);
-    
-        const res = await fetch("/externalAccount", {
-            method: "POST",
-            body: new URLSearchParams(formData)
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            formData.set('subscriberId', subscriberID);
+
+            const res = await fetch("/externalAccount", {
+                method: "POST",
+                body: new URLSearchParams(formData)
+            });
+
+            if (res.ok) {
+                alert("Account added!");
+                form.reset();
+                loadAccounts();
+            } else {
+                alert("Something went wrong.");
+            }
         });
 
-        if (res.ok) {
-            alert("Account added!");
-            form.reset();
-            loadAccounts();
-        } else {
-        alert("Something went wrong.");
-        }
-    });
-    loadAccounts();
+        loadAccounts();
     </script>
 
 </body>

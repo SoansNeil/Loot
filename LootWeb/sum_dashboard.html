@@ -1,17 +1,16 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Summary Dashboard</title>
+    <title>Monthly Summary - Loot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/employee.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
-<body>
+<body class="is-preload">
 <div id="page-wrapper">
 
-    <!-- Header -->
     <header id="header">
         <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
         <nav id="nav">
@@ -29,36 +28,43 @@
 
     <section id="main" class="container">
         <header class="major">
-            <h2>Welcome! Here's your monthly spending so far.</h2>
+            <h2>Monthly Summary</h2>
         </header>
 
-        <div class="chart-card">
-            <div class="month-filter">
-                <label for="monthSelect">Month:</label>
-                <input type="month" id="monthSelect">
+        <div class="tickets-wrapper">
+
+            <div class="section-header" style="justify-content: space-between; align-items: center;">
+                <h3>Spending by Category</h3>
+                <div class="field-group" style="margin: 0; min-width: 180px;">
+                    <label>Month</label>
+                    <input type="month" id="monthSelect">
+                </div>
             </div>
 
-            <h3>Spending by Category</h3>
-            <div class="chart-wrapper">
+            <div class="chart-wrapper" style="max-width: 400px; margin: 1.5rem auto;">
                 <canvas id="categoryDonutChart"></canvas>
             </div>
-            <p id="chartMessage"></p>
+            <p id="chartMessage" style="text-align: center; color: #888;"></p>
 
-            <div id="categoryTotalsSection">
-                <h4>Category Totals</h4>
-                <ul id="categoryTotalsList"></ul>
+            <div class="panel-divider" id="categoryTotalsSection">
+                <div class="section-header">
+                    <h3>Category Totals</h3>
+                </div>
+                <ul id="categoryTotalsList" style="list-style: none; padding: 0; margin: 0;"></ul>
             </div>
 
-            <div id="transactionDetailsSection">
-                <h4 id="transactionDetailsTitle">Transactions</h4>
-                <ul id="transactionDetailsList"></ul>
+            <div class="panel-divider" id="transactionDetailsSection">
+                <div class="section-header">
+                    <h3 id="transactionDetailsTitle">Transactions</h3>
+                </div>
+                <ul id="transactionDetailsList" style="list-style: none; padding: 0; margin: 0;"></ul>
             </div>
+
         </div>
     </section>
 
-</div><!-- end page-wrapper -->
+</div>
 
-<!-- Template Scripts FIRST -->
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/jquery.dropotron.min.js"></script>
 <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -68,9 +74,7 @@
 <script src="assets/js/main.js"></script>
 <script src="assets/js/nav.js"></script>
 
-<!-- Page Script LAST -->
 <script>
-    // ✅ Get accountId from URL instead of hardcoding
     const params = new URLSearchParams(window.location.search);
     const accountId = params.get('accountId') || subscriberID;
 
@@ -109,10 +113,7 @@
 
                 if (!data || data.length === 0) {
                     message.textContent = 'No transaction data available for this month.';
-                    if (donutChart) {
-                        donutChart.destroy();
-                        donutChart = null;
-                    }
+                    if (donutChart) { donutChart.destroy(); donutChart = null; }
                     transactionTitle.textContent = 'Transactions';
                     transactionList.innerHTML = '';
                     selectedCategory = null;
