@@ -66,9 +66,12 @@
                 <div id="ticket-list"><p class="empty-state">Loading tickets…</p></div>
 
                 <div class="review-panel" id="review-panel">
-                    <div class="review-panel-header">
-                        <h3>Ticket Details</h3>
-                        <span class="form-id-badge" id="panel-id-badge"></span>
+                    <div class="review-panel-header" style="justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <h3>Ticket Details</h3>
+                            <span class="form-id-badge" id="panel-id-badge"></span>
+                        </div>
+                        <button type="button" onclick="closePanel()" style="background: none; border: 1px solid #ddd; border-radius: 5px; padding: 4px 12px; cursor: pointer; font-size: 0.85rem; color: #666; transition: border-color 0.15s, color 0.15s;" onmouseover="this.style.borderColor='#75975e';this.style.color='#75975e'" onmouseout="this.style.borderColor='#ddd';this.style.color='#666'">Close</button>
                     </div>
                     <form id="review-form">
                         <input type="hidden" name="formID">
@@ -117,7 +120,7 @@
                                 <input type="text" name="Comments" placeholder="Enter any comments…">
                             </div>
                         </div>
-                        <button type="submit" class="review-submit-btn">Submit Review</button>
+                        <button type="submit" class="action-btn">Submit Review</button>
                     </form>
                 </div>
             </div>
@@ -241,6 +244,11 @@
 
             reviewPanel.classList.add('visible');
             reviewPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closePanel() {
+            reviewPanel.classList.remove('visible');
+            document.querySelectorAll('.ticket-card').forEach(c => c.classList.remove('active'));
         }
 
         reviewForm.addEventListener('submit', async (e) => {
