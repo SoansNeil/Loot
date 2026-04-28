@@ -592,8 +592,12 @@ app.post('/contribute-to-goal', (req, res) => {
       if (!accountResult || accountResult.length === 0) return res.json({ success: false, message: 'Account not found' });
       if (accountResult[0].currentBalance < amount) return res.json({ success: false, message: 'Insufficient balance' });
 
-      const updateGoalSql = 'UPDATE Family_Goal SET CurrAmt = CurrAmt + ? WHERE GoalID = ?';
-      db.query(updateGoalSql, [amount, goalId], (err, updateResult) => {
+      const updateGoalSql = `
+        UPDATE Family_Goal
+        SET CurrAmt = CurrAmt + ?,
+            Status  = CASE WHEN CurrAmt + ? >= Goal THEN 'Completed' ELSE Status END
+        WHERE GoalID = ?`;
+      db.query(updateGoalSql, [amount, amount, goalId], (err, updateResult) => {
         if (err) return res.json({ success: false, message: 'Update failed: ' + err.message });
         if (updateResult.affectedRows === 0) return res.json({ success: false, message: 'Goal not updated' });
 

@@ -246,8 +246,8 @@
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span style="color: #666; font-size: 0.85rem;">${isComplete ? 'Goal Completed!' : `$${remaining.toFixed(2)} remaining`}</span>
-                        <span style="color: #4a6741; font-size: 0.85rem; font-weight: 600;">${isComplete ? 'Completed' : 'In Progress'}</span>
+                        <span style="color: #666; font-size: 0.85rem;">${isComplete ? '🎉 Goal Completed!' : `$${remaining.toFixed(2)} remaining`}</span>
+                        <span style="color: #4a6741; font-size: 0.85rem; font-weight: 600;">Status: ${isComplete ? 'Completed' : 'In Progress'}</span>
                     </div>
                     <div style="margin-top: 1rem; text-align: right;">
                         <button onclick="showContributeOptions('${goal.GoalID}', '${escapeHtml(goal.GName)}', ${goalAmount}, ${currentAmount}, this)"
