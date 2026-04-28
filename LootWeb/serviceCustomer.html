@@ -173,7 +173,9 @@
             const text = await res.text();
             alert(text);
             if (res.ok) {
+                const savedEmpID = document.getElementById('employeeID').value;
                 e.target.reset();
+                document.getElementById('employeeID').value = savedEmpID;
                 document.getElementById('display-customerName').textContent  = '—';
                 document.getElementById('display-customerEmail').textContent = '—';
                 customerResolved = false;
