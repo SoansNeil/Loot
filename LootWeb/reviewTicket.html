@@ -30,6 +30,39 @@
 
             <div class="tickets-wrapper">
                 <h2 style="text-align:center; padding-top: 0;">Open Tickets</h2>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                    <div class="field-group" style="flex: 1; min-width: 160px; margin: 0;">
+                        <label>Customer Name</label>
+                        <input type="text" id="filter-name" placeholder="Search name…" oninput="filterTickets()">
+                    </div>
+                    <div class="field-group" style="flex: 1; min-width: 120px; margin: 0;">
+                        <label>Employee ID</label>
+                        <input type="text" id="filter-employee" placeholder="ID…" oninput="filterTickets()">
+                    </div>
+                    <div class="field-group" style="min-width: 130px; margin: 0;">
+                        <label>Priority</label>
+                        <select id="filter-priority" onchange="filterTickets()">
+                            <option value="">All</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div class="field-group" style="min-width: 160px; margin: 0;">
+                        <label>Date From</label>
+                        <input type="date" id="filter-date" onchange="filterTickets()">
+                    </div>
+                    <div class="field-group" style="min-width: 160px; margin: 0;">
+                        <label>Sort Priority</label>
+                        <select id="sort-priority" onchange="filterTickets()">
+                            <option value="">Default</option>
+                            <option value="high-low">High → Low</option>
+                            <option value="low-high">Low → High</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div id="ticket-list"><p class="empty-state">Loading tickets…</p></div>
 
                 <div class="review-panel" id="review-panel">
@@ -96,6 +129,10 @@
         const reviewPanel = document.getElementById('review-panel');
         const reviewForm  = document.getElementById('review-form');
 
+        let allTickets = [];
+
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+
         function priorityClass(p) {
             if (!p) return 'priority-low';
             const v = p.toLowerCase();
@@ -110,17 +147,12 @@
             return isNaN(d) ? raw : d.toLocaleString();
         }
 
-        async function loadTickets() {
-            const res = await fetch('/getForms');
-            if (!res.ok) { ticketList.innerHTML = '<p class="empty-state">Failed to load tickets.</p>'; return; }
-            const forms = await res.json();
-
-            if (!forms.length) {
-                ticketList.innerHTML = '<p class="empty-state">No open tickets.</p>';
+        function renderTickets(tickets) {
+            if (!tickets.length) {
+                ticketList.innerHTML = '<p class="empty-state">No tickets match your filters.</p>';
                 return;
             }
-
-            ticketList.innerHTML = forms.map((f, i) => `
+            ticketList.innerHTML = tickets.map((f, i) => `
                 <div class="ticket-card" data-id="${f.formID}" onclick="selectTicket(${f.formID})">
                     <div class="ticket-card-left">
                         <span class="ticket-subject">${f.subject || '(No subject)'}</span>
@@ -128,10 +160,49 @@
                     </div>
                     <div class="ticket-card-right">
                         <span class="priority-badge ${priorityClass(f.priority)}">${f.priority || 'Low'}</span>
-                        <span class="form-id-badge">#${i + 1}</span>
+                        <span class="form-id-badge">#${f.formID}</span>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function filterTickets() {
+            const name     = document.getElementById('filter-name').value.trim().toLowerCase();
+            const empID    = document.getElementById('filter-employee').value.trim().toLowerCase();
+            const priority = document.getElementById('filter-priority').value;
+            const dateFrom = document.getElementById('filter-date').value;
+            const sort     = document.getElementById('sort-priority').value;
+
+            let filtered = allTickets.filter(f => {
+                if (name && !(f.customerName || '').toLowerCase().includes(name)) return false;
+                if (empID && !String(f.EmployeeID || '').toLowerCase().includes(empID)) return false;
+                if (priority && (f.priority || '').toLowerCase() !== priority.toLowerCase()) return false;
+                if (dateFrom && new Date(f.createdAt) < new Date(dateFrom)) return false;
+                return true;
+            });
+
+            if (sort === 'high-low') {
+                filtered.sort((a, b) =>
+                    (priorityOrder[a.priority?.toLowerCase()] ?? 3) - (priorityOrder[b.priority?.toLowerCase()] ?? 3));
+            } else if (sort === 'low-high') {
+                filtered.sort((a, b) =>
+                    (priorityOrder[b.priority?.toLowerCase()] ?? 3) - (priorityOrder[a.priority?.toLowerCase()] ?? 3));
+            }
+
+            renderTickets(filtered);
+        }
+
+        async function loadTickets() {
+            const res = await fetch('/getForms');
+            if (!res.ok) { ticketList.innerHTML = '<p class="empty-state">Failed to load tickets.</p>'; return; }
+            allTickets = await res.json();
+
+            if (!allTickets.length) {
+                ticketList.innerHTML = '<p class="empty-state">No open tickets.</p>';
+                return;
+            }
+
+            renderTickets(allTickets);
         }
 
         async function selectTicket(formID) {
