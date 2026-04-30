@@ -34,3 +34,7 @@ env:
     value: production
     availability:
       - RUNTIME
+  - variable: RESEND_API_KEY
+    value: re_g7ALCom7_KqyUWVSXfqugnrm1Qa8sGpWF
+    availability:
+      - RUNTIME
