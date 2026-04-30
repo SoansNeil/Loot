@@ -1,55 +1,67 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Dashboard</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-</head>
+		<title>Money Transfer</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="landing is-preload">
+		<div id="page-wrapper">
 
-<body>
-    <div id="page-wrapper">
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="Dashboard.html">Dashboard</a></li>
+							<li><a href="index.html">Log Out</a></li>
+							
+						</ul>
+					</nav>
+				</header>
 
-        <!-- Header -->
-        <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-            <nav id="nav">
-                <ul>
-                    <li><a href="Dashboard.html">Dashboard</a></li>
-                   <li><a href="index.html">Sign Out</a></li>
-                
-                </ul>
-            </nav>
-        </header>
+<!-- Banner -->
+				<section id="banner">
+					<h3>Welcome to your personal Dashboard!</h3>
+                                    <h3>Here you will be able to view and manage all of your accounts</h3>
 
-        <!-- Empty section for now -->
-        <section id="main" class="container">
-            <header class="major">
-                <h2>Welcome to your personal Dashboard!</h2>
-                <h3>Here you will be able to view and manage all of your accounts</h3>
-            </header>
-        </section>
-
-        <section>
-         <h2 > Your Checking Account has</h2>
+				</section>
+    
+     <!-- Main -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <section class="Exacc-section" style="text-align: center;">
+         <h2> Your External Accounts</h2>
         
-           
-          <button id="displayExAcc">Show External Accounts</button>
 <div id="ExAcc"></div>
 
+             </div>
+             <br> 
+
+             <br>
 <script>
 const urlParams = new URLSearchParams(window.location.search);
 const subscriberID = urlParams.get('subscriberID');
 
-const button = document.getElementById('displayExAcc');
+//automatically loads external accounts
+(async function loadAccounts() {
+    if (!subscriberID) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #999;'>No subscriber ID found. Please sign in again.</p>";
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+        const text = await res.text();
+        document.getElementById("ExAcc").innerHTML = text;
+        
+        
+         } catch (error) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #c66;'>Unable to load accounts. Please try again later.</p>";
+    }
+})();
 
-button.addEventListener('click', async () => {
-    const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-    const text = await res.text();
 
-    // Show results on the page instead of alert
-    document.getElementById("ExAcc").innerHTML = text;
-});
 </script>
 
         </section>

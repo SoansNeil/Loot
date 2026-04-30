@@ -253,7 +253,8 @@ app.post('/displayExAcc',(req,res)=>{
   const subscriberID=req.query.subscriberID;
 
   const sql='Select accountID, bank, accountType,currentBalance,currency, subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
- db.query(sql, [subscriberID], (err, result) => {
+ 
+  db.query(sql, [subscriberID], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('DB Error');
@@ -263,16 +264,18 @@ app.post('/displayExAcc',(req,res)=>{
       return res.send('No accounts found');
     }
    //html formatting for dashboard
-    let html = '<table border="1">';
+    let html = '<div style="font-family: Arial, sans-serif;">';
+    
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
     result.forEach(account => {
-      html += `<div style="border:1px solid #ccc; padding:10px; margin:10px; width:300px;">
+      html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <p><strong>AccountID:</strong> ${account.accountID}</p>
           <p><strong>Bank:</strong> ${account.bank}</p>
           <p><strong>Account Type:</strong> ${account.accountType}</p>
           <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
           <a href="Money-Transfer.html?accountID=${account.accountID}&currency=${account.currency}&balance=${account.currentBalance}&subscriberID=${subscriberID}">
-            <button>Click here to transfer money from this account</button>
-          </a>
+            <button style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">Click here to transfer money from this account</button>
+            </a>
         </div>
       `;
     
@@ -282,6 +285,51 @@ app.post('/displayExAcc',(req,res)=>{
     res.send(html); // send HTML snippet
   });
   });
+  //second step in transfer
+  app.post('/step2',(req,res)=>{
+ 
+  const subscriberID=req.query.subscriberID;
+  const excludeAccountID=req.query.excludeAccountID;
+
+  const sql='Select accountID, bank, accountType,currentBalance,currency, subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
+ 
+  db.query(sql, [subscriberID], (err, result) => {
+    if (err) {
+      console.error('Error connecting external account:', err);
+      res.status(500).send('DB Error');
+    }
+ 
+     if (!result.length) {
+      return res.send('No accounts found');
+    }
+
+    //only show the accounts you can transfer to 
+    const minusAccounts = result.filter(account => account.accountID != excludeAccountID);
+
+    if (!minusAccounts.length) {
+      return res.send('<p style="font-family: Arial, sans-serif; text-align: center; color: #666;">No other external accounts available to transfer to.</p>');
+    }
+   //html formatting for dashboard
+    let html = '<div style="font-family: Arial, sans-serif;">';
+    
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+    minusAccounts.forEach(account => {
+      html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <p><strong>AccountID:</strong> ${account.accountID}</p>
+          <p><strong>Bank:</strong> ${account.bank}</p>
+          <p><strong>Account Type:</strong> ${account.accountType}</p>
+          <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
+            <button style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">Step2</button>
+        </div>
+      `;
+    
+    });
+    html += '</table>';
+
+    res.send(html); // send HTML snippet
+  });
+  });
+
 
 //display family accounts on Fam dashboard 
 app.post('/displayFamAcc', (req, res) => {
@@ -308,7 +356,7 @@ app.post('/displayFamAcc', (req, res) => {
       }
 
       if (!familyResults.length) {
-        return res.send('No family members found');
+        return res.send('You are currently not apart of a family plan. Click here to join one.');
       }
    //html formatting for dashboard
      let html = '<div style="font-family: Arial, sans-serif;">';
@@ -331,7 +379,73 @@ res.send(html);
     });
   });
 });
+//assigns a family plan ID to the user 
+app.post('/joinFamilyPlan',(req,res)=>{
+  const subscriberID=req.body;
 
+  if (!subscriberID) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Missing subscriberID parameter' 
+    });
+  }
+  const checkUserSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+  db.query(checkUserSql, [subscriberID], (err, userResult) => {
+    if (err) {
+      console.error('Error checking user:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Database error occurred while checking user' 
+      });
+    }
+    const getMaxFamSql = `SELECT MAX(CAST(FamAccount AS UNSIGNED)) as maxFam 
+                         FROM subscriber_account 
+                         WHERE FamAccount IS NOT NULL 
+                         AND FamAccount != '0' 
+                         AND FamAccount != 'NULL'
+                         AND FamAccount != ''`;
+
+     db.query(getMaxFamSql, (err, maxResult) => {
+      if (err) {
+        console.error('Error getting max FamAccount:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error generating family account ID' 
+        });
+      }
+
+       let newFamAccount = 1;
+      if (maxResult[0].maxFam !== null && maxResult[0].maxFam !== undefined) {
+        newFamAccount = parseInt(maxResult[0].maxFam) + 1;
+      }
+     const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE subscriberID = ?';
+      db.query(updateSql, [newFamAccount.toString(), subscriberID], (err, updateResult) => {
+        if (err) {
+          console.error('Error updating family account:', err);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to update family account' 
+          });
+        }
+        
+        if (updateResult.affectedRows === 0) {
+          return res.status(404).json({ 
+            success: false, 
+            message: 'Could not update the user. Please try again.' 
+          });
+        }
+        
+        // Send success response
+        res.status(200).json({ 
+          success: true, 
+          message: 'Family plan created successfully',
+          famAccount: newFamAccount.toString(),
+          subscriberID: subscriberID
+        });
+      });
+    });
+  });
+})
 //check user in db
 app.get('/check-user', async (req, res) => {
     const { FName, LName, Username } = req.query;

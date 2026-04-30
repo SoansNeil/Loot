@@ -1,52 +1,36 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Transfer</title>
+    <title>Money Transfer-To account</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
 </head>
+<body class="landing is-preload">
+		<div id="page-wrapper">
 
-<body>
-    <div id="page-wrapper">
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="Dashboard.html">Dashboard</a></li>
+							<li><a href="index.html">Log Out</a></li>
+							
+						</ul>
+					</nav>
+				</header>
 
-        <!-- Header -->
-        <header id="header">
-            <h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-            <nav id="nav">
-                <ul>
-                    <li><a href="Dashboard.html">Dashboard</a></li>
-                    <li><a href="index.html">Sign Out</a></li>
-                </ul>
-            </nav>
-        </header>
-
-        <!-- Empty section for now -->
-        <section id="main" class="container">
-            <header class="major">
-                <h2>Welcome to your transfer feature!</h2>
-                <h3>Here you will be able to transfer money to and from accounts</h3>
-            </header>
+    
+        <section id="banner">
         </section>
 
-        <div id="accountInfo"></div>
-  
-        <section>
-        
-         <h3>Enter the accountID of the account you'd like to transfer to</h3>
-        <div class="Transfer-AccID">
-            <form id="CheckAccID" action="/CheckAccID" method="POST">
-                <input type="hidden" name="Balance" id="BalanceOG" value="">
-                <input type="hidden" name="AccountID" id="AccountID" value="">
-                <input type="hidden" name="subscriberID" id="subscriberID" value="">
-
-                <label>Choose which account you want to transfer to </label>
-              <input type="number" name="ToAccount" required>
-                <button type="submit">Next</button>
-                </form></div>
-                 <button id="displayExAcc">Show External Accounts</button>
-<div id="ExAcc"></div>
-
+         <!-- Main -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <section style="text-align: center;">
+         <h2> Choose an account to transfer to</h2>
+            <div id="ExAcc"></div>
+      
         </section>
          <script>
      const params = new URLSearchParams(window.location.search);
@@ -58,15 +42,25 @@
     document.getElementById('BalanceOG').value = balance;
     document.getElementById('subscriberID').value = subscriberID; 
 
-    const button = document.getElementById('displayExAcc');
+    (async function loadAccounts() {
+    if (!subscriberID) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #999;'>No subscriber ID found. Please sign in again.</p>";
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/step2?subscriberID=${subscriberID}&excludeAccountID=${accountID}`, { method: 'POST' });
+        const text = await res.text();
+        document.getElementById("ExAcc").innerHTML = text;
+        
+        
+         } catch (error) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #c66;'>Unable to load accounts. Please try again later.</p>";
+    }
+})();
 
-button.addEventListener('click', async () => {
-    const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-    const text = await res.text();
 
-    // Show results on the page instead of alert
-        document.getElementById("ExAcc").innerHTML = text;});
-   
+
   </script>
         
     </div>
