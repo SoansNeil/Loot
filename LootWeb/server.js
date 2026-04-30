@@ -2,7 +2,6 @@ require("dotenv").config();
 
 const express = require('express');
 const mysql = require('mysql2');
-const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
@@ -13,7 +12,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const app = express();
 const port = process.env.PORT||3000;
 
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
@@ -97,7 +95,7 @@ app.post('/login', (req, res) => {
       console.error('Login error:', err);
       return res.status(500).send('Database error');
     }
-    if (results.length === 0) return res.send('Invalid username or password');
+    if (results.length === 0) return res.status(401).send('Invalid username or password');
 
     const subscriberID = results[0].subscriberID;
     res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
@@ -221,19 +219,17 @@ app.post('/displayExAcc', (req, res) => {
   });
 
 //check user in db
-app.get('/check-user', async (req, res) => {
+app.get('/check-user', (req, res) => {
     const { FName, LName, Username } = req.query;
-    
-    try {
-        const result = await db.query(
-            'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?', 
-            [FName, LName, Username]
-        );
-        
-        res.json({ exists: result.length > 0 });
-    } catch (error) {
-        res.status(500).json({ exists: false, error: error.message });
-    }
+
+    db.query(
+        'SELECT SubscriberID FROM SUBSCRIBER_ACCOUNT WHERE FName = ? AND LName = ? AND Username = ?',
+        [FName, LName, Username],
+        (err, result) => {
+            if (err) return res.status(500).json({ exists: false });
+            res.json({ exists: result.length > 0 });
+        }
+    );
 });
 
 //add family member - checks ALL THREE fields match
@@ -282,7 +278,14 @@ app.post('/StoreAmount', (req, res) => {
 
 app.post('/StoreSchedule', (req, res) => {
   const amount = Number(req.body.amount);
-  const { fromAccount, toAccount, scheduleType, subscriberID } = req.body;
+  const fromAccount = parseInt(req.body.fromAccount, 10);
+  const toAccount   = parseInt(req.body.toAccount, 10);
+  const { scheduleType } = req.body;
+  const subscriberID = parseInt(req.body.subscriberID, 10);
+
+  if (!amount || isNaN(fromAccount) || isNaN(toAccount) || isNaN(subscriberID)) {
+    return res.status(400).send('Invalid transfer details');
+  }
   let transferDate = req.body.transferDate;
   const transferTime = req.body.transferTime;
 
@@ -328,7 +331,13 @@ app.post('/StoreSchedule', (req, res) => {
 
 app.post('/ConfirmTransfer', (req, res) => {
   const amount = Number(req.body.amount);
-  const { fromAccount, toAccount, subscriberID } = req.body;
+  const fromAccount  = parseInt(req.body.fromAccount, 10);
+  const toAccount    = parseInt(req.body.toAccount, 10);
+  const subscriberID = parseInt(req.body.subscriberID, 10);
+
+  if (!amount || isNaN(fromAccount) || isNaN(toAccount) || isNaN(subscriberID)) {
+    return res.status(400).send('Invalid transfer details');
+  }
 
   // Fixed: get connection from pool for transaction
   db.getConnection((err, connection) => {
@@ -469,7 +478,7 @@ schedule.scheduleJob('* * * * *', function () {
   });
 });
 
-app.get('/debug-transfers', (req, res) => {
+app.get('/debug-transfers', authenticateToken, (req, res) => {
   const sql = 'SELECT * FROM scheduled_transfers ORDER BY id DESC LIMIT 10';
   db.query(sql, (err, transfers) => {
     if (err) return res.send('Database error: ' + err);
@@ -599,33 +608,46 @@ app.get('/get-family-goals', (req, res) => {
 });
 
 app.post('/contribute-to-goal', (req, res) => {
-  const { goalId, subscriberID, accountID, amount } = req.body;
+  const { goalId, subscriberID, accountID } = req.body;
+  const amount = Number(req.body.amount);
 
-  const checkGoalSql = 'SELECT * FROM Family_Goal WHERE GoalID = ?';
-  db.query(checkGoalSql, [goalId], (err, goalResult) => {
-    if (err) return res.json({ success: false, message: 'Database error: ' + err.message });
-    if (!goalResult || goalResult.length === 0) return res.json({ success: false, message: 'Goal not found' });
+  if (!amount || amount <= 0) return res.json({ success: false, message: 'Invalid amount' });
 
-    const checkAccountSql = 'SELECT * FROM EXTERNAL_ACCOUNT WHERE accountID = ? AND subscriberID = ?';
-    db.query(checkAccountSql, [accountID, subscriberID], (err, accountResult) => {
-      if (err) return res.json({ success: false, message: 'Account error: ' + err.message });
-      if (!accountResult || accountResult.length === 0) return res.json({ success: false, message: 'Account not found' });
-      if (accountResult[0].currentBalance < amount) return res.json({ success: false, message: 'Insufficient balance' });
+  db.getConnection((err, connection) => {
+    if (err) return res.json({ success: false, message: 'Database connection error' });
 
-      const updateGoalSql = `
-        UPDATE Family_Goal
-        SET CurrAmt = CurrAmt + ?,
-            Status  = CASE WHEN CurrAmt + ? >= Goal THEN 'Completed' ELSE Status END
-        WHERE GoalID = ?`;
-      db.query(updateGoalSql, [amount, amount, goalId], (err, updateResult) => {
-        if (err) return res.json({ success: false, message: 'Update failed: ' + err.message });
-        if (updateResult.affectedRows === 0) return res.json({ success: false, message: 'Goal not updated' });
+    connection.beginTransaction(err => {
+      if (err) { connection.release(); return res.json({ success: false, message: 'Transaction error' }); }
 
-        const deductSql = 'UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance - ? WHERE accountID = ?';
-        db.query(deductSql, [amount, accountID], (err) => {
-          if (err) return res.json({ success: false, message: 'Failed to update account: ' + err.message });
+      const rollback = (msg) => connection.rollback(() => { connection.release(); res.json({ success: false, message: msg }); });
 
-          res.json({ success: true, message: 'Contribution successful!' });
+      connection.query('SELECT GoalID FROM Family_Goal WHERE GoalID = ? FOR UPDATE', [goalId], (err, goalResult) => {
+        if (err) return rollback('Database error');
+        if (!goalResult || goalResult.length === 0) return rollback('Goal not found');
+
+        connection.query('SELECT currentBalance FROM EXTERNAL_ACCOUNT WHERE accountID = ? AND subscriberID = ? FOR UPDATE', [accountID, subscriberID], (err, accountResult) => {
+          if (err) return rollback('Account error');
+          if (!accountResult || accountResult.length === 0) return rollback('Account not found');
+          if (accountResult[0].currentBalance < amount) return rollback('Insufficient balance');
+
+          const updateGoalSql = `
+            UPDATE Family_Goal
+            SET CurrAmt = CurrAmt + ?,
+                Status  = CASE WHEN CurrAmt + ? >= Goal THEN 'Completed' ELSE Status END
+            WHERE GoalID = ?`;
+          connection.query(updateGoalSql, [amount, amount, goalId], (err, updateResult) => {
+            if (err || updateResult.affectedRows === 0) return rollback('Failed to update goal');
+
+            connection.query('UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance - ? WHERE accountID = ?', [amount, accountID], (err) => {
+              if (err) return rollback('Failed to deduct from account');
+
+              connection.commit(err => {
+                if (err) return rollback('Commit failed');
+                connection.release();
+                res.json({ success: true, message: 'Contribution successful!' });
+              });
+            });
+          });
         });
       });
     });
@@ -679,7 +701,7 @@ app.post('/create-budget', (req, res) => {
   db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err) => {
     if (err) {
       console.error('Error making new budget:', err);
-      res.status(500).send('Error creating new budget');
+      return res.status(500).send('Error creating new budget');
     }
     res.json({ success: true, amount, ExpenseType, category, DateRecorded, subscriberId, accountId });
   });
@@ -768,70 +790,44 @@ app.post('/api/transactions/simulate', (req, res) => {
       db.query(insertSql, [accountID, amount, 'Demo Merchant', 'Simulated transaction', 'Personal', 'Debit', status], (err) => {
         if (err) return res.status(500).json({ error: 'Error simulating transaction' });
 
+        if (status === 'Pending') {
+          resend.emails.send({
+            from: "Loot <onboarding@resend.dev>",
+            to: "belensahagun@rocketmail.com",
+            subject: "⚠️ Transaction Alert from Loot",
+            html: `
+              <div style="text-align:center; font-family: Arial, sans-serif;">
+                <img
+                  src="https://github.com/belenciaga1738/belenciaga1738.github.io/blob/main/lootLogo.PNG?raw=true"
+                  style="width:120px; margin-bottom:15px;"
+                />
+                <h2 style="color:#75975e;">Loot Transaction Alert</h2>
+                <p>A transaction needs approval.</p>
+                <p><b>Amount:</b> $${amount}</p>
+                <p><b>Merchant:</b> Demo Merchant</p>
+                <p><b>Category:</b> Personal</p>
+                <p>Please log in to your dashboard to approve or decline it.</p>
+              </div>
+              <div style="text-align:center; margin-top:20px;">
+                <a href="https://loot-server--loot-4b9ac.us-central1.hosted.app/login.html"
+                  style="background-color:#75975e; color:white; padding:10px 20px; text-decoration:none; border-radius:5px; display:inline-block; font-weight:bold;">
+                  Log In to Loot
+                </a>
+              </div>
+            `
+          }).catch(err => {
+            console.error("Alert email failed:", err);
+          });
+        }
+
         res.json({
           success: true,
           message: status === 'Pending' ? 'Simulated transaction created and alert triggered' : 'Simulated transaction created below threshold',
           status
-        },
-        (err, result) => {
-          if (err) {
-            console.error('Error simulating transaction:', err);
-            return res.status(500).json({ error: 'Error simulating transaction' });
-          }
-
-          //for image source for logo in email, change to path in live server once moved from local host
-          if (status === 'Pending') {
-            resend.emails.send({
-              from: "Loot <onboarding@resend.dev>",
-              to: "belensahagun@rocketmail.com", // using email used to sign up with Resend since Resend’s testing mode only allows sending to the email address you signed up with until you verify a domain
-              subject: "⚠️ Transaction Alert from Loot",
-              html: `
-                <div style="text-align:center; font-family: Arial, sans-serif;">
-                  <img 
-                    src="https://github.com/belenciaga1738/belenciaga1738.github.io/blob/main/lootLogo.PNG?raw=true"
-                    style="width:120px; margin-bottom:15px;"
-                  />
-
-                  <h2 style="color:#75975e;">Loot Transaction Alert</h2>
-                  <p>A transaction needs approval.</p>
-                  <p><b>Amount:</b> $${amount}</p>
-                  <p><b>Merchant:</b> Demo Merchant</p>
-                  <p><b>Category:</b> Personal</p>
-                  <p>Please log in to your dashboard to approve or decline it.</p>
-                </div>
-
-                <div style="text-align:center; margin-top:20px;">
-                    <a href="https://loot-server--loot-4b9ac.us-central1.hosted.app/login.html"
-                      style="
-                        background-color:#75975e;
-                        color:white;
-                        padding:10px 20px;
-                        text-decoration:none;
-                        border-radius:5px;
-                        display:inline-block;
-                        font-weight:bold;
-                      ">
-                        Log In to Loot
-                    </a>
-                </div>
-              `
-            }).catch(err => {
-              console.error("Alert email failed:", err);
-            });
-          }
-
-          res.json({
-            success: true,
-            message:
-              status === 'Pending'
-                ? 'Simulated transaction created and alert triggered'
-                : 'Simulated transaction created below threshold',
-            status
-          });
         });
+      });
     });
   });
-});
 });
 
 // ── Forms ────────────────────────────────────────────────────
@@ -866,7 +862,7 @@ app.post('/retrieveForm', (req, res) => {
 app.post('/reviewForm', (req, res) => {
   const { formID, customerName, customerEmail, employeeID, subject, priority, description, Comments } = req.body;
 
-  const sql = 'INSERT INTO CLOSED_FORMS (formID, customerName, customerEmail, EmployeeID, subject, priority, description, commments) VALUES(?,?,?,?,?,?,?,?)';
+  const sql = 'INSERT INTO CLOSED_FORMS (formID, customerName, customerEmail, EmployeeID, subject, priority, description, comments) VALUES(?,?,?,?,?,?,?,?)';
   db.query(sql, [formID, customerName, customerEmail, employeeID, subject, priority, description, Comments], (err) => {
     if (err) return res.status(500).send('Error submitting review');
 
