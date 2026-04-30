@@ -273,9 +273,10 @@ html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; ga
           <p><strong>Bank:</strong> ${account.bank}</p>
           <p><strong>Account Type:</strong> ${account.accountType}</p>
           <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
-          <a href="Money-Transfer.html?accountID=${account.accountID}&currency=${account.currency}&balance=${account.currentBalance}&subscriberID=${subscriberID}">
-            <button style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">Click here to transfer money from this account</button>
-            </a>
+          <form action="/chooseToAcc" method="POST"> <input type="hidden" name="subscriberID" value="${subscriberID}">
+            <input type="hidden" name="fromAccountID" value="${account.accountID}">
+          <button type="submit"; style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">Click here to transfer money from this account</button>
+            </form>
         </div>
       `;
     
@@ -285,50 +286,52 @@ html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; ga
     res.send(html); // send HTML snippet
   });
   });
-  //second step in transfer
-  app.post('/step2',(req,res)=>{
- 
-  const subscriberID=req.query.subscriberID;
-  const excludeAccountID=req.query.excludeAccountID;
+  //second step in transfer, choose the two account
+  app.post('/chooseToAcc',(req,res)=>{
+   const { subscriberID, fromAccountID } = req.body;
 
-  const sql='Select accountID, bank, accountType,currentBalance,currency, subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
- 
-  db.query(sql, [subscriberID], (err, result) => {
+  const sql = `
+    SELECT accountID, bank, accountType, currentBalance, currency 
+    FROM EXTERNAL_ACCOUNT 
+    WHERE subscriberID = ? AND accountID != ?
+  `;
+
+  db.query(sql, [subscriberID, fromAccountID], (err, result) => {
     if (err) {
-      console.error('Error connecting external account:', err);
-      res.status(500).send('DB Error');
-    }
- 
-     if (!result.length) {
-      return res.send('No accounts found');
+      console.error(err);
+      return res.status(500).send('DB Error');
     }
 
-    //only show the accounts you can transfer to 
-    const minusAccounts = result.filter(account => account.accountID != excludeAccountID);
-
-    if (!minusAccounts.length) {
-      return res.send('<p style="font-family: Arial, sans-serif; text-align: center; color: #666;">No other external accounts available to transfer to.</p>');
+    if (!result.length) {
+      return res.send('<p>No other accounts available</p>');
     }
-   //html formatting for dashboard
-    let html = '<div style="font-family: Arial, sans-serif;">';
-    
-html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
-    minusAccounts.forEach(account => {
-      html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <p><strong>AccountID:</strong> ${account.accountID}</p>
-          <p><strong>Bank:</strong> ${account.bank}</p>
-          <p><strong>Account Type:</strong> ${account.accountType}</p>
-          <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
-            <button style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">Step2</button>
+
+    let html = '<h2>Select destination account</h2>';
+    html +='<div style="font-family: Arial, sans-serif;">';
+
+    html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+
+    result.forEach(acc => {
+      html += `
+        <div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <p><strong>AccountID:</strong> ${acc.accountID}</p>
+          <p><strong>Bank:</strong> ${acc.bank}</p>
+          <p><strong>Account Type:</strong> ${acc.accountType}</p>
+          <p><strong>Current Balance:</strong> ${acc.currency} ${acc.currentBalance}</p>
+
+
+          <button onclick="window.location.href='MT-SelectAmount.html?subscriberID=${subscriberID}'" style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">
+            Send to this account
+          </button>
         </div>
       `;
-    
     });
-    html += '</table>';
 
-    res.send(html); // send HTML snippet
+    html += '</div>';
+    res.send(html);
   });
-  });
+ });
+//Transfer Amount +now and later
 
 
 //display family accounts on Fam dashboard 
