@@ -58,7 +58,14 @@
                         </div>
                         <div class="field-group">
                             <label>Account Type</label>
-                            <input type="text" id="accountType" name="accountType" required>
+                            <div style="display: flex; gap: 1.5rem; margin-top: 0.3rem;">
+                                <label style="font-weight: normal; cursor: pointer;">
+                                    <input type="radio" name="accountType" value="Checking" required> Checking
+                                </label>
+                                <label style="font-weight: normal; cursor: pointer;">
+                                    <input type="radio" name="accountType" value="Credit Card"> Credit Card
+                                </label>
+                            </div>
                         </div>
                         <div class="field-group">
                             <label>Balance</label>
