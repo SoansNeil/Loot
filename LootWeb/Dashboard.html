@@ -10,7 +10,6 @@
 <body class="landing is-preload">
 <div id="page-wrapper">
 
-<<<<<<< HEAD
     <!-- Header -->
     <header id="header" class="alt">
         <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
@@ -26,19 +25,6 @@
             </ul>
         </nav>
     </header>
-=======
-			<!-- Header -->
-				<header id="header" class="alt">
-					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="employeeLogin.html">Employee Login</a></li>
-							<li><a href="index.html">Log Out</a></li>
-							
-						</ul>
-					</nav>
-				</header>
->>>>>>> 699621926c43d1f265c6932932a9f1d927cba30f
 
     <!-- Banner -->
     <section id="banner">
@@ -46,7 +32,6 @@
         <p>Everything you need to manage your finances, all in one place.</p>
     </section>
 
-<<<<<<< HEAD
     <!-- Main -->
     <section id="main" class="container">
         <section class="box special features">
@@ -65,197 +50,6 @@
                         <p>Track your spending and build a budget that works for you.</p>
                     </a>
                 </section>
-=======
-				</section>
-
-			<!-- Main -->
-				<section id="main" class="container">
-					<section class="box special features">
-						<div class="features-row">
-							<section><a herf="#" onclick="carrySub()">
-								<span class="icon major fa-clock accent2"></span>
-								<h3>Schedule transactions</h3>
-								<p>Connect your external accounts and schedule transactions between them.</p>
-							</button></section>
-							<section> <a href="#" onclick="Sub1()">
-								<span class="icon solid major fa-piggy-bank accent3"></span>
-								<h3>Budgeting</h3>
-								<p>Track your spending and build a budget that works for you.</p>
-							</a></section>
-						</div>
-						<div class="features-row">
-							<section><a href="#" onclick="Sub()">
-								<span class="icon solid major fa-chart-bar accent4"></span>
-
-								<h3>Analyze</h3>
-								<p>View end of month expense statements that summarize balance changes.</p>
-							</a></section>
-							<section><a href="#" onclick="Sub2()">
-								<span class="icon solid major fa-users accent5"></span>
-
-								<h3>Family</h3>
-								<p>Plan and view your family goals. </p>
-							</a></section>
-						</div>
-					</section>
-
-
-			<!-- Footer -->
-				<footer id="footer">
-					<ul class="icons">
-						<li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-						<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
-						<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-						<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
-						<li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
-						<li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
-					</ul>
-					<ul class="copyright">
-						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
-				</footer>
-
-		</div>
-
-		<button id="alertBtn" type="button">🔔 <span id="alertDot" class="hidden"></span></button>
-
-			<div id="alertPopup" class="hidden">
-  				<h3>Transaction Alerts</h3>
-
-  			<div id="setupSection">
-    			<p>Enable alerts for large transactions</p>
-    				<input type="number" id="thresholdInput" placeholder="Enter amount (e.g. 500)" />
-    			<button class="save-btn" onclick="saveThreshold()">Save</button>
-  			</div>
-
-  			<hr>
-
-  			<div id="alertsList">
-    			<p>No alerts yet</p>
-  			</div>
-
-  				<hr>
-
-  				<button class="simulate-btn" onclick="simulateTransaction()">Simulate $750 Transaction</button>
-  				<button class="close-btn" onclick="closePopup()">Close</button>
-			</div>
-
-			<div id="actionMessage" class="hidden"></div>
-
-		<script>
-		const urlParams = new URLSearchParams(window.location.search);
-		const subscriberID = urlParams.get('subscriberID');
-		//transfer html w/subscriber
-           const carrySub=()=> window.location.assign(`MT-dashboard.html?subscriberID=${subscriberID}`);
-
-			//Budgeting html w/subscriber 
-		   const Sub1=()=> window.location.assign(`budget.html?subscriberID=${subscriberID}`);
-
-			//Analyze html with subscriber 
-		   const Sub=()=> window.location.assign(`sum_dashboard.html?subscriberID=${subscriberID}`);
-
-		   //Family html with subscriber 
-		   const Sub2=()=> window.location.assign(`Fam-dash.html?subscriberID=${subscriberID}`);
-
-		   //for trans alert feature
-		   window.addEventListener("DOMContentLoaded", () => {
-    		const alertBtn = document.getElementById("alertBtn");
-    		const popup = document.getElementById("alertPopup");
-
-    		alertBtn.addEventListener("click", () => {
-      			popup.classList.toggle("hidden");
-      			if (!popup.classList.contains("hidden")) {
-        		loadAlerts();
-      			}
-    		});
-
-				if (subscriberID) {
-    				loadAlerts();
-  					}
-  			});
-			//function to show success/error messages after accepting/declining transactions
-			function showActionMessage(message, type = "success") {
-  			const box = document.getElementById("actionMessage");
-
-  				box.textContent = message;
-
-  				box.classList.remove("hidden", "success", "error");
-  				box.classList.add("show");
-
-  					if (type === "success") {
-    					box.classList.add("success");
-  					} else {
-    					box.classList.add("error");
-  					}
-
-  				setTimeout(() => {
-    				box.classList.remove("show", "success", "error");
-    				box.classList.add("hidden");
-  				}, 2500);
-			}
-			//function to close the alerts popup
-  			function closePopup() {
-    			document.getElementById("alertPopup").classList.add("hidden");
-  			}
-			//function to save alert threshold settings
-  			function saveThreshold() {
-    		const threshold = document.getElementById("thresholdInput").value;
-
-    			fetch('/api/alerts/save', {
-     	 			method: 'POST',
-     	 			headers: { 'Content-Type': 'application/json' },
-     				body: JSON.stringify({ subscriberID, threshold })
-    			})
-    			.then(res => {
-      				if (!res.ok) throw new Error("Failed to save settings");
-     					 return res.json();
-    			})
-
-    			.then(() => {
-     			 	alert("Alerts enabled!");
-    			})
-
-    			.catch(err => {
-      				console.error(err);
-      					alert("Could not save alert settings.");
-    			});
-  			}
-			//function to update the alert dot notification
-  			function updateAlertDot(alerts) {
-  			const alertDot = document.getElementById("alertDot");
-
-  				if (alerts.length > 0) {
-					alertDot.classList.remove("hidden");
-  				} else {
-    				alertDot.classList.add("hidden");
-  				}
-			}
-			//function to load pending alerts for the user
-  			function loadAlerts() {
-    			fetch(`/api/alerts/${subscriberID}`)
-      			.then(res => {
-        			if (!res.ok) throw new Error("Failed to load alerts");
-        				return res.json();
-      			})
-
-      			.then(data => {
-        			const container = document.getElementById("alertsList");
-        			container.innerHTML = "";
-
-				updateAlertDot(data);
-
-        		if (!data.length) {
-          			container.innerHTML = "<p>No alerts</p>";
-          			return;
-        		}
-		// For each alert, create a div with accept/decline buttons
-        data.forEach(tx => {
-          container.innerHTML += `
-            <div style="border-bottom:1px solid #ccc; margin-bottom:10px; padding-bottom:10px;">
-              <p><strong>$${tx.Amount}</strong> at ${tx.MerchantName}</p>
-              <button class="accept-btn" onclick="acceptTransaction(${tx.TransactionID})">Accept</button>
-			<button class="decline-btn" onclick="declineTransaction(${tx.TransactionID})">Decline</button>
->>>>>>> 699621926c43d1f265c6932932a9f1d927cba30f
             </div>
             <div class="features-row">
                 <section>
