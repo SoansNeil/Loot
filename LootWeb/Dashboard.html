@@ -11,18 +11,24 @@
 <div id="page-wrapper">
 
     <!-- Header -->
-    <header id="header">
-        <h1 style="font-size: xx-large;"><a style="display:flex; align-items:center; gap:10px; color: #75975e;" href="index.html">Loot <img
-            src="images/lootLogo.PNG"
-            style="height:55px; width:auto;"
-        /></a></h1>
-        <nav id="nav">
-            <ul>
-                <li><a href="employeeLogin.html">Employee Login</a></li>
-                <li><a href="index.html">Log Out</a></li>
-            </ul>
-        </nav>
-    </header>
+	<header id="header">
+					<h1 style ="font-size: xx-large;"><a style= "display:flex; align-items:center; gap:10px; color: #75975e;"href="index.html">Loot <img
+    					src="images/lootLogo.PNG"
+    					style="height:55px; width:auto;"
+  						/></a>
+					</h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
+                    <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
+                    <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
+                    <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
+                    <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
+                    <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+                    <li><a href="index.html">Log Out</a></li>
+                </ul>
+            </nav>
+        </header>
 
     <!-- Banner -->
     <section id="banner">
@@ -57,6 +63,18 @@
                     <span class="icon solid major fa-users accent5"></span>
                     <h3>Family</h3>
                     <p>Plan and view your family goals.</p>
+                </a></section>
+            </div>
+            <div class="features-row">
+                <section><a href="#" onclick="goToExAccounts()">
+                    <span class="icon solid major fa-university accent2"></span>
+                    <h3>External Accounts</h3>
+                    <p>Link and manage bank accounts from any institution in one place.</p>
+                </a></section>
+                <section><a href="#" onclick="document.getElementById('alertBtn').click()">
+                    <span class="icon solid major fa-bell accent3"></span>
+                    <h3>Transaction Alerts</h3>
+                    <p>Set spending thresholds and review flagged transactions that need your approval.</p>
                 </a></section>
             </div>
         </section>
