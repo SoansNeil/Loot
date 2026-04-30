@@ -19,8 +19,13 @@
 					</h1>
             <nav id="nav">
                 <ul>
-                    <li><a href="Dashboard.html">Dashboard</a></li>
-                    <li><a href="index.html">Sign Out</a></li>
+                    <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
+                    <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
+                    <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
+                    <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
+                    <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
+                    <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+                    <li><a href="index.html">Log Out</a></li>
                 </ul>
             </nav>
         </header>
@@ -83,5 +88,6 @@ button.addEventListener('click', async () => {
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/nav.js"></script>
 </body>
 </html>
