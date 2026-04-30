@@ -37,8 +37,9 @@
 
                 <section class="family-section" style="text-align: center;">
                     <h2> Users on your family plan</h2>
-                    <button id="displayFam"> Click for Family Accounts </button>
-                    <div id="FamAcc"></div>
+                    <div id="FamAcc">
+                        
+                    </div>
 					
 					 <div style="margin-top: 1.8rem;">
            			 <a href="#" id="toggleFamilyFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">Click here to add a family member to your plan</a>
@@ -133,14 +134,27 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const subscriberID = urlParams.get('subscriberID');
 
-			const button = document.getElementById('displayFam');
+			
 
-			button.addEventListener('click', async () => {
-				const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-				const text = await res.text();
+			async function loadFamilyAccounts() {
+                        const subscriberID = new URLSearchParams(window.location.search).get('subscriberID');
+                        
+                        if (!subscriberID) {
+                            document.getElementById("FamAcc").innerHTML = '<div style="color: #999; text-align: center;">No subscriber ID found. Please log in again.</div>';
+                            return;
+                        }
+                        
+                        try {
+                            const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+                            const text = await res.text();
+                            document.getElementById("FamAcc").innerHTML = text;
+                        } catch (error) {
+                            document.getElementById("FamAcc").innerHTML = '<div style="color: red; text-align: center;">Error loading family accounts.</div>';
+                            console.error('Error:', error);
+                        }
+                    }
 
-				document.getElementById("FamAcc").innerHTML = text;
-			});
+                    loadFamilyAccounts();
 
 			const toggleLink = document.getElementById('toggleFamilyFormLink');
 			const dropdownForm = document.getElementById('dropdownFamilyForm');
@@ -198,10 +212,7 @@
                 dropdownForm.style.display = 'none';
                 
                 // Refresh the family accounts display
-                const displayButton = document.getElementById('displayFam');
-                if (displayButton) {
-                    displayButton.click();
-                }
+                loadFamilyAccounts();
             } else {
                 alert(result.message || 'Failed to add family member.');
             }

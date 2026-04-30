@@ -81,7 +81,7 @@ app.get('/userDashboard', authenticateToken, (req, res) => {
   if (req.user.role !== 'user') {
     return res.status(403).send('Access denied.');
   }
-  res.sendFile(__dirname + '/userDashboard.html'); // Create this file if needed
+  res.sendFile(__dirname + '/Dashboard.html'); // Create this file if needed
 });
 //create new employees
 app.post('/employeeCreation', (req,res) =>{
@@ -150,7 +150,7 @@ const hashPassword = crypto
       return res.send('Invalid username or password');
     }
     const subscriberID = results[0].subscriberID;
-    res.redirect(`/MT-Dashboard.html?subscriberID=${subscriberID}`);
+    res.redirect(`/Dashboard.html?subscriberID=${subscriberID}`);
   });
 });
 
