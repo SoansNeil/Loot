@@ -5,7 +5,8 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const app = express();
 const port = 3000;
@@ -828,6 +829,47 @@ app.post('/api/transactions/simulate', (req, res) => {
             return res.status(500).json({ error: 'Error simulating transaction' });
           }
 
+          //for image source for logo in email, change to path in live server once moved from local host
+          if (status === 'Pending') {
+            resend.emails.send({
+              from: "Loot <onboarding@resend.dev>",
+              to: "belensahagun@rocketmail.com", // using email used to sign up with Resend since Resend’s testing mode only allows sending to the email address you signed up with until you verify a domain
+              subject: "⚠️ Transaction Alert from Loot",
+              html: `
+                <div style="text-align:center; font-family: Arial, sans-serif;">
+                  <img 
+                    src="https://github.com/belenciaga1738/belenciaga1738.github.io/blob/main/lootLogo.PNG?raw=true"
+                    style="width:120px; margin-bottom:15px;"
+                  />
+
+                  <h2 style="color:#75975e;">Loot Transaction Alert</h2>
+                  <p>A transaction needs approval.</p>
+                  <p><b>Amount:</b> $${amount}</p>
+                  <p><b>Merchant:</b> Demo Merchant</p>
+                  <p><b>Category:</b> Personal</p>
+                  <p>Please log in to your dashboard to approve or decline it.</p>
+                </div>
+
+                <div style="text-align:center; margin-top:20px;">
+                    <a href="https://loot-server--loot-4b9ac.us-central1.hosted.app/login.html"
+                      style="
+                        background-color:#75975e;
+                        color:white;
+                        padding:10px 20px;
+                        text-decoration:none;
+                        border-radius:5px;
+                        display:inline-block;
+                        font-weight:bold;
+                      ">
+                        Log In to Loot
+                    </a>
+                </div>
+              `
+            }).catch(err => {
+              console.error("Alert email failed:", err);
+            });
+          }
+
           res.json({
             success: true,
             message:
@@ -841,6 +883,22 @@ app.post('/api/transactions/simulate', (req, res) => {
     });
   });
 });
+
+// app.get("/test-email", async (req, res) => {
+//   try {
+//     const data = await resend.emails.send({
+//       from: "Loot <onboarding@resend.dev>",
+//       to: "belensahagun@rocketmail.com",
+//       subject: "Test Email",
+//       html: "<h1>It works!</h1>"
+//     });
+
+//     res.json(data);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Error sending email");
+//   }
+// });
 
 //Server checks
 app.use((req, res) => {
