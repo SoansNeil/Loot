@@ -26,6 +26,6 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.18.0",
     "node-schedule": "^2.1.1",
-    "resend": "^6.12.2"
+    "resend": "^6.1.3"
   }
 }
