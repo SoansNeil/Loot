@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const express = require('express');
 const mysql = require('mysql2');
@@ -9,7 +9,7 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT||3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -19,11 +19,12 @@ app.use(cookieParser());
 
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD, // use your MySQL password if needed
-  database: process.env.DB_DATABASE
+ host: process.env.DB_HOST,
+user: process.env.DB_USER,
+password: process.env.DB_PASSWORD,
+database: process.env.DB_NAME,
 });
+
 
 db.connect((err) => {
   if (err) {
@@ -81,7 +82,7 @@ app.get('/userDashboard', authenticateToken, (req, res) => {
   if (req.user.role !== 'user') {
     return res.status(403).send('Access denied.');
   }
-  res.sendFile(__dirname + '/userDashboard.html'); // Create this file if needed
+  res.sendFile(__dirname + '/Dashboard.html'); // Create this file if needed
 });
 //create new employees
 app.post('/employeeCreation', (req,res) =>{
@@ -154,28 +155,39 @@ const hashPassword = crypto
   });
 });
 
-
-
 //Route for adding external accounts to database
 app.post('/externalAccount', (req, res) => {
-  const bankName = req.body.bank;
+  const bankName = req.body.bankName;
   const accountType = req.body.accountType;
+  const currentBalance = req.body.currentBalance;
+  const currency = req.body.currency;
+  const syncStatus = req.body.syncStatus;
+  const subscriberId = req.body.subscriberId;
+
   //const hashAccountNumber = crypto
   //.createHash('sha256')
   //.update(req.body.accountNumber)
   //.digest('hex');
   //const routingNumber = req.body.routingNumber;
   //const accountNickname = req.body.accountNickname;
-const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType) VALUES (?, ?)'; // Add more values as DB expands
-  db.query(sql, [bankName, accountType], (err, result) => {
+const sql = 'INSERT INTO EXTERNAL_ACCOUNT (Bank, AccountType, currentBalance, currency, syncStatus, subscriberId) VALUES (?, ?, ?, ?, ?, ?)'; // Add more values as DB expands
+  db.query(sql, [bankName, accountType, currentBalance, currency, syncStatus,subscriberId], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('Error connecting external account');
+      res.json({
+      success: true,
+      bankName,
+      accountType,
+      currentBalance,
+      currency,
+      syncStatus,
+      subscriberId
+    });
     }
     res.send('External account connected successfully!');
   });
 });
-
 
 //route to get category totals for specific month and year for given account id to fill category list and donut chart on frontend
 app.get('/api/category-totals/:accountId', (req, res) => { //define route with accountId as parameter and month and year as query parameters to get category totals for specific month and year
@@ -233,6 +245,8 @@ app.get('/api/category-transactions/:accountId/:category', (req, res) => { //def
     res.json(results); //if no error, send results as json back to frontend
   });
 }); //end of route to get transactions data per category for transaction list
+//schedule button from dashboard redirect 
+
 
 //display information from external account for dashboard html
 app.post('/displayExAcc',(req,res)=>{
@@ -243,7 +257,7 @@ app.post('/displayExAcc',(req,res)=>{
  db.query(sql, [subscriberID], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
-      res.status(500).send('BD Error');
+      res.status(500).send('DB Error');
     }
  
      if (!result.length) {
@@ -270,6 +284,326 @@ app.post('/displayExAcc',(req,res)=>{
   });
   });
 
+//display family accounts on Fam dashboard 
+app.post('/displayFamAcc', (req, res) => {
+  const subscriberID = req.query.subscriberID;
+
+  const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+  db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+    if (err) {
+      console.error('Error fetching user FamAccount:', err);
+      return res.status(500).send('Database Error');
+    }
+
+    if (!userResult.length) {
+      return res.send('No user found');
+    }
+
+    const famAccount = userResult[0].FamAccount;
+
+    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM subscriber_account WHERE FamAccount = ?';
+    db.query(getFamilyMemberSql, [famAccount], (err, familyResults) => {
+      if (err) {
+        console.error('Error fetching family accounts:', err);
+        return res.status(500).send('DB Error');
+      }
+
+      if (!familyResults.length) {
+        return res.send('No family members found');
+      }
+   //html formatting for dashboard
+     let html = '<div style="font-family: Arial, sans-serif;">';
+     html='<h2> Family Dashboard</h2>'
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+
+familyResults.forEach(member => {
+    html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <p><strong>First Name:</strong> ${member.FName}</p>
+        <p><strong>Last Name:</strong> ${member.LName}</p>
+        <p><strong>Username:</strong> ${member.Username}</p>
+        <p><strong>Family Account:</strong> ${member.FamAccount}</p>
+    </div>`;
+});
+
+html += '</div>';
+html += '</div>';
+
+res.send(html);
+    });
+  });
+});
+
+//check user in db
+app.get('/check-user', async (req, res) => {
+    const { FName, LName, Username } = req.query;
+    
+    try {
+        const result = await db.query(
+            'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?', 
+            [FName, LName, Username]
+        );
+        
+        res.json({ exists: result.length > 0 });
+    } catch (error) {
+        res.status(500).json({ exists: false, error: error.message });
+    }
+});
+
+//add family member - checks ALL THREE fields match
+app.post('/add-family-member', async (req, res) => {
+    const { FName, LName, Username } = req.body;
+    const subscriberID = req.query.subscriberID;
+    
+    try {
+       
+        const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+        
+        db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+            if (err) {
+                console.error('Error fetching user FamAccount:', err);
+                return res.status(500).json({ success: false, message: 'Database Error' });
+            }
+            
+            if (!userResult.length) {
+                return res.status(400).json({ success: false, message: 'No user found' });
+            }
+            
+            const familyAccountId = userResult[0].FamAccount;
+            
+            // CHECK that ALL THREE fields match (FName, LName, AND Username)
+            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
+            db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
+                if (err) {
+                    console.error('Error checking user:', err);
+                    return res.status(500).json({ success: false, message: 'Database Error' });
+                }
+                
+                if (!existing.length) {
+                    return res.json({ 
+                        success: false, 
+                        message: 'User not found. First name, last name, and username do not match an existing account.' 
+                    });
+                }
+                
+                
+                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
+                db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
+                    if (err) {
+                        console.error('Error updating family member:', err);
+                        return res.status(500).json({ success: false, message: 'Database Error' });
+                    }
+                    
+                    res.json({ 
+                        success: true, 
+                        message: `${FName} ${LName} (${Username}) has been linked to your family plan!`,
+                        famAccount: familyAccountId 
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Error adding family member:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
+// Add family goal to DB
+app.post('/add-goal', (req, res) => {
+  const goalName = req.body.GName;
+  const goalDescription = req.body.Description;
+  const goalAmount = req.body.Goal;
+  const currentAmount = 0;
+  const status = "in progress"; // Automatically set status
+  
+  const subscriberId = req.body.subscriberID;
+  
+  
+  if (!goalName || !goalAmount) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Goal name and amount are required' 
+    });
+  }
+  
+  // get the FamAccount based on SubscriberID
+  const getFamAccountSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+  
+  db.query(getFamAccountSql, [subscriberId], (err, results) => {
+    if (err) {
+      console.error('Error fetching FamAccount:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving user information' 
+      });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    const famAccount = results[0].FamAccount;
+    
+
+    const insertGoalSql = 'INSERT INTO lootdb.Family_Goal (GName, Description, Goal, CurrAmt, FamAccount, Status) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    db.query(insertGoalSql, [goalName, goalDescription, goalAmount, currentAmount, famAccount, status], (err, result) => {
+      if (err) {
+        console.error('Error inserting goal:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error adding goal to plan: ' + err.message 
+        });
+      }
+     
+      res.json({ 
+        success: true, 
+        message: 'Goal successfully added to your plan!',
+        goalId: result.insertId,
+        status: status
+      });
+    });
+  });
+});
+
+
+//get family goals from DB
+app.get('/get-family-goals', (req, res) => {
+    const subscriberID = req.query.subscriberID; 
+    
+    // get famAccount from subscriberID
+    const getFamSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+    
+    db.query(getFamSql, [subscriberID], (err, results) => {
+        if (err) {
+            console.error('Error fetching FamAccount:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        const famAccount = results[0].FamAccount;
+        
+        //get goals for this family account
+        const goalsQuery = 'SELECT * FROM lootdb.Family_Goal WHERE FamAccount = ? ORDER BY GoalID DESC';
+        
+        db.query(goalsQuery, [famAccount], (err, goalResults) => {
+            if (err) {
+                console.error('Error fetching goals:', err);
+                return res.status(500).json({ success: false, message: 'Error fetching goals' });
+            }
+            
+            res.json({ success: true, goals: goalResults });
+        });
+    });
+});
+
+app.get('/getExternalAccountsJSON', (req, res) => {
+    const subscriberID = req.query.subscriberID;
+    
+    console.log('Fetching accounts for subscriber:', subscriberID);
+    
+    const sql = 'SELECT accountID, bank, accountType, currentBalance, currency FROM EXTERNAL_ACCOUNT WHERE subscriberID = ?';
+    
+    db.query(sql, [subscriberID], (err, result) => {
+        if (err) {
+            console.error('Error fetching external accounts:', err);
+            return res.status(500).json({ error: 'Database error', accounts: [] });
+        }
+        
+        console.log('Found accounts:', result.length);
+        res.json(result);
+    });
+});
+
+// contribute to goal
+app.post('/contribute-to-goal', (req, res) => {
+    const { goalId, subscriberID, accountID, amount } = req.body;
+    
+    console.log('=== CONTRIBUTION DEBUG ===');
+    console.log('goalId:', goalId, 'Type:', typeof goalId);
+    console.log('subscriberID:', subscriberID);
+    console.log('accountID:', accountID);
+    console.log('amount:', amount);
+    
+    // First, check if the goal exists and see the table structure
+    const checkGoalSql = 'SELECT * FROM FAMILY_GOAL WHERE GoalID = ?';
+    
+    db.query(checkGoalSql, [goalId], (err, goalResult) => {
+        if (err) {
+            console.error('Error checking goal:', err);
+            return res.json({ success: false, message: 'Database error: ' + err.message });
+        }
+        
+        console.log('Goal query result:', goalResult);
+        
+        if (!goalResult || goalResult.length === 0) {
+            return res.json({ success: false, message: 'Goal not found with ID: ' + goalId });
+        }
+        
+        console.log('Current goal amount:', goalResult[0].CurrAmt);
+        console.log('Goal target:', goalResult[0].Goal);
+        
+        // Now check the external account
+        const checkAccountSql = 'SELECT * FROM EXTERNAL_ACCOUNT WHERE accountID = ? AND subscriberID = ?';
+        
+        db.query(checkAccountSql, [accountID, subscriberID], (err, accountResult) => {
+            if (err) {
+                console.error('Error checking account:', err);
+                return res.json({ success: false, message: 'Account error: ' + err.message });
+            }
+            
+            console.log('Account query result:', accountResult);
+            
+            if (!accountResult || accountResult.length === 0) {
+                return res.json({ success: false, message: 'Account not found for subscriber' });
+            }
+            
+            if (accountResult[0].currentBalance < amount) {
+                return res.json({ success: false, message: 'Insufficient balance' });
+            }
+            
+            // Try to update the goal
+            const updateGoalSql = 'UPDATE FAMILY_GOAL SET CurrAmt = CurrAmt + ? WHERE GoalID = ?';
+            console.log('Update SQL:', updateGoalSql);
+            console.log('Update values:', [amount, goalId]);
+            
+            db.query(updateGoalSql, [amount, goalId], (err, updateResult) => {
+                if (err) {
+                    console.error('ERROR UPDATING GOAL:', err);
+                    console.error('Error code:', err.code);
+                    console.error('Error message:', err.message);
+                    console.error('SQL state:', err.sqlState);
+                    return res.json({ success: false, message: 'Update failed: ' + err.message });
+                }
+                
+                console.log('Update result:', updateResult);
+                
+                if (updateResult.affectedRows === 0) {
+                    return res.json({ success: false, message: 'No rows updated - goal might not exist' });
+                }
+                
+                // Deduct from account
+                const deductSql = 'UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance - ? WHERE accountID = ?';
+                
+                db.query(deductSql, [amount, accountID], (err, deductResult) => {
+                    if (err) {
+                        console.error('Error deducting:', err);
+                        return res.json({ success: false, message: 'Failed to update account: ' + err.message });
+                    }
+                    
+                    console.log('Contribution successful!');
+                    res.json({ success: true, message: 'Contribution successful!' });
+                });
+            });
+        });
+    });
+});
 //Checks if account is accessible to the User 
 app.post('/CheckAccID', (req, res) => {
   const subscriberID = req.body.subscriberID;
@@ -292,6 +626,8 @@ app.post('/CheckAccID', (req, res) => {
     res.redirect(`/MT-SelectAmount.html?accountID=${accountID}&toAccount=${toAccount}&balance=${balance}&subscriberID=${subscriberID}`);
   });
 });
+
+
 
   //Store transfer Amount
   app.post('/StoreAmount', (req, res) => {
@@ -388,7 +724,7 @@ app.post('/ConfirmTransfer', (req, res) => {
     db.query(deductSql, [amount, fromAccount], (err, deductResult) => {
       if (err) {
         return db.rollback(() => {
-          res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+          res.send('deduct err: ',err);
         });
       }
 
@@ -396,7 +732,7 @@ app.post('/ConfirmTransfer', (req, res) => {
       db.query(addSql, [amount, toAccount], (err, addResult) => {
         if (err) {
           return db.rollback(() => {
-            res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+            res.send('Add err: ',err);
           });
         }
 
@@ -406,14 +742,14 @@ app.post('/ConfirmTransfer', (req, res) => {
         db.query(transactionSql, [amount, fromAccount, toAccount], (err, transactionResult) => {
           if (err) {
             return db.rollback(() => {
-              res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+              res.send('Insert err: ', err);
             });
           }
 
           db.commit((err) => {
             if (err) {
               return db.rollback(() => {
-                res.send('Error processing transfer. Amount: ' + amount + ', From: ' + fromAccount + ', To: ' + toAccount + '. Please try again.');
+                res.send('Error committing try again.');
               });
             }
             
@@ -649,6 +985,43 @@ const sql = 'INSERT INTO Budgeting (amount, ExpenseType, category, dateRecorded,
   });
 });
 
+app.post('/add-goal', (req, res) => {
+    const { GName, Description, Goal, CurrAmt, status } = req.body;
+    
+    // Validate input
+    if (!GName || !Goal || !CurrAmt || !status) {
+        return res.status(400).send('All required fields must be filled');
+    }
+    
+    // Insert query (AmtLeft auto-calculated by database)
+    const query = `INSERT INTO Family_Goal (GName, Description, Goal, CurrAmt, status) 
+                   VALUES (?, ?, ?, ?, ?)`;
+    
+    db.query(query, [GName, Description || '', Goal, CurrAmt, status], (err, result) => {
+        if (err) {
+            console.error('Error inserting data:', err);
+            return res.status(500).send('Database error: ' + err.message);
+        }
+        
+        // Get the inserted record with calculated AmtLeft
+        const selectQuery = `SELECT * FROM Family_Goal WHERE GoalID = ?`;
+        db.query(selectQuery, [result.insertId], (err, rows) => {
+            if (err) {
+                console.error('Error fetching inserted record:', err);
+                return res.send(`
+                    <h2>Goal Added Successfully!</h2>
+                    <p>Goal ID: ${result.insertId}</p>
+                    <a href="/">Add Another Goal</a><br>
+                    <a href="/view-goals">View All Goals</a>
+                `);
+            }
+            
+            const goal = rows[0];
+            // Send success page
+            res.send(`Goal Created!`);
+           });
+    });
+});
 // Save or update alert settings
 app.post('/api/alerts/save', (req, res) => {
   const { subscriberID, threshold } = req.body;
@@ -909,6 +1282,83 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
+// Add this route to create a test employee with proper hash
+app.get('/setup-test-user', (req, res) => {
+  const testPassword = 'test123';
+  const hashPassword = crypto
+    .createHash('sha256')
+    .update(testPassword)
+    .digest('hex');
+  
+  console.log('Creating test user with hash:', hashPassword);
+  //Delete later
+  // First, check if test user exists
+  const checkSql = 'SELECT * FROM Employee WHERE eUsername = ?';
+  db.query(checkSql, ['testuser123'], (err, results) => {
+    if (err) {
+      console.error('Error checking user:', err);
+      return res.send('Error checking database: ' + err.message);
+    }
+    
+    console.log('Check results:', results);
+    
+    if (results && results.length > 0) {
+      // Update existing user
+      const updateSql = 'UPDATE Employee SET ePassword = ? WHERE eUsername = ?';
+      db.query(updateSql, [hashPassword, 'testuser123'], (err, updateResult) => {
+        if (err) {
+          console.error('Error updating:', err);
+          res.send('Error updating: ' + err.message);
+        } else {
+          res.send(`
+            <h2>Test User Updated!</h2>
+            <p><strong>Username:</strong> testuser123</p>
+            <p><strong>Password:</strong> test123</p>
+            <p><strong>Password Hash:</strong> ${hashPassword}</p>
+            <p><strong>Role:</strong> employee</p>
+            <br>
+            <a href="/login.html">Click here to login</a>
+          `);
+        }
+      });
+    } else {
+      // Create new user - FIXED: Correct SQL syntax
+      const insertSql = `INSERT INTO Employee (eFName, eLName, eUsername, ePassword, eBirthday, employeeEmail, ePhone) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      const values = ['Test', 'User', 'testuser123', hashPassword, '1990-01-01', 'test@test.com', '1234567890'];
+      
+      console.log('Attempting to insert with values:', values);
+      
+      db.query(insertSql, values, (err, result) => {
+        if (err) {
+          console.error('Error creating user:', err);
+          res.send(`
+            <h2>Error Creating Test User</h2>
+            <p>Error: ${err.message}</p>
+            <p>Please check that:</p>
+            <ul>
+              <li>The Employee table exists</li>
+              <li>All column names are correct: eFName, eLName, eUsername, ePassword, eBirthday, employeeEmail, ePhone</li>
+              <li>Data types match the table schema</li>
+            </ul>
+          `);
+        } else {
+          console.log('User created successfully, ID:', result.insertId);
+          res.send(`
+            <h2>Test User Created Successfully!</h2>
+            <p><strong>Username:</strong> testuser123</p>
+            <p><strong>Password:</strong> test123</p>
+            <p><strong>Password Hash:</strong> ${hashPassword}</p>
+            <p><strong>Role:</strong> employee</p>
+            <p><strong>Employee ID:</strong> ${result.insertId}</p>
+            <br>
+            <a href="/login.html">Click here to login</a>
+          `);
+        }
+      });
+    }
+  });
+});
 //functions
 function authenticateToken(req, res, next) {
   const token = req.cookies.token || (req.headers['authorization'] && req.headers['authorization'].split(' ')[1]);

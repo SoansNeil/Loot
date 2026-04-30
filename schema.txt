@@ -39,23 +39,9 @@ CREATE TABLE EXTERNAL_ACCOUNT
   
 );
 
-CREATE TABLE Employee (
-  EmployeeID int NOT NULL AUTO_INCREMENT,
-  eFName varchar(50) NOT NULL,
-  eLName varchar(50) NOT NULL,
-  eUsername varchar(30) NOT NULL,
-  ePassword varchar(255) NOT NULL,
-  eBirthday date NOT NULL,
-  employeeEmail varchar(100) NOT NULL,
-  ePhone varchar(25) DEFAULT NULL,
-  PRIMARY KEY (EmployeeID),
-  UNIQUE (EmployeeID),
-  UNIQUE (eUsername),
-  UNIQUE (employeeEmail)
-);
 
 USE LootDB;
-
+//employee feature
 CREATE TABLE SERVICE_FORMS (
     formID INT AUTO_INCREMENT PRIMARY KEY,
     customerName VARCHAR(100) NOT NULL,
@@ -68,7 +54,7 @@ CREATE TABLE SERVICE_FORMS (
 
     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
 );
-
+//budgeting feature
 CREATE TABLE Budgeting (
 TID INT AUTO_INCREMENT,
 Amount DECIMAL(15,2) NOT NULL,
@@ -86,7 +72,7 @@ REFERENCES EXTERNAL_ACCOUNT(AccountID),
 CONSTRAINT CHECK_ExpenseType
 CHECK (ExpenseType IN ('Expense','Income','Transfer'))
 );
-
+//analyze feature
 CREATE TABLE CARD_TRANSACTION
 (
   TransactionID INT AUTO_INCREMENT NOT NULL,
@@ -104,18 +90,20 @@ CREATE TABLE CARD_TRANSACTION
   CONSTRAINT CHECK_TransactionType
     CHECK (TransactionType IN ('Debit', 'Credit'))
 );
+//budgeting feature
 CREATE TABLE scheduled_transfers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(10,2) NOT NULL,
     from_account VARCHAR(50) NOT NULL,
     to_account VARCHAR(50) NOT NULL,
-    to_subscriber VARCHAR(50) NOT NULL,
     schedule_type ENUM('now', 'later', 'recurring') NOT NULL,
     transfer_date DATE NULL,
     transfer_time TIME NULL,
     status ENUM('pending', 'active', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+//employee service form feature
 CREATE TABLE `CLOSED_FORMS` (
   `formID` int NOT NULL AUTO_INCREMENT,
   `customerName` varchar(100) NOT NULL,
@@ -127,4 +115,19 @@ CREATE TABLE `CLOSED_FORMS` (
   `commments` text,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`formID`)
+);
+
+DROP TABLE IF EXISTS lootdb.Family_Goal;
+
+CREATE TABLE lootdb.Family_Goal(
+  GoalID INT AUTO_INCREMENT NOT NULL,
+  GName VARCHAR(50) NOT NULL,
+  Description VARCHAR(255),
+  Goal DECIMAL(15,2) NOT NULL,
+  CurrAmt DECIMAL(15,2) NOT NULL,
+  AmtLeft DECIMAL(15,2) GENERATED ALWAYS AS (Goal - CurrAmt) STORED,
+  FamAccount INT NOT NULL,
+  Status VARCHAR(50) NOT NULL,
+  PRIMARY KEY (GoalID),
+  CONSTRAINT check_status CHECK (Status IN ("In Progress", "Completed"))
 );

@@ -44,10 +44,12 @@
                 <input type="hidden" name="AccountID" id="AccountID" value="">
                 <input type="hidden" name="subscriberID" id="subscriberID" value="">
 
-                <label>AccountID of Account you want to transfer to</label>
-                <input type="number" name="ToAccount" required>
+                <label>Choose which account you want to transfer to </label>
+              <input type="number" name="ToAccount" required>
                 <button type="submit">Next</button>
                 </form></div>
+                 <button id="displayExAcc">Show External Accounts</button>
+<div id="ExAcc"></div>
 
         </section>
          <script>
@@ -59,10 +61,18 @@
     document.getElementById('AccountID').value = accountID;
     document.getElementById('BalanceOG').value = balance;
     document.getElementById('subscriberID').value = subscriberID; 
+
+    const button = document.getElementById('displayExAcc');
+
+button.addEventListener('click', async () => {
+    const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+    const text = await res.text();
+
+    // Show results on the page instead of alert
+        document.getElementById("ExAcc").innerHTML = text;});
    
   </script>
         
-
     </div>
 
     <!-- Scripts -->
