@@ -371,15 +371,14 @@ function escapeHtml(text) {
 async function loadFamilyGoals() {
     const urlParams = new URLSearchParams(window.location.search);
     const subscriberID = urlParams.get('subscriberID');
-    const famAccount = urlParams.get('famAccount');
-    
-    if (!subscriberID && !famAccount) {
-        console.error('No subscriberID or famAccount found');
+
+    if (!subscriberID) {
+        console.error('No subscriberID found');
         return;
     }
-    
+
     try {
-        const response = await fetch(`/get-family-goals?subscriberID=${subscriberID}&famAccount=${famAccount}`);
+        const response = await fetch(`/get-family-goals?subscriberID=${subscriberID}`);
         const result = await response.json();
         
         if (result.success && result.goals && result.goals.length > 0) {

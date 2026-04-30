@@ -218,55 +218,6 @@ app.post('/displayExAcc', (req, res) => {
   });
   });
 
-//display family accounts on Fam dashboard 
-app.post('/displayFamAcc', (req, res) => {
-  const subscriberID = req.query.subscriberID;
-
-  const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
-  db.query(getUserFamSql, [subscriberID], (err, userResult) => {
-    if (err) {
-      console.error('Error fetching user FamAccount:', err);
-      return res.status(500).send('Database Error');
-    }
-
-    if (!userResult.length) {
-      return res.send('No user found');
-    }
-
-    const famAccount = userResult[0].FamAccount;
-
-    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM subscriber_account WHERE FamAccount = ?';
-    db.query(getFamilyMemberSql, [famAccount], (err, familyResults) => {
-      if (err) {
-        console.error('Error fetching family accounts:', err);
-        return res.status(500).send('DB Error');
-      }
-
-      if (!familyResults.length) {
-        return res.send('No family members found');
-      }
-   //html formatting for dashboard
-     let html = '<div style="font-family: Arial, sans-serif;">';
-     html='<h2> Family Dashboard</h2>'
-html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
-
-familyResults.forEach(member => {
-    html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <p><strong>First Name:</strong> ${member.FName}</p>
-        <p><strong>Last Name:</strong> ${member.LName}</p>
-        <p><strong>Username:</strong> ${member.Username}</p>
-        <p><strong>Family Account:</strong> ${member.FamAccount}</p>
-    </div>`;
-});
-
-html += '</div>';
-html += '</div>';
-
-res.send(html);
-    });
-  });
-});
-
 //check user in db
 app.get('/check-user', async (req, res) => {
     const { FName, LName, Username } = req.query;
