@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const schedule = require('node-schedule');
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT||3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -216,6 +216,225 @@ app.post('/displayExAcc', (req, res) => {
     html += '</div>';
     res.send(html);
   });
+  });
+
+//display family accounts on Fam dashboard 
+app.post('/displayFamAcc', (req, res) => {
+  const subscriberID = req.query.subscriberID;
+
+  const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+  db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+    if (err) {
+      console.error('Error fetching user FamAccount:', err);
+      return res.status(500).send('Database Error');
+    }
+
+    if (!userResult.length) {
+      return res.send('No user found');
+    }
+
+    const famAccount = userResult[0].FamAccount;
+
+    const getFamilyMemberSql = 'SELECT FName, LName, Username, subscriberID, FamAccount FROM subscriber_account WHERE FamAccount = ?';
+    db.query(getFamilyMemberSql, [famAccount], (err, familyResults) => {
+      if (err) {
+        console.error('Error fetching family accounts:', err);
+        return res.status(500).send('DB Error');
+      }
+
+      if (!familyResults.length) {
+        return res.send('No family members found');
+      }
+   //html formatting for dashboard
+     let html = '<div style="font-family: Arial, sans-serif;">';
+     html='<h2> Family Dashboard</h2>'
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+
+familyResults.forEach(member => {
+    html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <p><strong>First Name:</strong> ${member.FName}</p>
+        <p><strong>Last Name:</strong> ${member.LName}</p>
+        <p><strong>Username:</strong> ${member.Username}</p>
+        <p><strong>Family Account:</strong> ${member.FamAccount}</p>
+    </div>`;
+});
+
+html += '</div>';
+html += '</div>';
+
+res.send(html);
+    });
+  });
+});
+
+//check user in db
+app.get('/check-user', async (req, res) => {
+    const { FName, LName, Username } = req.query;
+    
+    try {
+        const result = await db.query(
+            'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?', 
+            [FName, LName, Username]
+        );
+        
+        res.json({ exists: result.length > 0 });
+    } catch (error) {
+        res.status(500).json({ exists: false, error: error.message });
+    }
+});
+
+//add family member - checks ALL THREE fields match
+app.post('/add-family-member', async (req, res) => {
+    const { FName, LName, Username } = req.body;
+    const subscriberID = req.query.subscriberID;
+    
+    try {
+       
+        const getUserFamSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+        
+        db.query(getUserFamSql, [subscriberID], (err, userResult) => {
+            if (err) {
+                console.error('Error fetching user FamAccount:', err);
+                return res.status(500).json({ success: false, message: 'Database Error' });
+            }
+            
+            if (!userResult.length) {
+                return res.status(400).json({ success: false, message: 'No user found' });
+            }
+            
+            const familyAccountId = userResult[0].FamAccount;
+            
+            // CHECK that ALL THREE fields match (FName, LName, AND Username)
+            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
+            db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
+                if (err) {
+                    console.error('Error checking user:', err);
+                    return res.status(500).json({ success: false, message: 'Database Error' });
+                }
+                
+                if (!existing.length) {
+                    return res.json({ 
+                        success: false, 
+                        message: 'User not found. First name, last name, and username do not match an existing account.' 
+                    });
+                }
+                
+                
+                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
+                db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
+                    if (err) {
+                        console.error('Error updating family member:', err);
+                        return res.status(500).json({ success: false, message: 'Database Error' });
+                    }
+                    
+                    res.json({ 
+                        success: true, 
+                        message: `${FName} ${LName} (${Username}) has been linked to your family plan!`,
+                        famAccount: familyAccountId 
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Error adding family member:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+
+// Add family goal to DB
+app.post('/add-goal', (req, res) => {
+  const goalName = req.body.GName;
+  const goalDescription = req.body.Description;
+  const goalAmount = req.body.Goal;
+  const currentAmount = 0;
+  const status = "in progress"; // Automatically set status
+  
+  const subscriberId = req.body.subscriberID;
+  
+  
+  if (!goalName || !goalAmount) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Goal name and amount are required' 
+    });
+  }
+  
+  // get the FamAccount based on SubscriberID
+  const getFamAccountSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+  
+  db.query(getFamAccountSql, [subscriberId], (err, results) => {
+    if (err) {
+      console.error('Error fetching FamAccount:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving user information' 
+      });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    const famAccount = results[0].FamAccount;
+    
+
+    const insertGoalSql = 'INSERT INTO lootdb.Family_Goal (GName, Description, Goal, CurrAmt, FamAccount, Status) VALUES (?, ?, ?, ?, ?, ?)';
+    
+    db.query(insertGoalSql, [goalName, goalDescription, goalAmount, currentAmount, famAccount, status], (err, result) => {
+      if (err) {
+        console.error('Error inserting goal:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error adding goal to plan: ' + err.message 
+        });
+      }
+     
+      res.json({ 
+        success: true, 
+        message: 'Goal successfully added to your plan!',
+        goalId: result.insertId,
+        status: status
+      });
+    });
+  });
+});
+
+
+//get family goals from DB
+app.get('/get-family-goals', (req, res) => {
+    const subscriberID = req.query.subscriberID; 
+    
+    // get famAccount from subscriberID
+    const getFamSql = 'SELECT FamAccount FROM lootdb.Subscriber_ACCOUNT WHERE SubscriberID = ?';
+    
+    db.query(getFamSql, [subscriberID], (err, results) => {
+        if (err) {
+            console.error('Error fetching FamAccount:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        const famAccount = results[0].FamAccount;
+        
+        //get goals for this family account
+        const goalsQuery = 'SELECT * FROM lootdb.Family_Goal WHERE FamAccount = ? ORDER BY GoalID DESC';
+        
+        db.query(goalsQuery, [famAccount], (err, goalResults) => {
+            if (err) {
+                console.error('Error fetching goals:', err);
+                return res.status(500).json({ success: false, message: 'Error fetching goals' });
+            }
+            
+            res.json({ success: true, goals: goalResults });
+        });
+    });
 });
 
 app.get('/getExternalAccountsJSON', (req, res) => {
@@ -659,14 +878,50 @@ app.post('/create-budget', (req, res) => {
   db.query(sql, [amount, ExpenseType, category, DateRecorded, subscriberId, accountId], (err) => {
     if (err) {
       console.error('Error making new budget:', err);
-      return res.status(500).send('Error creating new budget');
+      res.status(500).send('Error creating new budget');
     }
     res.json({ success: true, amount, ExpenseType, category, DateRecorded, subscriberId, accountId });
   });
 });
 
-// ── Alerts ───────────────────────────────────────────────────
-
+app.post('/add-goal', (req, res) => {
+    const { GName, Description, Goal, CurrAmt, status } = req.body;
+    
+    // Validate input
+    if (!GName || !Goal || !CurrAmt || !status) {
+        return res.status(400).send('All required fields must be filled');
+    }
+    
+    // Insert query (AmtLeft auto-calculated by database)
+    const query = `INSERT INTO Family_Goal (GName, Description, Goal, CurrAmt, status) 
+                   VALUES (?, ?, ?, ?, ?)`;
+    
+    db.query(query, [GName, Description || '', Goal, CurrAmt, status], (err, result) => {
+        if (err) {
+            console.error('Error inserting data:', err);
+            return res.status(500).send('Database error: ' + err.message);
+        }
+        
+        // Get the inserted record with calculated AmtLeft
+        const selectQuery = `SELECT * FROM Family_Goal WHERE GoalID = ?`;
+        db.query(selectQuery, [result.insertId], (err, rows) => {
+            if (err) {
+                console.error('Error fetching inserted record:', err);
+                return res.send(`
+                    <h2>Goal Added Successfully!</h2>
+                    <p>Goal ID: ${result.insertId}</p>
+                    <a href="/">Add Another Goal</a><br>
+                    <a href="/view-goals">View All Goals</a>
+                `);
+            }
+            
+            const goal = rows[0];
+            // Send success page
+            res.send(`Goal Created!`);
+           });
+    });
+});
+// Save or update alert settings
 app.post('/api/alerts/save', (req, res) => {
   const { subscriberID, threshold } = req.body;
 

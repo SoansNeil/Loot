@@ -117,18 +117,17 @@ CREATE TABLE `CLOSED_FORMS` (
   PRIMARY KEY (`formID`)
 );
 
-//For family goals feature
-CREate table Family_Goal(
-GoalID  INT AUTO_INCREMENT NOT NULL,
-GName Varchar(50) NOT NULL,
-Description varchar(255),
-Goal DECIMAL(15,2) Not null,
-CurrAmt DECIMAL(15,2) Not null,
-AmtLeft DECIMAL(15,2)  GENERATED ALWAYS AS (Goal - CurrAmt) STORED,
-    PRIMARY KEY (GoalID),
-    status varchar(50) Not null,
-    constraint check_status 
-    check(status in ("In Progress", "Completed"))
-    )
-  FamAccount int not null,;
-    
+DROP TABLE IF EXISTS lootdb.Family_Goal;
+
+CREATE TABLE lootdb.Family_Goal(
+  GoalID INT AUTO_INCREMENT NOT NULL,
+  GName VARCHAR(50) NOT NULL,
+  Description VARCHAR(255),
+  Goal DECIMAL(15,2) NOT NULL,
+  CurrAmt DECIMAL(15,2) NOT NULL,
+  AmtLeft DECIMAL(15,2) GENERATED ALWAYS AS (Goal - CurrAmt) STORED,
+  FamAccount INT NOT NULL,
+  Status VARCHAR(50) NOT NULL,
+  PRIMARY KEY (GoalID),
+  CONSTRAINT check_status CHECK (Status IN ("In Progress", "Completed"))
+);
