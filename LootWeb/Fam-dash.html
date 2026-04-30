@@ -61,14 +61,10 @@
 							<label>Last Name *</label>
 							<input type="text" name="LName" required>
 						</div>
-
-						<div class="input-field">
-							<label>Username *</label>
-							<input type="text" name="Username" required>
-						</div>
 					</div>
 
-            <button type="submit" class="signUp-btn">Add Family Member</button>
+            <button type="submit" class="signUp-btn" style="background: #4a6741;padding: 8px 30px; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 600;">
+                Add Family Member</button>
 
             </form>
 			
@@ -180,7 +176,6 @@
         //  form values
         const firstName = familyForm.querySelector('input[name="FName"]').value;
         const lastName = familyForm.querySelector('input[name="LName"]').value;
-        const username = familyForm.querySelector('input[name="Username"]').value;
         
         
         const urlParams = new URLSearchParams(window.location.search);
@@ -200,14 +195,13 @@
                 body: JSON.stringify({
                     FName: firstName,
                     LName: lastName,
-                    Username: username
                 })
             });
             
             const result = await response.json();
             
             if (result.success) {
-                alert(`${firstName} ${lastName} (${username}) has been added to your family plan!`);
+                alert(`${firstName} ${lastName} has been added to your family plan!`);
                 familyForm.reset();
                 dropdownForm.style.display = 'none';
                 
@@ -387,7 +381,7 @@ async function loadFamilyGoals() {
         } else {
             const goalsDisplay = document.getElementById('goalsDisplay');
             if (goalsDisplay) {
-                goalsDisplay.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No goals added yet. Use the form above to add your first family goal!</p></div>';
+                goalsDisplay.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No goals added yet.</p></div>';
             }
         }
     } catch (error) {

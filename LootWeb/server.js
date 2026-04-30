@@ -356,7 +356,9 @@ app.post('/displayFamAcc', (req, res) => {
       }
 
       if (!familyResults.length) {
-        return res.send('You are currently not apart of a family plan. Click here to join one.');
+        return res.send(`<p>You are currently not apart of a family plan.</p><form action="/joinFamilyPlan" method="POST"><input type="hidden" name="subscriberID" value="${subscriberID}">
+      <button style="background: #4a6741;padding: 8px 30px; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 600;" type="submit">Click here to join one</button>
+    </form>`);
       }
    //html formatting for dashboard
      let html = '<div style="font-family: Arial, sans-serif;">';
@@ -381,22 +383,26 @@ res.send(html);
 });
 //assigns a family plan ID to the user 
 app.post('/joinFamilyPlan',(req,res)=>{
-  const subscriberID=req.body;
+  const {subscriberID}=req.body;
 
   if (!subscriberID) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Missing subscriberID parameter' 
-    });
+    return res.send(`
+      <script>
+        alert('Error: Missing subscriberID');
+        window.location.href =  '/Fam-dash.html?subscriberID=${subscriberID}';
+      </script>
+    `);
   }
   const checkUserSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
   db.query(checkUserSql, [subscriberID], (err, userResult) => {
     if (err) {
       console.error('Error checking user:', err);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Database error occurred while checking user' 
-      });
+       return res.send(`
+        <script>
+          alert('Database error occurred');
+          window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+        </script>
+      `);
     }
     const getMaxFamSql = `SELECT MAX(CAST(FamAccount AS UNSIGNED)) as maxFam 
                          FROM subscriber_account 
@@ -408,10 +414,12 @@ app.post('/joinFamilyPlan',(req,res)=>{
      db.query(getMaxFamSql, (err, maxResult) => {
       if (err) {
         console.error('Error getting max FamAccount:', err);
-        return res.status(500).json({ 
-          success: false, 
-          message: 'Error generating family account ID' 
-        });
+        return res.send(`
+          <script>
+            alert('Error generating family account ID');
+            window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+          </script>
+        `);
       }
 
        let newFamAccount = 1;
@@ -422,26 +430,29 @@ app.post('/joinFamilyPlan',(req,res)=>{
       db.query(updateSql, [newFamAccount.toString(), subscriberID], (err, updateResult) => {
         if (err) {
           console.error('Error updating family account:', err);
-          return res.status(500).json({ 
-            success: false, 
-            message: 'Failed to update family account' 
-          });
+          return res.send(`
+            <script>
+              alert('Failed to update family account');
+              window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+            </script>
+          `);
         }
-        
         if (updateResult.affectedRows === 0) {
-          return res.status(404).json({ 
-            success: false, 
-            message: 'Could not update the user. Please try again.' 
-          });
+          return res.send(`
+            <script>
+              alert('Could not update the user. Please try again.');
+              window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+            </script>
+          `);
         }
         
         // Send success response
-        res.status(200).json({ 
-          success: true, 
-          message: 'Family plan created successfully',
-          famAccount: newFamAccount.toString(),
-          subscriberID: subscriberID
-        });
+        res.send(`
+          <script>
+            alert('Family plan created successfully');
+            window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+          </script>
+        `);
       });
     });
   });
@@ -464,7 +475,7 @@ app.get('/check-user', async (req, res) => {
 
 //add family member - checks ALL THREE fields match
 app.post('/add-family-member', async (req, res) => {
-    const { FName, LName, Username } = req.body;
+    const { FName, LName} = req.body;
     const subscriberID = req.query.subscriberID;
     
     try {
@@ -484,8 +495,8 @@ app.post('/add-family-member', async (req, res) => {
             const familyAccountId = userResult[0].FamAccount;
             
             // CHECK that ALL THREE fields match (FName, LName, AND Username)
-            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
-            db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
+            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ?';
+            db.query(checkUserSql, [FName, LName], (err, existing) => {
                 if (err) {
                     console.error('Error checking user:', err);
                     return res.status(500).json({ success: false, message: 'Database Error' });
@@ -494,13 +505,13 @@ app.post('/add-family-member', async (req, res) => {
                 if (!existing.length) {
                     return res.json({ 
                         success: false, 
-                        message: 'User not found. First name, last name, and username do not match an existing account.' 
+                        message: 'User not found. First name and last name do not match an existing account.' 
                     });
                 }
                 
                 
-                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
-                db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
+                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ?';
+                db.query(updateSql, [familyAccountId, FName, LName], (err, result) => {
                     if (err) {
                         console.error('Error updating family member:', err);
                         return res.status(500).json({ success: false, message: 'Database Error' });
@@ -508,7 +519,7 @@ app.post('/add-family-member', async (req, res) => {
                     
                     res.json({ 
                         success: true, 
-                        message: `${FName} ${LName} (${Username}) has been linked to your family plan!`,
+                        message: `${FName} ${LName} has been linked to your family plan!`,
                         famAccount: familyAccountId 
                     });
                 });
