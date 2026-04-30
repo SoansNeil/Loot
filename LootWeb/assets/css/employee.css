@@ -157,6 +157,52 @@
     min-height: 120px;
 }
 
+.radio-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+}
+
+.radio-group label {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: #555 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    background: #fafafa;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.radio-group label:hover {
+    border-color: #75975e;
+    background: #f0f5ec;
+}
+
+.radio-group input[type="radio"] {
+    width: auto !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    accent-color: #75975e;
+    margin: 0;
+}
+
+.radio-group label:has(input[type="radio"]:checked) {
+    border-color: #75975e;
+    background: #eef4e8;
+    color: #4a6741 !important;
+    font-weight: 600 !important;
+}
+
 /* ══ employeeDashboard.html ═════════════════════════════════ */
 
 .box.special.features {
