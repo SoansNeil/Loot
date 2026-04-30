@@ -11,16 +11,14 @@
 <div id="page-wrapper">
 
     <!-- Header -->
-    <header id="header" class="alt">
-        <h1 style="font-size: xx-large;"><a style="color: #75975e;" href="index.html">Loot</a></h1>
+    <header id="header">
+        <h1 style="font-size: xx-large;"><a style="display:flex; align-items:center; gap:10px; color: #75975e;" href="index.html">Loot <img
+            src="images/lootLogo.PNG"
+            style="height:55px; width:auto;"
+        /></a></h1>
         <nav id="nav">
             <ul>
-                <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
-                <li><a href="#" onclick="goToExAccounts()">External Accounts</a></li>
-                <li><a href="#" onclick="goToTransfer()">Transfer Funds</a></li>
-                <li><a href="#" onclick="goToBudget()">Budget Expenses</a></li>
-                <li><a href="#" onclick="goToFamily()">Family Joint Account</a></li>
-                <li><a href="#" onclick="goToSummary()">Monthly Summary</a></li>
+                <li><a href="employeeLogin.html">Employee Login</a></li>
                 <li><a href="index.html">Log Out</a></li>
             </ul>
         </nav>
@@ -28,77 +26,61 @@
 
     <!-- Banner -->
     <section id="banner">
-        <h3>Welcome Back!</h3>
-        <p>Everything you need to manage your finances, all in one place.</p>
+        <div style="margin-top: 70px;">
+            <h3 style="text-shadow: 0 2px 8px rgba(0,0,0,0.6);">Welcome back!</h3>
+            <p style="text-shadow: 0 2px 6px rgba(0,0,0,0.6);">Everything you need to manage your finances, all in one place.</p>
+        </div>
     </section>
 
     <!-- Main -->
     <section id="main" class="container">
         <section class="box special features">
             <div class="features-row">
-                <section>
-                    <a href="#" onclick="goToTransfer()">
-                        <span class="icon major fa-clock accent2"></span>
-                        <h3>Schedule Transactions</h3>
-                        <p>Connect your external accounts and schedule transfers between them.</p>
-                    </a>
-                </section>
-                <section>
-                    <a href="#" onclick="goToBudget()">
-                        <span class="icon solid major fa-piggy-bank accent3"></span>
-                        <h3>Budgeting</h3>
-                        <p>Track your spending and build a budget that works for you.</p>
-                    </a>
-                </section>
+                <section><a href="#" onclick="goToTransfer()">
+                    <span class="icon major fa-clock accent2"></span>
+                    <h3>Schedule transactions</h3>
+                    <p>Connect your external accounts and schedule transactions between them.</p>
+                </a></section>
+                <section><a href="#" onclick="goToBudget()">
+                    <span class="icon solid major fa-piggy-bank accent3"></span>
+                    <h3>Budgeting</h3>
+                    <p>Track your spending and build a budget that works for you.</p>
+                </a></section>
             </div>
             <div class="features-row">
-                <section>
-                    <a href="#" onclick="goToSummary()">
-                        <span class="icon solid major fa-chart-bar accent4"></span>
-                        <h3>Monthly Summary</h3>
-                        <p>View interactive expense charts broken down by category each month.</p>
-                    </a>
-                </section>
-                <section>
-                    <a href="#" onclick="goToFamily()">
-                        <span class="icon solid major fa-users accent5"></span>
-                        <h3>Family Joint Account</h3>
-                        <p>Plan and track financial goals together with your family plan members.</p>
-                    </a>
-                </section>
-            </div>
-            <div class="features-row">
-                <section>
-                    <a href="#" onclick="goToExAccounts()">
-                        <span class="icon solid major fa-university accent2"></span>
-                        <h3>External Accounts</h3>
-                        <p>Link and manage bank accounts from any institution in one place.</p>
-                    </a>
-                </section>
-                <section>
-                    <a href="#" onclick="document.getElementById('alertBtn').click()">
-                        <span class="icon solid major fa-bell accent3"></span>
-                        <h3>Transaction Alerts</h3>
-                        <p>Set spending thresholds and review flagged transactions that need your approval.</p>
-                    </a>
-                </section>
+                <section><a href="#" onclick="goToSummary()">
+                    <span class="icon solid major fa-chart-bar accent4"></span>
+                    <h3>Analyze</h3>
+                    <p>View end of month expense statements that summarize balance changes.</p>
+                </a></section>
+                <section><a href="#" onclick="goToFamily()">
+                    <span class="icon solid major fa-users accent5"></span>
+                    <h3>Family</h3>
+                    <p>Plan and view your family goals.</p>
+                </a></section>
             </div>
         </section>
     </section>
 
     <!-- Footer -->
     <footer id="footer">
+        <ul class="icons">
+            <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+            <li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+            <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+            <li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
+            <li><a href="#" class="icon brands fa-dribbble"><span class="label">Dribbble</span></a></li>
+            <li><a href="#" class="icon brands fa-google-plus"><span class="label">Google+</span></a></li>
+        </ul>
         <ul class="copyright">
-            <li>&copy; Loot. All rights reserved.</li>
+            <li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
         </ul>
     </footer>
 
 </div>
 
-<!-- Alert Button -->
 <button id="alertBtn" type="button">🔔 <span id="alertDot" class="hidden"></span></button>
 
-<!-- Alert Popup -->
 <div id="alertPopup" class="hidden">
     <h3>Transaction Alerts</h3>
     <div id="setupSection">
@@ -117,7 +99,6 @@
 
 <div id="actionMessage" class="hidden"></div>
 
-<!-- Scripts -->
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/jquery.dropotron.min.js"></script>
 <script src="assets/js/jquery.scrollex.min.js"></script>
@@ -133,7 +114,6 @@
         window.location.assign('index.html');
     }
 
-    // ── Alert Popup ──────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('alertBtn').addEventListener('click', () => {
             const popup = document.getElementById('alertPopup');
