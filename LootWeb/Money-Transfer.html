@@ -1,11 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Transfer</title>
+    <title>Money Transfer-To account</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
 </head>
+<body class="landing is-preload">
+		<div id="page-wrapper">
 
 <body>
     <div id="page-wrapper">
@@ -56,6 +58,12 @@
                  <button id="displayExAcc">Show External Accounts</button>
 <div id="ExAcc"></div>
 
+         <!-- Main -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <section style="text-align: center;">
+         <h2> Choose an account to transfer to</h2>
+            <div id="ExAcc"></div>
+      
         </section>
          <script>
      const params = new URLSearchParams(window.location.search);
@@ -67,15 +75,25 @@
     document.getElementById('BalanceOG').value = balance;
     document.getElementById('subscriberID').value = subscriberID; 
 
-    const button = document.getElementById('displayExAcc');
+    (async function loadAccounts() {
+    if (!subscriberID) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #999;'>No subscriber ID found. Please sign in again.</p>";
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/step2?subscriberID=${subscriberID}&excludeAccountID=${accountID}`, { method: 'POST' });
+        const text = await res.text();
+        document.getElementById("ExAcc").innerHTML = text;
+        
+        
+         } catch (error) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #c66;'>Unable to load accounts. Please try again later.</p>";
+    }
+})();
 
-button.addEventListener('click', async () => {
-    const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-    const text = await res.text();
 
-    // Show results on the page instead of alert
-        document.getElementById("ExAcc").innerHTML = text;});
-   
+
   </script>
         
     </div>

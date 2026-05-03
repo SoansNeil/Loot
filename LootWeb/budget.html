@@ -11,11 +11,10 @@
     <div id="page-wrapper">
 
         <header id="header">
-					<h1 style ="font-size: xx-large;"><a style= "display:flex; align-items:center; gap:10px; color: #75975e;"href="index.html">Loot <img 
-    					src="images/lootLogo.PNG" 
-    					style="height:55px; width:auto;"
-  						/></a> 
-					</h1>
+            <h1 style="font-size: xx-large;"><a style="display:flex; align-items:center; gap:10px; color: #75975e;" href="index.html">Loot <img
+                src="images/lootLogo.PNG"
+                style="height:55px; width:auto;"
+            /></a></h1>
             <nav id="nav">
                 <ul>
                     <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
@@ -40,6 +39,10 @@
                 <section class="box">
                     <div class="section-header">
                         <h3>Category Breakdown</h3>
+                    </div>
+                    <div class="month-filter">
+                        <label for="monthSelect">Month:</label>
+                        <input type="month" id="monthSelect">
                     </div>
                     <canvas id="myChart" style="max-width:400px; margin:20px auto;"></canvas>
                     <table>
@@ -93,7 +96,7 @@
                                 <input type="date" id="date" name="DateRecorded" required>
                             </div>
                         </div>
-                        <input type="hidden" name="subscriberId" value="1">
+                        <input type="hidden" name="subscriberId" id="subscriberIdInput">
                         <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Add Entry</button>
                     </form>
 
@@ -157,7 +160,17 @@
         let incomeTotalValue = 0;
         let expenseTotalValue = 0;
         let categoryTotals = {};
+        let transactions = [];
         let chart;
+
+        document.getElementById('subscriberIdInput').value = subscriberID;
+
+        const monthSelect = document.getElementById("monthSelect");
+        const form = document.getElementById("createBudget-form");
+
+        const today = new Date();
+        monthSelect.value = today.toISOString().slice(0, 7);
+        monthSelect.addEventListener("change", filterByMonth);
 
         function updateCateChart() {
             const labels = Object.keys(categoryTotals);
@@ -182,8 +195,6 @@
             });
         }
 
-        const form = document.getElementById("createBudget-form");
-
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
@@ -200,7 +211,6 @@
                 const type = data.ExpenseType;
                 const category = data.category;
                 const date = data.DateRecorded;
-                const subscriberId = formData.get("subscriberId");
                 const accountId = formData.get("accountId");
 
                 const row = document.createElement("tr");
@@ -209,27 +219,41 @@
                     <td>${type}</td>
                     <td>${category}</td>
                     <td>$${amount.toFixed(2)}</td>
-                    <td>${subscriberId}</td>
+                    <td>${subscriberID}</td>
                     <td>${accountId}</td>
                 `;
                 document.getElementById("transactionSum").appendChild(row);
 
-                if (type === "Income") {
-                    incomeTotalValue += amount;
-                } else if (type === "Expense") {
-                    expenseTotalValue += amount;
-                }
-
-                if (!categoryTotals[category]) categoryTotals[category] = 0;
-                categoryTotals[category] += amount;
-
-                updateSummary();
-                updateCategories();
-                updateCateChart();
+                transactions.push({ amount, type, category, date });
+                filterByMonth();
             }
 
             form.reset();
         });
+
+        function filterByMonth() {
+            const selectedMonth = monthSelect.value;
+
+            incomeTotalValue = 0;
+            expenseTotalValue = 0;
+            categoryTotals = {};
+
+            const filtered = transactions.filter(t => t.date.startsWith(selectedMonth));
+
+            filtered.forEach(t => {
+                if (t.type === "Income") {
+                    incomeTotalValue += t.amount;
+                } else {
+                    expenseTotalValue += t.amount;
+                }
+                if (!categoryTotals[t.category]) categoryTotals[t.category] = 0;
+                categoryTotals[t.category] += t.amount;
+            });
+
+            updateSummary();
+            updateCategories();
+            updateCateChart();
+        }
 
         function updateSummary() {
             document.getElementById("incomeTotal").textContent = "$" + incomeTotalValue.toFixed(2);

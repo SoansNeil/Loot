@@ -44,6 +44,75 @@
             </div>
         </section>
 
+				</section>
+    
+     <!-- Main -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <section class="Exacc-section" style="text-align: center;">
+         <h2> Your External Accounts</h2>
+                
+        <div id="ExAcc"></div>
+    
+    <div id="chooseToAccContainer"></div>
+            
+             <br> 
+             <br>
+             <br>
+             </div>
+
+    
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const subscriberID = urlParams.get('subscriberID');
+
+//automatically loads external accounts
+(async function loadAccounts() {
+    if (!subscriberID) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #999;'>No subscriber ID found. Please sign in again.</p>";
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+        const text = await res.text();
+        document.getElementById("ExAcc").innerHTML = text;
+        
+          document.querySelectorAll('#ExAcc form[action="/chooseToAcc"]').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const response = await fetch('/chooseToAcc', {
+                    method: 'POST',
+                    body: new URLSearchParams(formData),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                const html = await response.text();
+                document.getElementById("chooseToAccContainer").innerHTML = html;
+            });
+        });
+        
+         } catch (error) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #c66;'>Unable to load accounts. Please try again later.</p>";
+    }
+})();
+
+    function selectToAccount(toAccountID) {
+    console.log("Selected To Account:", toAccountID);
+
+    // next step: load scheduler or next UI
+    document.getElementById("chooseToAccContainer").innerHTML += `
+        <div style="margin-top:20px;">
+            <h3>Transfer setup</h3>
+            <p>From → To account selected</p>
+        </div>
+    `;
+}
+  
+</script>
+
+        </section>
+        
+
     </div>
 
     <script src="assets/js/jquery.min.js"></script>
