@@ -9,17 +9,49 @@
 <body class="landing is-preload">
 		<div id="page-wrapper">
 
-			<!-- Header -->
-				<header id="header" class="alt">
-					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
-					<nav id="nav">
-						<ul>
-							<li><a href="Dashboard.html">Dashboard</a></li>
-							<li><a href="index.html">Log Out</a></li>
-							
-						</ul>
-					</nav>
-				</header>
+<body>
+    <div id="page-wrapper">
+
+        <!-- Header -->
+        <header id="header">
+					<h1 style ="font-size: xx-large;"><a style= "display:flex; align-items:center; gap:10px; color: #75975e;"href="index.html">Loot <img 
+    					src="images/lootLogo.PNG" 
+    					style="height:55px; width:auto;"
+  						/></a> 
+					</h1>
+            <nav id="nav">
+                <ul>
+                    <li><a href="Dashboard.html">Dashboard</a></li>
+                    <li><a href="index.html">Sign Out</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Empty section for now -->
+        <section id="main" class="container">
+            <header class="major">
+                <h2>Welcome to your transfer feature!</h2>
+                <h3>Here you will be able to transfer money to and from accounts</h3>
+            </header>
+        </section>
+
+        <div id="accountInfo"></div>
+  
+        <section>
+        
+         <h3>Enter the accountID of the account you'd like to transfer to</h3>
+        <div class="Transfer-AccID">
+            <form id="CheckAccID" action="/CheckAccID" method="POST">
+                <input type="hidden" name="Balance" id="BalanceOG" value="">
+                <input type="hidden" name="AccountID" id="AccountID" value="">
+                <input type="hidden" name="subscriberID" id="subscriberID" value="">
+
+                <label>Choose which account you want to transfer to </label>
+              <input type="number" name="ToAccount" required>
+                <button type="submit">Next</button>
+                </form></div>
+                 <button id="displayExAcc">Show External Accounts</button>
+<div id="ExAcc"></div>
 
          <!-- Main -->
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
