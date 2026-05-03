@@ -254,7 +254,8 @@ app.post('/displayExAcc',(req,res)=>{
   const subscriberID=req.query.subscriberID;
 
   const sql='Select accountID, bank, accountType,currentBalance,currency, subscriberID From EXTERNAL_ACCOUNT Where subscriberID= ?';
- db.query(sql, [subscriberID], (err, result) => {
+ 
+  db.query(sql, [subscriberID], (err, result) => {
     if (err) {
       console.error('Error connecting external account:', err);
       res.status(500).send('DB Error');
@@ -264,16 +265,19 @@ app.post('/displayExAcc',(req,res)=>{
       return res.send('No accounts found');
     }
    //html formatting for dashboard
-    let html = '<table border="1">';
+    let html = '<div style="font-family: Arial, sans-serif;">';
+    
+html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
     result.forEach(account => {
-      html += `<div style="border:1px solid #ccc; padding:10px; margin:10px; width:300px;">
+      html += `<div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <p><strong>AccountID:</strong> ${account.accountID}</p>
           <p><strong>Bank:</strong> ${account.bank}</p>
           <p><strong>Account Type:</strong> ${account.accountType}</p>
           <p><strong>Current Balance:</strong> ${account.currency} ${account.currentBalance}</p>
-          <a href="Money-Transfer.html?accountID=${account.accountID}&currency=${account.currency}&balance=${account.currentBalance}&subscriberID=${subscriberID}">
-            <button>Click here to transfer money from this account</button>
-          </a>
+          <form action="/chooseToAcc" method="POST"> <input type="hidden" name="subscriberID" value="${subscriberID}">
+            <input type="hidden" name="fromAccountID" value="${account.accountID}">
+          <button type="submit"; style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">Click here to transfer money from this account</button>
+            </form>
         </div>
       `;
     
@@ -283,6 +287,53 @@ app.post('/displayExAcc',(req,res)=>{
     res.send(html); // send HTML snippet
   });
   });
+  //second step in transfer, choose the two account
+  app.post('/chooseToAcc',(req,res)=>{
+   const { subscriberID, fromAccountID } = req.body;
+
+  const sql = `
+    SELECT accountID, bank, accountType, currentBalance, currency 
+    FROM EXTERNAL_ACCOUNT 
+    WHERE subscriberID = ? AND accountID != ?
+  `;
+
+  db.query(sql, [subscriberID, fromAccountID], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('DB Error');
+    }
+
+    if (!result.length) {
+      return res.send('<p>No other accounts available</p>');
+    }
+
+    let html = '<h2>Select destination account</h2>';
+    html +='<div style="font-family: Arial, sans-serif;">';
+
+    html += '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">';  
+
+    result.forEach(acc => {
+      html += `
+        <div style="border: 1px solid #ccc; padding: 10px; width: 300px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <p><strong>AccountID:</strong> ${acc.accountID}</p>
+          <p><strong>Bank:</strong> ${acc.bank}</p>
+          <p><strong>Account Type:</strong> ${acc.accountType}</p>
+          <p><strong>Current Balance:</strong> ${acc.currency} ${acc.currentBalance}</p>
+
+
+          <button onclick="window.location.href='MT-SelectAmount.html?subscriberID=${subscriberID}'" style="background: #4a6741; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: 600;">
+            Send to this account
+          </button>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    res.send(html);
+  });
+ });
+//Transfer Amount +now and later
+
 
 //display family accounts on Fam dashboard 
 app.post('/displayFamAcc', (req, res) => {
@@ -309,7 +360,9 @@ app.post('/displayFamAcc', (req, res) => {
       }
 
       if (!familyResults.length) {
-        return res.send('No family members found');
+        return res.send(`<p>You are currently not apart of a family plan.</p><form action="/joinFamilyPlan" method="POST"><input type="hidden" name="subscriberID" value="${subscriberID}">
+      <button style="background: #4a6741;padding: 8px 30px; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 600;" type="submit">Click here to join one</button>
+    </form>`);
       }
    //html formatting for dashboard
      let html = '<div style="font-family: Arial, sans-serif;">';
@@ -332,7 +385,82 @@ res.send(html);
     });
   });
 });
+//assigns a family plan ID to the user 
+app.post('/joinFamilyPlan',(req,res)=>{
+  const {subscriberID}=req.body;
 
+  if (!subscriberID) {
+    return res.send(`
+      <script>
+        alert('Error: Missing subscriberID');
+        window.location.href =  '/Fam-dash.html?subscriberID=${subscriberID}';
+      </script>
+    `);
+  }
+  const checkUserSql = 'SELECT FamAccount FROM subscriber_account WHERE subscriberID = ?';
+  db.query(checkUserSql, [subscriberID], (err, userResult) => {
+    if (err) {
+      console.error('Error checking user:', err);
+       return res.send(`
+        <script>
+          alert('Database error occurred');
+          window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+        </script>
+      `);
+    }
+    const getMaxFamSql = `SELECT MAX(CAST(FamAccount AS UNSIGNED)) as maxFam 
+                         FROM subscriber_account 
+                         WHERE FamAccount IS NOT NULL 
+                         AND FamAccount != '0' 
+                         AND FamAccount != 'NULL'
+                         AND FamAccount != ''`;
+
+     db.query(getMaxFamSql, (err, maxResult) => {
+      if (err) {
+        console.error('Error getting max FamAccount:', err);
+        return res.send(`
+          <script>
+            alert('Error generating family account ID');
+            window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+          </script>
+        `);
+      }
+
+       let newFamAccount = 1;
+      if (maxResult[0].maxFam !== null && maxResult[0].maxFam !== undefined) {
+        newFamAccount = parseInt(maxResult[0].maxFam) + 1;
+      }
+     const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE subscriberID = ?';
+      db.query(updateSql, [newFamAccount.toString(), subscriberID], (err, updateResult) => {
+        if (err) {
+          console.error('Error updating family account:', err);
+          return res.send(`
+            <script>
+              alert('Failed to update family account');
+              window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+            </script>
+          `);
+        }
+        if (updateResult.affectedRows === 0) {
+          return res.send(`
+            <script>
+              alert('Could not update the user. Please try again.');
+              window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+            </script>
+          `);
+        }
+        
+        // Send success response
+        res.send(`
+          <script>
+            alert('Family plan created successfully');
+            window.location.href = '/Fam-dash.html?subscriberID=${subscriberID}';
+          </script>
+        `);
+      });
+    });
+  });
+})
 //check user in db
 app.get('/check-user', async (req, res) => {
     const { FName, LName, Username } = req.query;
@@ -351,7 +479,7 @@ app.get('/check-user', async (req, res) => {
 
 //add family member - checks ALL THREE fields match
 app.post('/add-family-member', async (req, res) => {
-    const { FName, LName, Username } = req.body;
+    const { FName, LName} = req.body;
     const subscriberID = req.query.subscriberID;
     
     try {
@@ -371,8 +499,8 @@ app.post('/add-family-member', async (req, res) => {
             const familyAccountId = userResult[0].FamAccount;
             
             // CHECK that ALL THREE fields match (FName, LName, AND Username)
-            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ? AND Username = ?';
-            db.query(checkUserSql, [FName, LName, Username], (err, existing) => {
+            const checkUserSql = 'SELECT * FROM subscriber_account WHERE FName = ? AND LName = ?';
+            db.query(checkUserSql, [FName, LName], (err, existing) => {
                 if (err) {
                     console.error('Error checking user:', err);
                     return res.status(500).json({ success: false, message: 'Database Error' });
@@ -381,13 +509,13 @@ app.post('/add-family-member', async (req, res) => {
                 if (!existing.length) {
                     return res.json({ 
                         success: false, 
-                        message: 'User not found. First name, last name, and username do not match an existing account.' 
+                        message: 'User not found. First name and last name do not match an existing account.' 
                     });
                 }
                 
                 
-                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ? AND Username = ?';
-                db.query(updateSql, [familyAccountId, FName, LName, Username], (err, result) => {
+                const updateSql = 'UPDATE subscriber_account SET FamAccount = ? WHERE FName = ? AND LName = ?';
+                db.query(updateSql, [familyAccountId, FName, LName], (err, result) => {
                     if (err) {
                         console.error('Error updating family member:', err);
                         return res.status(500).json({ success: false, message: 'Database Error' });
@@ -395,7 +523,7 @@ app.post('/add-family-member', async (req, res) => {
                     
                     res.json({ 
                         success: true, 
-                        message: `${FName} ${LName} (${Username}) has been linked to your family plan!`,
+                        message: `${FName} ${LName} has been linked to your family plan!`,
                         famAccount: familyAccountId 
                     });
                 });

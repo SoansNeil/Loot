@@ -1,14 +1,25 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Dashboard</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-</head>
+		<title>Money Transfer</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="landing is-preload">
+		<div id="page-wrapper">
 
-<body>
-    <div id="page-wrapper">
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1 style ="font-size: xx-large;"><a style= "color: #75975e;"href="index.html">Loot</a> </h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="Dashboard.html">Dashboard</a></li>
+							<li><a href="index.html">Log Out</a></li>
+							
+						</ul>
+					</nav>
+				</header>
 
         <!-- Header -->
         <header id="header">
@@ -34,26 +45,70 @@
             </header>
         </section>
 
-        <section>
-         <h2 > Your Checking Account has</h2>
-        
-           
-          <button id="displayExAcc">Show External Accounts</button>
-<div id="ExAcc"></div>
+				</section>
+    
+     <!-- Main -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <section class="Exacc-section" style="text-align: center;">
+         <h2> Your External Accounts</h2>
+                
+        <div id="ExAcc"></div>
+    
+    <div id="chooseToAccContainer"></div>
+            
+             <br> 
+             <br>
+             <br>
+             </div>
 
+    
 <script>
 const urlParams = new URLSearchParams(window.location.search);
 const subscriberID = urlParams.get('subscriberID');
 
-const button = document.getElementById('displayExAcc');
+//automatically loads external accounts
+(async function loadAccounts() {
+    if (!subscriberID) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #999;'>No subscriber ID found. Please sign in again.</p>";
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+        const text = await res.text();
+        document.getElementById("ExAcc").innerHTML = text;
+        
+          document.querySelectorAll('#ExAcc form[action="/chooseToAcc"]').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const response = await fetch('/chooseToAcc', {
+                    method: 'POST',
+                    body: new URLSearchParams(formData),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                const html = await response.text();
+                document.getElementById("chooseToAccContainer").innerHTML = html;
+            });
+        });
+        
+         } catch (error) {
+        document.getElementById("ExAcc").innerHTML = "<p style='color: #c66;'>Unable to load accounts. Please try again later.</p>";
+    }
+})();
 
-button.addEventListener('click', async () => {
-    const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-    const text = await res.text();
+    function selectToAccount(toAccountID) {
+    console.log("Selected To Account:", toAccountID);
 
-    // Show results on the page instead of alert
-    document.getElementById("ExAcc").innerHTML = text;
-});
+    // next step: load scheduler or next UI
+    document.getElementById("chooseToAccContainer").innerHTML += `
+        <div style="margin-top:20px;">
+            <h3>Transfer setup</h3>
+            <p>From → To account selected</p>
+        </div>
+    `;
+}
+  
 </script>
 
         </section>
