@@ -69,6 +69,11 @@
 							<label>Last Name *</label>
 							<input type="text" name="LName" required>
 						</div>
+
+						<div class="input-field">
+							<label>Username *</label>
+							<input type="text" name="Username" required>
+						</div>
 					</div>
 
             <button type="submit" class="signUp-btn" style="background: #4a6741;padding: 8px 30px; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 600;">
@@ -177,20 +182,21 @@
 		if (familyForm) {
     familyForm.addEventListener('submit', async function(e) {
         e.preventDefault();  // Prevent page from reloading
-        
+
         //  form values
         const firstName = familyForm.querySelector('input[name="FName"]').value;
         const lastName = familyForm.querySelector('input[name="LName"]').value;
-        
-        
+        const username = familyForm.querySelector('input[name="Username"]').value;
+
+
         const urlParams = new URLSearchParams(window.location.search);
         const subscriberID = urlParams.get('subscriberID');
-        
+
         if (!subscriberID) {
             alert('Error: No subscriber ID found. Please log in again.');
             return;
         }
-        
+
         try {
             const response = await fetch(`/add-family-member?subscriberID=${subscriberID}`, {
                 method: 'POST',
@@ -200,6 +206,7 @@
                 body: JSON.stringify({
                     FName: firstName,
                     LName: lastName,
+                    Username: username,
                 })
             });
             
@@ -292,61 +299,72 @@
     });
 }
 		
+function toggleGoal(id) {
+    const body = document.getElementById('goalBody_' + id);
+    const chevron = document.getElementById('chevron_' + id);
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    chevron.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
+}
+
 // Function to display family goals with green status bar
 function displayGoalsWithStatusBar(goals) {
     let html = '<div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">';
-    
+
     goals.forEach(goal => {
         const goalId = goal.GoalID || goal.id || `goal_${Math.random()}`;
+        const safeId = String(goalId).replace(/\W/g, '_');
         const goalAmount = parseFloat(goal.Goal) || parseFloat(goal.GoalAmount) || 0;
         const currentAmount = parseFloat(goal.CurrAmt) || parseFloat(goal.CurrentAmount) || 0;
         const goalName = goal.GoalName || goal.GName || 'Unnamed Goal';
         const description = goal.Description || goal.GoalDescription || '';
-        
-        const progress = (currentAmount / goalAmount) * 100;
+
+        const progress = goalAmount > 0 ? (currentAmount / goalAmount) * 100 : 0;
         const progressPercent = Math.min(progress, 100).toFixed(2);
         const remaining = goalAmount - currentAmount;
-        
-		let displayStatus = goal.Status || 'In Progress';
-		if (currentAmount >= goalAmount) {
-    	displayStatus = 'Complete';
-		}
+
+        let displayStatus = goal.Status || 'In Progress';
+        if (currentAmount >= goalAmount) displayStatus = 'Complete';
+
         html += `
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+            <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+                <div onclick="toggleGoal('${safeId}')" style="display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; cursor: pointer; user-select: none; border-bottom: 1px solid #f0f0f0;">
                     <h3 style="margin: 0; color: #2c3e50;">${escapeHtml(goalName)}</h3>
-                    <span style="font-size: 1.1rem; font-weight: bold; color: #4a6741;">
-                        $${currentAmount.toFixed(2)} / $${goalAmount.toFixed(2)}
-                    </span>
-                </div>
-                ${description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(description)}</p>` : ''}
-                <div style="margin: 1rem 0;">
-                    <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 30px; position: relative;">
-                        <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem;">
-                            ${progressPercent}%
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
+                        <span style="font-size: 1.1rem; font-weight: bold; color: #4a6741;">
+                            $${currentAmount.toFixed(2)} / $${goalAmount.toFixed(2)}
+                        </span>
+                        <span id="chevron_${safeId}" style="font-size: 1rem; color: #4a6741; transition: transform 0.2s; display: inline-block;">&#9660;</span>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                    <span style="color: #666; font-size: 0.9rem;">
-                        ${progressPercent >= 100 ? ' Goal Completed!' : `$${remaining.toFixed(2)} remaining to reach goal`}
-                    </span>
-                    <span style="color: #4a6741; font-size: 0.9rem; font-weight: 500;">
-   					 Status: ${displayStatus}
-					</span>
-                </div>
-                <div style="margin-top: 1rem; text-align: right;">
-                    <button onclick="displayExternalAccountsForContribution('${goalId}', '${escapeHtml(goalName)}', ${goalAmount}, ${currentAmount}, this)"  
-        style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
-     	Contribute Money
-		</button>
+                <div id="goalBody_${safeId}" style="padding: 1.2rem 1.5rem;">
+                    ${description ? `<p style="color: #666; margin-bottom: 1rem;">${escapeHtml(description)}</p>` : ''}
+                    <div style="margin: 1rem 0;">
+                        <div style="background: #e0e0e0; border-radius: 25px; overflow: hidden; height: 30px;">
+                            <div style="background: linear-gradient(90deg, #4CAF50, #8BC34A); width: ${progressPercent}%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem;">
+                                ${progressPercent}%
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <span style="color: #666; font-size: 0.9rem;">
+                            ${parseFloat(progressPercent) >= 100 ? 'Goal Completed!' : `$${remaining.toFixed(2)} remaining`}
+                        </span>
+                        <span style="color: #4a6741; font-size: 0.9rem; font-weight: 500;">Status: ${displayStatus}</span>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <button onclick="displayExternalAccountsForContribution('${goalId}', '${escapeHtml(goalName)}', ${goalAmount}, ${currentAmount}, this)"
+                            style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                            Contribute Money
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
     });
-    
+
     html += '</div>';
-    
+
     let goalsDisplay = document.getElementById('goalsDisplay');
     if (!goalsDisplay) {
         goalsDisplay = document.createElement('div');
