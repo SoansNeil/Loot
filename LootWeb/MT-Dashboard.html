@@ -6,16 +6,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/employee.css" />
+    <style>
+        .transfer-wizard { max-width: 620px; margin: 0 auto; }
+
+        /* ── Progress bar ── */
+        .step-progress {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .step-dot {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: #e0e0e0; color: #999;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: background 0.2s, color 0.2s;
+        }
+        .step-dot.active { background: #75975e; color: #fff; }
+        .step-dot.done   { background: #4a6741; color: #fff; }
+        .step-line {
+            flex: 1; height: 2px; background: #e0e0e0;
+            transition: background 0.2s;
+        }
+        .step-line.done { background: #4a6741; }
+
+        /* ── Steps ── */
+        .step { display: none; }
+        .step.active { display: block; }
+
+        /* ── Account cards ── */
+        .account-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .account-card {
+            border: 2px solid #ddd; border-radius: 8px;
+            padding: 1rem; cursor: pointer;
+            background: #fafafa;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .account-card:hover   { border-color: #75975e; background: #f0f5ec; }
+        .account-card.selected { border-color: #75975e; background: #eef4e8; }
+        .account-card .card-bank    { font-weight: 700; color: #333; margin-bottom: 0.2rem; }
+        .account-card .card-balance { font-size: 1.1rem; font-weight: 700; color: #4a6741; }
+        .account-card .card-meta    { font-size: 0.78rem; color: #888; margin-top: 0.25rem; }
+
+        /* ── Confirm summary ── */
+        .confirm-summary {
+            background: #f9f9f9; border: 1px solid #eee;
+            border-radius: 8px; padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .confirm-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.55rem 0; border-bottom: 1px solid #eee;
+        }
+        .confirm-row:last-child { border-bottom: none; }
+        .confirm-row .label {
+            font-size: 0.75rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.04em; color: #888;
+        }
+        .confirm-row .value { font-weight: 600; color: #333; }
+
+        /* ── Result ── */
+        .result-box { text-align: center; padding: 2.5rem 1rem; }
+        .result-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+        .result-box.success .result-icon { color: #75975e; }
+        .result-box.error   .result-icon { color: #c66; }
+        .result-message { font-size: 1.05rem; font-weight: 600; color: #333; margin-bottom: 1.5rem; }
+
+        /* ── Navigation buttons ── */
+        .step-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .back-btn {
+            background: none; border: 1.5px solid #ddd; color: #666;
+            padding: 0.6rem 1.4rem; border-radius: 5px;
+            cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .back-btn:hover { border-color: #75975e; color: #4a6741; }
+    </style>
 </head>
 <body class="is-preload">
     <div id="page-wrapper">
 
         <header id="header">
-					<h1 style ="font-size: xx-large;"><a style= "display:flex; align-items:center; gap:10px; color: #75975e;"href="index.html">Loot <img 
-    					src="images/lootLogo.PNG" 
-    					style="height:55px; width:auto;"
-  						/></a> 
-					</h1>
+            <h1 style="font-size: xx-large;"><a style="display:flex; align-items:center; gap:10px; color: #75975e;" href="index.html">Loot <img
+                src="images/lootLogo.PNG"
+                style="height:44px; width:auto;"
+            /></a></h1>
             <nav id="nav">
                 <ul>
                     <li><a href="#" onclick="goToDashboard()">Dashboard</a></li>
@@ -34,85 +116,121 @@
                 <h2>Transfer Funds</h2>
             </header>
 
-            <div class="tickets-wrapper">
-                <div class="section-header">
-                    <h3>Your Accounts</h3>
+            <section class="box">
+                <div class="transfer-wizard">
+
+                    <!-- Progress -->
+                    <div class="step-progress">
+                        <div class="step-dot active" id="dot1">1</div>
+                        <div class="step-line" id="line1"></div>
+                        <div class="step-dot" id="dot2">2</div>
+                        <div class="step-line" id="line2"></div>
+                        <div class="step-dot" id="dot3">3</div>
+                        <div class="step-line" id="line3"></div>
+                        <div class="step-dot" id="dot4">4</div>
+                    </div>
+
+                    <!-- Step 1: Choose from account -->
+                    <div class="step active" id="step1">
+                        <div class="section-header"><h3>Transfer From</h3></div>
+                        <p style="color:#666; font-size:0.9rem; margin-bottom:1rem;">Select the account you want to transfer from.</p>
+                        <div class="account-cards" id="fromAccountCards">
+                            <p style="color:#999;">Loading your accounts...</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: To account + amount -->
+                    <div class="step" id="step2">
+                        <div class="section-header"><h3>Transfer Details</h3></div>
+                        <p id="step2Subtitle" style="color:#666; font-size:0.9rem; margin-bottom:1.2rem;"></p>
+                        <div class="edit-grid">
+                            <div class="field-group full-width">
+                                <label>Transfer To</label>
+                                <select id="toAccountSelect"></select>
+                            </div>
+                            <div class="field-group full-width">
+                                <label>Amount</label>
+                                <input type="number" id="amountInput" min="0.01" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="step-actions">
+                            <button class="back-btn" onclick="goToStep(1)">← Back</button>
+                            <button class="action-btn" onclick="validateStep2()">Next →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Schedule -->
+                    <div class="step" id="step3">
+                        <div class="section-header"><h3>When would you like to transfer?</h3></div>
+                        <div class="radio-group" style="flex-direction:column; margin-top:1rem;">
+                            <label>
+                                <input type="radio" name="scheduleType" value="now" onchange="toggleDatePicker(false)">
+                                Transfer Now &nbsp;<span style="font-weight:400; color:#666;">— Process immediately</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="scheduleType" value="later" onchange="toggleDatePicker(true)">
+                                Transfer Later &nbsp;<span style="font-weight:400; color:#666;">— Schedule for the future</span>
+                            </label>
+                        </div>
+                        <div id="dateTimePicker" style="display:none; margin-top:1.2rem;">
+                            <div class="edit-grid">
+                                <div class="field-group">
+                                    <label>Date</label>
+                                    <input type="date" id="transferDate">
+                                </div>
+                                <div class="field-group">
+                                    <label>Time (24hr)</label>
+                                    <input type="time" id="transferTime">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-actions">
+                            <button class="back-btn" onclick="goToStep(2)">← Back</button>
+                            <button class="action-btn" onclick="validateStep3()">Next →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Confirm -->
+                    <div class="step" id="step4">
+                        <div class="section-header"><h3>Confirm Transfer</h3></div>
+                        <div class="confirm-summary">
+                            <div class="confirm-row">
+                                <span class="label">From</span>
+                                <span class="value" id="confirmFrom"></span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="label">To</span>
+                                <span class="value" id="confirmTo"></span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="label">Amount</span>
+                                <span class="value" id="confirmAmount"></span>
+                            </div>
+                            <div class="confirm-row">
+                                <span class="label">When</span>
+                                <span class="value" id="confirmWhen"></span>
+                            </div>
+                        </div>
+                        <div class="step-actions">
+                            <button class="back-btn" onclick="goToStep(3)">← Back</button>
+                            <button class="action-btn" id="confirmBtn" onclick="executeTransfer()">Confirm Transfer</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Result -->
+                    <div class="step" id="step5">
+                        <div class="result-box" id="resultBox">
+                            <div class="result-icon" id="resultIcon"></div>
+                            <div class="result-message" id="resultMessage"></div>
+                            <button class="action-btn" onclick="goToDashboard()">Return to Dashboard</button>
+                            <br><br>
+                            <button class="back-btn" onclick="resetWizard()">Make Another Transfer</button>
+                        </div>
+                    </div>
+
                 </div>
-                <p style="color: #666; margin-bottom: 1.2rem; font-size: 0.95rem;">Select the account you want to transfer from.</p>
-                <button id="displayExAcc" class="action-btn">Load My Accounts</button>
-                <div id="ExAcc" style="margin-top: 1.5rem;"></div>
-            </div>
+            </section>
         </section>
-
-				</section>
-    
-     <!-- Main -->
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-        <section class="Exacc-section" style="text-align: center;">
-         <h2> Your External Accounts</h2>
-                
-        <div id="ExAcc"></div>
-    
-    <div id="chooseToAccContainer"></div>
-            
-             <br> 
-             <br>
-             <br>
-             </div>
-
-    
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const subscriberID = urlParams.get('subscriberID');
-
-//automatically loads external accounts
-(async function loadAccounts() {
-    if (!subscriberID) {
-        document.getElementById("ExAcc").innerHTML = "<p style='color: #999;'>No subscriber ID found. Please sign in again.</p>";
-        return;
-    }
-    
-    try {
-        const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-        const text = await res.text();
-        document.getElementById("ExAcc").innerHTML = text;
-        
-          document.querySelectorAll('#ExAcc form[action="/chooseToAcc"]').forEach(form => {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const response = await fetch('/chooseToAcc', {
-                    method: 'POST',
-                    body: new URLSearchParams(formData),
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                });
-                const html = await response.text();
-                document.getElementById("chooseToAccContainer").innerHTML = html;
-            });
-        });
-        
-         } catch (error) {
-        document.getElementById("ExAcc").innerHTML = "<p style='color: #c66;'>Unable to load accounts. Please try again later.</p>";
-    }
-})();
-
-    function selectToAccount(toAccountID) {
-    console.log("Selected To Account:", toAccountID);
-
-    // next step: load scheduler or next UI
-    document.getElementById("chooseToAccContainer").innerHTML += `
-        <div style="margin-top:20px;">
-            <h3>Transfer setup</h3>
-            <p>From → To account selected</p>
-        </div>
-    `;
-}
-  
-</script>
-
-        </section>
-        
-
     </div>
 
     <script src="assets/js/jquery.min.js"></script>
@@ -125,11 +243,194 @@ const subscriberID = urlParams.get('subscriberID');
     <script src="assets/js/nav.js"></script>
 
     <script>
-        document.getElementById('displayExAcc').addEventListener('click', async () => {
-            const res = await fetch(`/displayExAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-            const text = await res.text();
-            document.getElementById('ExAcc').innerHTML = text;
-        });
+        let accounts     = [];
+        let selectedFrom = null;
+        let selectedTo   = null;
+        let transferAmount = 0;
+        let scheduleType = 'now';
+        let transferDate = '';
+        let transferTime = '';
+
+        // ── Load accounts ─────────────────────────────────────
+        async function loadAccounts() {
+            try {
+                const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
+                accounts = await res.json();
+                renderFromCards();
+
+                const params = new URLSearchParams(window.location.search);
+                const preID  = params.get('accountID');
+                if (preID) {
+                    const match = accounts.find(a => String(a.accountID) === String(preID));
+                    if (match) selectFromAccount(match.accountID);
+                }
+            } catch {
+                document.getElementById('fromAccountCards').innerHTML =
+                    '<p style="color:#c66;">Unable to load accounts. Please try again.</p>';
+            }
+        }
+
+        function renderFromCards() {
+            const container = document.getElementById('fromAccountCards');
+            if (!accounts.length) {
+                container.innerHTML = '<p style="color:#999;">No accounts found. Add one from External Accounts.</p>';
+                return;
+            }
+            container.innerHTML = accounts.map(a => `
+                <div class="account-card" id="card-${a.accountID}" onclick="selectFromAccount(${a.accountID})">
+                    <div class="card-bank">${a.bank}</div>
+                    <div class="card-balance">${a.currency} $${parseFloat(a.currentBalance).toFixed(2)}</div>
+                    <div class="card-meta">${a.accountType} · ID #${a.accountID}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectFromAccount(id) {
+            selectedFrom = accounts.find(a => String(a.accountID) === String(id));
+            document.querySelectorAll('.account-card').forEach(c => c.classList.remove('selected'));
+            const card = document.getElementById('card-' + id);
+            if (card) card.classList.add('selected');
+            setTimeout(() => goToStep(2), 200);
+        }
+
+        // ── Step 2 ────────────────────────────────────────────
+        function populateToAccounts() {
+            const select = document.getElementById('toAccountSelect');
+            const others = accounts.filter(a => String(a.accountID) !== String(selectedFrom.accountID));
+            if (!others.length) {
+                select.innerHTML = '<option disabled>No other accounts available</option>';
+                return;
+            }
+            select.innerHTML = others.map(a =>
+                `<option value="${a.accountID}">${a.bank} – ${a.accountType} ($${parseFloat(a.currentBalance).toFixed(2)})</option>`
+            ).join('');
+        }
+
+        function validateStep2() {
+            const toID   = document.getElementById('toAccountSelect').value;
+            const amount = parseFloat(document.getElementById('amountInput').value);
+
+            if (!toID) return alert('Please select a destination account.');
+            if (!amount || amount <= 0) return alert('Please enter a valid amount.');
+            if (amount > parseFloat(selectedFrom.currentBalance)) {
+                return alert(`Amount exceeds available balance of $${parseFloat(selectedFrom.currentBalance).toFixed(2)}.`);
+            }
+
+            selectedTo     = accounts.find(a => String(a.accountID) === String(toID));
+            transferAmount = amount;
+            goToStep(3);
+        }
+
+        // ── Step 3 ────────────────────────────────────────────
+        function toggleDatePicker(show) {
+            document.getElementById('dateTimePicker').style.display = show ? 'block' : 'none';
+        }
+
+        function validateStep3() {
+            const radio = document.querySelector('input[name="scheduleType"]:checked');
+            if (!radio) return alert('Please select when to transfer.');
+            scheduleType = radio.value;
+
+            if (scheduleType === 'later') {
+                transferDate = document.getElementById('transferDate').value;
+                transferTime = document.getElementById('transferTime').value;
+                if (!transferDate || !transferTime) return alert('Please select both a date and time.');
+            }
+            goToStep(4);
+        }
+
+        // ── Step 4 ────────────────────────────────────────────
+        function buildConfirmSummary() {
+            document.getElementById('confirmFrom').textContent =
+                `${selectedFrom.bank} (${selectedFrom.accountType}) — $${parseFloat(selectedFrom.currentBalance).toFixed(2)}`;
+            document.getElementById('confirmTo').textContent =
+                `${selectedTo.bank} (${selectedTo.accountType})`;
+            document.getElementById('confirmAmount').textContent =
+                `$${transferAmount.toFixed(2)}`;
+            document.getElementById('confirmWhen').textContent =
+                scheduleType === 'later' ? `${transferDate} at ${transferTime}` : 'Immediately';
+        }
+
+        async function executeTransfer() {
+            const btn = document.getElementById('confirmBtn');
+            btn.disabled    = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                const res = await fetch('/api/transfer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        fromAccount: selectedFrom.accountID,
+                        toAccount:   selectedTo.accountID,
+                        amount:      transferAmount,
+                        subscriberID,
+                        scheduleType,
+                        transferDate,
+                        transferTime
+                    })
+                });
+                const data = await res.json();
+                showResult(data.success, data.message);
+            } catch {
+                showResult(false, 'Network error. Please try again.');
+            }
+
+            btn.disabled    = false;
+            btn.textContent = 'Confirm Transfer';
+        }
+
+        // ── Step 5 ────────────────────────────────────────────
+        function showResult(success, message) {
+            const box = document.getElementById('resultBox');
+            box.className = 'result-box ' + (success ? 'success' : 'error');
+            document.getElementById('resultIcon').textContent   = success ? '✓' : '✗';
+            document.getElementById('resultMessage').textContent = message;
+            goToStep(5);
+        }
+
+        function resetWizard() {
+            selectedFrom = null; selectedTo = null;
+            transferAmount = 0; scheduleType = 'now';
+            transferDate = ''; transferTime = '';
+            document.querySelectorAll('input[name="scheduleType"]').forEach(r => r.checked = false);
+            document.getElementById('dateTimePicker').style.display = 'none';
+            document.getElementById('amountInput').value = '';
+            loadAccounts();
+            goToStep(1);
+        }
+
+        // ── Navigation ────────────────────────────────────────
+        function goToStep(n) {
+            document.querySelectorAll('.step').forEach((s, i) =>
+                s.classList.toggle('active', i + 1 === n)
+            );
+
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById('dot' + i);
+                dot.classList.remove('active', 'done');
+                if (n > 4 || i < n) dot.classList.add('done');
+                else if (i === n)   dot.classList.add('active');
+            }
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('line' + i).classList.toggle('done', n > i);
+            }
+
+            if (n === 2) {
+                document.getElementById('step2Subtitle').textContent =
+                    `From: ${selectedFrom.bank} — ${selectedFrom.accountType} · Available: $${parseFloat(selectedFrom.currentBalance).toFixed(2)}`;
+                populateToAccounts();
+            }
+            if (n === 3) {
+                const now = new Date();
+                const pad = x => String(x).padStart(2, '0');
+                document.getElementById('transferDate').min =
+                    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+            }
+            if (n === 4) buildConfirmSummary();
+        }
+
+        loadAccounts();
     </script>
 
 </body>

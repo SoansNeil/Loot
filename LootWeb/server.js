@@ -524,6 +524,78 @@ app.post('/ConfirmTransfer', (req, res) => {
   });
 });
 
+// ── Single-page transfer API ─────────────────────────────────
+
+app.post('/api/transfer', (req, res) => {
+  const amount      = Number(req.body.amount);
+  const fromAccount = parseInt(req.body.fromAccount, 10);
+  const toAccount   = parseInt(req.body.toAccount,   10);
+  const subscriberID = parseInt(req.body.subscriberID, 10);
+  const scheduleType = req.body.scheduleType;
+  let   transferDate = (req.body.transferDate || '').split('T')[0];
+  const transferTime = req.body.transferTime || '';
+
+  if (!amount || amount <= 0 || isNaN(fromAccount) || isNaN(toAccount) || isNaN(subscriberID)) {
+    return res.status(400).json({ success: false, message: 'Invalid transfer details' });
+  }
+  if (fromAccount === toAccount) {
+    return res.status(400).json({ success: false, message: 'From and To accounts must be different' });
+  }
+
+  if (scheduleType === 'later') {
+    if (!transferDate || !transferTime) {
+      return res.status(400).json({ success: false, message: 'Please select a date and time' });
+    }
+    const sql = `INSERT INTO scheduled_transfers (amount, from_account, to_account, schedule_type, transfer_date, transfer_time, status) VALUES (?, ?, ?, 'later', ?, ?, 'pending')`;
+    db.query(sql, [amount, fromAccount, toAccount, transferDate, transferTime], (err) => {
+      if (err) return res.status(500).json({ success: false, message: 'Error scheduling transfer' });
+      res.json({ success: true, message: `$${amount.toFixed(2)} scheduled for ${transferDate} at ${transferTime}` });
+    });
+    return;
+  }
+
+  db.getConnection((err, connection) => {
+    if (err) return res.status(500).json({ success: false, message: 'Database connection error' });
+
+    connection.beginTransaction((err) => {
+      if (err) { connection.release(); return res.status(500).json({ success: false, message: 'Transaction error' }); }
+
+      const rollback = (msg) => connection.rollback(() => { connection.release(); res.json({ success: false, message: msg }); });
+
+      connection.query(
+        'UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance - ? WHERE accountID = ? AND currentBalance >= ?',
+        [amount, fromAccount, amount],
+        (err, result) => {
+          if (err) return rollback('Database error');
+          if (result.affectedRows === 0) return rollback('Insufficient funds');
+
+          connection.query(
+            'UPDATE EXTERNAL_ACCOUNT SET currentBalance = currentBalance + ? WHERE accountID = ?',
+            [amount, toAccount],
+            (err, result) => {
+              if (err || result.affectedRows === 0) return rollback('Error updating destination account');
+
+              connection.query(
+                `INSERT INTO scheduled_transfers (amount, from_account, to_account, status) VALUES (?, ?, ?, 'completed')`,
+                [amount, fromAccount, toAccount],
+                (err) => {
+                  if (err) return rollback('Error recording transfer');
+
+                  connection.commit((err) => {
+                    if (err) return rollback('Commit failed');
+                    connection.release();
+                    res.json({ success: true, message: `$${amount.toFixed(2)} transferred successfully!` });
+                  });
+                }
+              );
+            }
+          );
+        }
+      );
+    });
+  });
+});
+
 // ── Scheduled Transfers ──────────────────────────────────────
 
 schedule.scheduleJob('* * * * *', function () {
