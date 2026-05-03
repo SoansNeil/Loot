@@ -604,9 +604,9 @@ schedule.scheduleJob('* * * * *', function () {
   const currentDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-  const findSql = `SELECT * FROM scheduled_transfers WHERE status = 'pending' AND transfer_date <= ? AND transfer_time <= ?`;
+  const findSql = `SELECT * FROM scheduled_transfers WHERE status = 'pending' AND (transfer_date < ? OR (transfer_date = ? AND transfer_time <= ?))`;
 
-  db.query(findSql, [currentDate, currentTime], (err, transfers) => {
+  db.query(findSql, [currentDate, currentDate, currentTime], (err, transfers) => {
     if (err) {
       console.error('Scheduled transfer query error:', err);
       return;
