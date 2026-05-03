@@ -726,6 +726,9 @@ app.post('/displayFamAcc', (req, res) => {
             <p><strong>Last Name:</strong> ${member.LName}</p>
             <p><strong>Username:</strong> ${member.Username}</p>
             <p><strong>Family Account:</strong> ${member.FamAccount}</p>
+            <button onclick="removeFamilyMember(${member.subscriberID})" style="background:#c0392b;color:white;border:none;padding:6px 16px;border-radius:20px;cursor:pointer;font-weight:600;margin-top:0.5rem;">
+              Remove
+            </button>
           </div>
         `;
       });
@@ -757,6 +760,46 @@ app.post('/add-family-member', (req, res) => {
 
         res.json({ success: true, message: `${FName} ${LName} (${Username}) has been linked to your family plan!`, famAccount: familyAccountId });
       });
+    });
+  });
+});
+
+app.post('/remove-family-member', (req, res) => {
+  const memberSubscriberID = parseInt(req.body.memberSubscriberID, 10);
+  const requestingSubscriberID = parseInt(req.body.subscriberID, 10);
+
+  const verifySql = 'SELECT FamAccount FROM SUBSCRIBER_ACCOUNT WHERE subscriberID = ?';
+  db.query(verifySql, [requestingSubscriberID], (err, results) => {
+    if (err || !results.length) return res.status(400).json({ success: false, message: 'Requesting user not found' });
+
+    const famAccount = results[0].FamAccount;
+    if (!famAccount) return res.status(400).json({ success: false, message: 'You are not in a family plan' });
+
+    const removeSql = 'UPDATE SUBSCRIBER_ACCOUNT SET FamAccount = NULL WHERE subscriberID = ? AND FamAccount = ?';
+    db.query(removeSql, [memberSubscriberID, famAccount], (err, result) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      if (result.affectedRows === 0) return res.status(400).json({ success: false, message: 'Member not found in your family plan' });
+      res.json({ success: true });
+    });
+  });
+});
+
+app.post('/remove-goal', (req, res) => {
+  const goalId = parseInt(req.body.goalId, 10);
+  const subscriberID = parseInt(req.body.subscriberID, 10);
+
+  const getFamSql = 'SELECT FamAccount FROM SUBSCRIBER_ACCOUNT WHERE subscriberID = ?';
+  db.query(getFamSql, [subscriberID], (err, results) => {
+    if (err || !results.length) return res.status(400).json({ success: false, message: 'User not found' });
+
+    const famAccount = results[0].FamAccount;
+    if (!famAccount) return res.status(400).json({ success: false, message: 'You are not in a family plan' });
+
+    const deleteSql = 'DELETE FROM Family_Goal WHERE GoalID = ? AND FamAccount = ?';
+    db.query(deleteSql, [goalId, famAccount], (err, result) => {
+      if (err) return res.status(500).json({ success: false, message: 'Database error' });
+      if (result.affectedRows === 0) return res.status(400).json({ success: false, message: 'Goal not found in your family plan' });
+      res.json({ success: true });
     });
   });
 });

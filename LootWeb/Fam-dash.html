@@ -142,6 +142,27 @@
 			<script>
 
 
+			async function removeFamilyMember(memberSubscriberID) {
+                if (!confirm('Remove this member from your family plan?')) return;
+                const urlParams = new URLSearchParams(window.location.search);
+                const subscriberID = urlParams.get('subscriberID');
+                try {
+                    const res = await fetch('/remove-family-member', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ memberSubscriberID, subscriberID })
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        loadFamilyAccounts();
+                    } else {
+                        alert(result.message || 'Failed to remove member.');
+                    }
+                } catch (err) {
+                    alert('Error removing member: ' + err.message);
+                }
+            }
+
 			async function loadFamilyAccounts() {
                         const subscriberID = new URLSearchParams(window.location.search).get('subscriberID');
                         
@@ -299,6 +320,27 @@
     });
 }
 		
+async function removeGoal(goalId) {
+    if (!confirm('Remove this goal from the family plan?')) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const subscriberID = urlParams.get('subscriberID');
+    try {
+        const res = await fetch('/remove-goal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ goalId, subscriberID })
+        });
+        const result = await res.json();
+        if (result.success) {
+            loadFamilyGoals();
+        } else {
+            alert(result.message || 'Failed to remove goal.');
+        }
+    } catch (err) {
+        alert('Error removing goal: ' + err.message);
+    }
+}
+
 function toggleGoal(id) {
     const body = document.getElementById('goalBody_' + id);
     const chevron = document.getElementById('chevron_' + id);
@@ -352,7 +394,11 @@ function displayGoalsWithStatusBar(goals) {
                         </span>
                         <span style="color: #4a6741; font-size: 0.9rem; font-weight: 500;">Status: ${displayStatus}</span>
                     </div>
-                    <div style="margin-top: 1rem; text-align: right;">
+                    <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <button onclick="removeGoal('${goalId}')"
+                            style="background: #c0392b; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
+                            Remove Goal
+                        </button>
                         <button onclick="displayExternalAccountsForContribution('${goalId}', '${escapeHtml(goalName)}', ${goalAmount}, ${currentAmount}, this)"
                             style="background: #4a6741; color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 600;">
                             Contribute Money
