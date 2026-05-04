@@ -310,6 +310,7 @@
                 alert(`Goal "${goalName}" has been added to your family plan!`);
                 goalForm.reset();
                 dropdownForm1.style.display = 'none';
+                await loadFamilyGoals();
             } else {
                 alert(result.message || 'Failed to add goal.');
             }

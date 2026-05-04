@@ -373,6 +373,21 @@ app.get('/getExternalAccountsJSON', (req, res) => {
   });
 });
 
+app.post('/remove-external-account', (req, res) => {
+  const accountID = parseInt(req.body.accountID, 10);
+  const subscriberID = parseInt(req.body.subscriberID, 10);
+
+  const sql = 'DELETE FROM EXTERNAL_ACCOUNT WHERE accountID = ? AND subscriberID = ?';
+  db.query(sql, [accountID, subscriberID], (err, result) => {
+    if (err) {
+      console.error('Error removing external account:', err);
+      return res.status(500).json({ success: false, message: 'Could not remove account. It may have linked transactions.' });
+    }
+    if (result.affectedRows === 0) return res.status(400).json({ success: false, message: 'Account not found.' });
+    res.json({ success: true });
+  });
+});
+
 // ── Money Transfer ───────────────────────────────────────────
 
 app.post('/CheckAccID', (req, res) => {
@@ -908,6 +923,7 @@ app.get('/api/category-totals/:accountId', (req, res) => {
     FROM CARD_TRANSACTION
     WHERE AccountID = ? AND TransactionType = 'Debit'
       AND MONTH(TransactionDate) = ? AND YEAR(TransactionDate) = ?
+      AND Status = 'Approved'
     GROUP BY Category ORDER BY Total DESC
   `;
 
@@ -926,6 +942,7 @@ app.get('/api/category-transactions/:accountId/:category', (req, res) => {
     FROM CARD_TRANSACTION
     WHERE AccountID = ? AND Category = ? AND TransactionType = 'Debit'
       AND MONTH(TransactionDate) = ? AND YEAR(TransactionDate) = ?
+      AND Status = 'Approved'
     ORDER BY TransactionDate DESC
   `;
 
@@ -1107,10 +1124,16 @@ app.post('/reviewForm', (req, res) => {
 
   const sql = 'INSERT INTO CLOSED_FORMS (formID, customerName, customerEmail, EmployeeID, subject, priority, description, comments) VALUES(?,?,?,?,?,?,?,?)';
   db.query(sql, [formID, customerName, customerEmail, employeeID, subject, priority, description, Comments], (err) => {
-    if (err) return res.status(500).send('Error submitting review');
+    if (err && err.code !== 'ER_DUP_ENTRY') {
+      console.error('Error inserting into CLOSED_FORMS:', err);
+      return res.status(500).send('Error submitting review');
+    }
 
     db.query('DELETE FROM SERVICE_FORMS WHERE formID = ?', [formID], (err) => {
-      if (err) return res.status(500).send('Review submitted but error deleting original form');
+      if (err) {
+        console.error('Error deleting from SERVICE_FORMS:', err);
+        return res.status(500).send('Review submitted but error deleting original form');
+      }
       res.send('Review submitted successfully');
     });
   });

@@ -65,8 +65,10 @@
                     <form id="createBudget-form">
                         <div class="edit-grid">
                             <div class="field-group">
-                                <label>Account ID</label>
-                                <input type="number" id="accountId" name="accountId" min="0" required>
+                                <label>Account</label>
+                                <select id="accountId" name="accountId" required>
+                                    <option value="">Loading accounts…</option>
+                                </select>
                             </div>
                             <div class="field-group">
                                 <label>Type</label>
@@ -168,6 +170,17 @@
         const monthSelect = document.getElementById("monthSelect");
         const form = document.getElementById("createBudget-form");
 
+        async function loadAccountOptions() {
+            const select = document.getElementById('accountId');
+            const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
+            const accounts = await res.json();
+            select.innerHTML = accounts.length
+                ? accounts.map(a => `<option value="${a.accountID}">${a.bank} – ${a.accountType} (#${a.accountID})</option>`).join('')
+                : '<option value="">No accounts found</option>';
+        }
+
+        loadAccountOptions();
+
         const today = new Date();
         monthSelect.value = today.toISOString().slice(0, 7);
         monthSelect.addEventListener("change", filterByMonth);
@@ -229,6 +242,7 @@
             }
 
             form.reset();
+            loadAccountOptions();
         });
 
         function filterByMonth() {

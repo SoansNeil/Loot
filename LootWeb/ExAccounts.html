@@ -103,6 +103,7 @@
                                     <th>Currency</th>
                                     <th>Status</th>
                                     <th>Subscriber</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody id="accounts-tbody"></tbody>
@@ -133,7 +134,7 @@
             tbody.innerHTML = '';
 
             if (!accounts || accounts.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6">No accounts found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7">No accounts found.</td></tr>';
                 return;
             }
 
@@ -146,9 +147,29 @@
                     <td>${account.currency}</td>
                     <td>${account.syncStatus}</td>
                     <td>${subscriberID}</td>
+                    <td>
+                        <button onclick="removeAccount(${account.accountID})" class="action-btn" style="width:auto; padding: 4px 14px; font-size: 0.85rem; background: #c0392b;">
+                            Remove
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        async function removeAccount(accountID) {
+            if (!confirm('Remove this account?')) return;
+            const res = await fetch('/remove-external-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountID, subscriberID })
+            });
+            const result = await res.json();
+            if (result.success) {
+                loadAccounts();
+            } else {
+                alert(result.message || 'Failed to remove account.');
+            }
         }
 
         const form = document.getElementById("createExAcct-form");
