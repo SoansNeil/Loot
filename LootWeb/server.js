@@ -1102,6 +1102,13 @@ app.post('/submitForm', (req, res) => {
   });
 });
 
+app.get('/getClosedForms', (_req, res) => {
+  db.query('SELECT formID, customerName, customerEmail, EmployeeID, subject, priority, description, comments FROM CLOSED_FORMS ORDER BY formID DESC', (err, result) => {
+    if (err) return res.status(500).json({ error: 'Error retrieving closed forms' });
+    res.json(result);
+  });
+});
+
 app.get('/getForms', (_req, res) => {
   db.query('SELECT formID, customerUsername, customerName, employeeID, subject, priority, createdAt FROM SERVICE_FORMS ORDER BY createdAt DESC', (err, result) => {
     if (err) return res.status(500).json({ error: 'Error retrieving forms' });
