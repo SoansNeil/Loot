@@ -47,35 +47,14 @@
                                 <input type="text" id="bankName" name="bankName" required>
                             </div>
                             <div class="field-group">
+                                <label>Balance</label>
+                                <input type="number" id="currentBalance" name="currentBalance" min="0" step="0.01" required>
+                            </div>
+                            <div class="field-group">
                                 <label>Account Type</label>
                                 <div class="radio-group">
-                                    <label>
-                                        <input type="radio" name="accountType" value="Checking" required> Checking
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="accountType" value="Credit Card"> Credit Card
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="field-group">
-                                <label>Balance</label>
-                                <input type="number" id="currentBalance" name="currentBalance" min="0" required>
-                            </div>
-                            <div class="field-group">
-                                <label>Currency</label>
-                                <div class="radio-group">
-                                    <label>
-                                        <input type="radio" name="currency" value="USD" required> USD
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="currency" value="EUR"> EUR
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="currency" value="CAD"> CAD
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="currency" value="GBP"> GBP
-                                    </label>
+                                    <label><input type="radio" name="accountType" value="Checking" required> Checking</label>
+                                    <label><input type="radio" name="accountType" value="Credit Card"> Credit Card</label>
                                 </div>
                             </div>
                             <div class="field-group">
@@ -86,14 +65,25 @@
                                     <option>Pending</option>
                                 </select>
                             </div>
+                            <div class="field-group full-width">
+                                <label>Currency</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="currency" value="USD" required> USD</label>
+                                    <label><input type="radio" name="currency" value="EUR"> EUR</label>
+                                    <label><input type="radio" name="currency" value="CAD"> CAD</label>
+                                    <label><input type="radio" name="currency" value="GBP"> GBP</label>
+                                </div>
+                            </div>
                         </div>
                         <button type="submit" class="action-btn" style="margin-top: 1.2rem;">Add Account</button>
                     </form>
 
                     <div class="panel-divider">
-                        <div class="section-header">
+                        <div class="section-header" style="justify-content: space-between;">
                             <h3>Linked Accounts</h3>
+                            <button type="button" id="toggle-accounts-btn" onclick="toggleAccounts()" style="background:none;border:1px solid #ddd;border-radius:5px;padding:4px 12px;cursor:pointer;font-size:0.85rem;color:#666;transition:border-color 0.15s,color 0.15s;" onmouseover="this.style.borderColor='#75975e';this.style.color='#75975e'" onmouseout="this.style.borderColor='#ddd';this.style.color='#666'">Hide</button>
                         </div>
+                        <div id="accounts-list">
                         <table id="accounts-table" width="100%">
                             <thead>
                                 <tr>
@@ -108,6 +98,7 @@
                             </thead>
                             <tbody id="accounts-tbody"></tbody>
                         </table>
+                        </div>
                     </div>
 
                 </div>
@@ -126,6 +117,14 @@
     <script src="assets/js/nav.js"></script>
 
     <script>
+        function toggleAccounts() {
+            const list = document.getElementById('accounts-list');
+            const btn = document.getElementById('toggle-accounts-btn');
+            const isVisible = list.style.display !== 'none';
+            list.style.display = isVisible ? 'none' : 'block';
+            btn.textContent = isVisible ? 'Show' : 'Hide';
+        }
+
         async function loadAccounts() {
             const res = await fetch(`/getExternalAccountsJSON?subscriberID=${subscriberID}`);
             const accounts = await res.json();
