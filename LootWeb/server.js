@@ -201,6 +201,7 @@ app.get('/api/category-totals/:accountId', (req, res) => { //define route with a
     FROM CARD_TRANSACTION
     WHERE AccountID = ?
       AND TransactionType = 'Debit'
+      AND Status = 'Approved'
       AND MONTH(TransactionDate) = ?
       AND YEAR(TransactionDate) = ?
     GROUP BY Category
@@ -231,6 +232,7 @@ app.get('/api/category-transactions/:accountId/:category', (req, res) => { //def
     WHERE AccountID = ?
       AND Category = ?
       AND TransactionType = 'Debit'
+      AND Status = 'Approved'
       AND MONTH(TransactionDate) = ?
       AND YEAR(TransactionDate) = ?
     ORDER BY TransactionDate DESC
