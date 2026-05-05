@@ -1,15 +1,11 @@
 /* ═══════════════════════════════════════════════════════════
    mobile.css — Loot responsive overrides
-   Desktop-first: all rules are inside media queries so they
-   never affect large-screen layouts.
+   Desktop-first: nothing outside a media query touches the
+   desktop layout.  The hamburger button is the only element
+   declared outside a breakpoint, and it is hidden by default.
    ═══════════════════════════════════════════════════════════ */
 
-*, *::before, *::after { box-sizing: border-box; }
-
-/* Prevent any element from blowing out the page width */
-body { overflow-x: hidden; }
-
-/* ── Hamburger button: hidden on desktop ──────────────────── */
+/* ── Hamburger button: injected by mobile.js, hidden on desktop ── */
 .nav-toggle {
     display: none;
     position: absolute;
@@ -29,6 +25,10 @@ body { overflow-x: hidden; }
 
 /* ── Tablet + phone  (≤ 900 px) ──────────────────────────── */
 @media screen and (max-width: 900px) {
+
+    /* Prevent page from growing wider than the viewport */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { overflow-x: hidden; }
 
     /* Show hamburger */
     .nav-toggle { display: block; }
