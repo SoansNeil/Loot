@@ -8,8 +8,9 @@
 	<head>
 		<title>Family</title>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+	<link rel="stylesheet" href="assets/css/mobile.css" />
 	</head>
 	<body class="landing is-preload">
 		<div id="page-wrapper">
@@ -38,12 +39,19 @@
 			<!-- Main -->
 			   <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
 
-                <section class="family-section" style="text-align: center;">
-                    <h2> Users on your family plan</h2>
-                    <div id="FamAcc">
-                        
-                    </div>
-					
+                <!-- No family plan banner -->
+                <div id="noFamilyPlanBanner" style="display:none; background:#f0f5ec; border:1px solid #c5d9bb; border-radius:10px; padding:1.5rem; margin:1.5rem auto; max-width:480px;">
+                    <h3 style="color:#4a6741; margin-bottom:0.5rem;">You don't have a family plan yet</h3>
+                    <p style="color:#666; margin-bottom:1rem;">Create one to start adding family members and shared goals.</p>
+                    <button onclick="createFamilyPlan()" style="background:#4a6741;color:white;border:none;padding:10px 28px;border-radius:25px;cursor:pointer;font-weight:600;font-size:1rem;">
+                        Create Family Plan
+                    </button>
+                </div>
+
+                <section id="familyContent" class="family-section" style="text-align: center; display:none;">
+                    <h2>Users on your family plan</h2>
+                    <div id="FamAcc"></div>
+
 					 <div style="margin-top: 1.8rem;">
            			 <a href="#" id="toggleFamilyFormLink" style="color: #3a5e3a; font-weight: 600; text-decoration: underline; cursor: pointer;">Click here to add a family member to your plan</a>
        				 </div>
@@ -81,8 +89,8 @@
 				<br><br>
 
 
-				 <section>
-					
+				 <section id="goalsSection" style="display:none;">
+
 				<H2 style="text-align: center;">Family Goals</H2>
 				<div id="goalsDisplay" style="margin-bottom: 2rem;"></div>
 				<div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
@@ -123,7 +131,7 @@
     </div>
 			</div>
 			</div>
-			</section>
+			</section><!-- goalsSection -->
 			<Br></Br>
 			
 				<div id="accountsModal" class="modal">
@@ -160,23 +168,63 @@
                 }
             }
 
-			async function loadFamilyAccounts() {
-                        const subscriberID = new URLSearchParams(window.location.search).get('subscriberID');
-                        
-                        if (!subscriberID) {
-                            document.getElementById("FamAcc").innerHTML = '<div style="color: #999; text-align: center;">No subscriber ID found. Please log in again.</div>';
+			function showFamilyUI() {
+                    document.getElementById('noFamilyPlanBanner').style.display = 'none';
+                    document.getElementById('familyContent').style.display = 'block';
+                    document.getElementById('goalsSection').style.display = 'block';
+                }
+
+                function showNoPlanBanner() {
+                    document.getElementById('noFamilyPlanBanner').style.display = 'block';
+                    document.getElementById('familyContent').style.display = 'none';
+                    document.getElementById('goalsSection').style.display = 'none';
+                }
+
+                async function createFamilyPlan() {
+                    const subscriberID = new URLSearchParams(window.location.search).get('subscriberID');
+                    try {
+                        const res = await fetch('/joinFamilyPlan', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ subscriberID })
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            showFamilyUI();
+                            loadFamilyAccounts();
+                            loadFamilyGoals();
+                        } else {
+                            alert(result.message || 'Failed to create family plan.');
+                        }
+                    } catch (err) {
+                        alert('Error creating family plan: ' + err.message);
+                    }
+                }
+
+			    async function loadFamilyAccounts() {
+                    const subscriberID = new URLSearchParams(window.location.search).get('subscriberID');
+
+                    if (!subscriberID) {
+                        document.getElementById("FamAcc").innerHTML = '<div style="color: #999; text-align: center;">No subscriber ID found. Please log in again.</div>';
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
+                        const text = await res.text();
+
+                        if (text.trim() === 'NO_FAMILY_PLAN') {
+                            showNoPlanBanner();
                             return;
                         }
-                        
-                        try {
-                            const res = await fetch(`/displayFamAcc?subscriberID=${subscriberID}`, { method: 'POST' });
-                            const text = await res.text();
-                            document.getElementById("FamAcc").innerHTML = text;
-                        } catch (error) {
-                            document.getElementById("FamAcc").innerHTML = '<div style="color: red; text-align: center;">Error loading family accounts.</div>';
-                            console.error('Error:', error);
-                        }
+
+                        showFamilyUI();
+                        document.getElementById("FamAcc").innerHTML = text;
+                    } catch (error) {
+                        document.getElementById("FamAcc").innerHTML = '<div style="color: red; text-align: center;">Error loading family accounts.</div>';
+                        console.error('Error:', error);
                     }
+                }
 
                     loadFamilyAccounts();
 
@@ -658,6 +706,7 @@ window.addEventListener('DOMContentLoaded', () => {
 				<script src="assets/js/util.js"></script>
 				<script src="assets/js/main.js"></script>
 				<script src="assets/js/nav.js"></script>
+	<script src="assets/js/mobile.js"></script>
 			</body>
 			</html>
 
