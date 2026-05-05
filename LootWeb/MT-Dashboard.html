@@ -335,6 +335,12 @@
                 transferDate = document.getElementById('transferDate').value;
                 transferTime = document.getElementById('transferTime').value;
                 if (!transferDate || !transferTime) return alert('Please select both a date and time.');
+
+                const scheduled = new Date(`${transferDate}T${transferTime}`);
+                const minAllowed = new Date(Date.now() + 60 * 1000);
+                if (scheduled <= minAllowed) {
+                    return alert('Please select a time at least 1 minute in the future.');
+                }
             }
             goToStep(4);
         }

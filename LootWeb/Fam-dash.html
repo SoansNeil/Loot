@@ -533,9 +533,8 @@ async function displayExternalAccountsForContribution(goalId, goalName, goalTarg
         
         accountsDiv.innerHTML = accountsHtml;
         
-        // Insert after the button's container (the div with text-align: right)
         const buttonContainer = buttonElement.parentElement;
-        buttonContainer.appendChild(accountsDiv);
+        buttonContainer.insertAdjacentElement('afterend', accountsDiv);
         
     } catch (error) {
         console.error('Error fetching accounts:', error);

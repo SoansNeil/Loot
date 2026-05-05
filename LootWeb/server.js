@@ -561,6 +561,10 @@ app.post('/api/transfer', (req, res) => {
     if (!transferDate || !transferTime) {
       return res.status(400).json({ success: false, message: 'Please select a date and time' });
     }
+    const scheduled = new Date(`${transferDate}T${transferTime}`);
+    if (isNaN(scheduled.getTime()) || scheduled <= new Date()) {
+      return res.status(400).json({ success: false, message: 'Scheduled time must be in the future' });
+    }
     const sql = `INSERT INTO scheduled_transfers (amount, from_account, to_account, schedule_type, transfer_date, transfer_time, status) VALUES (?, ?, ?, 'later', ?, ?, 'pending')`;
     db.query(sql, [amount, fromAccount, toAccount, transferDate, transferTime], (err) => {
       if (err) return res.status(500).json({ success: false, message: 'Error scheduling transfer' });
